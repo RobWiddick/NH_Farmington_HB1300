@@ -12,7 +12,7 @@ const dots = Array.from({ length: 100 }, (_, i) => i < yes);
     <circle
       cx={10 + (i % 10) * 20}
       cy={10 + Math.floor(i / 10) * 20}
-      r="7.2"
+      r="6.6"
       class={isYes ? 'yes' : 'no'}
     />
   ))}
@@ -27,6 +27,8 @@ const dots = Array.from({ length: 100 }, (_, i) => i < yes);
     fill: var(--chart-a);
   }
   .no {
-    fill: var(--chart-b);
+    fill: none;
+    stroke: var(--chart-b);
+    stroke-width: 2.5;
   }
 </style>

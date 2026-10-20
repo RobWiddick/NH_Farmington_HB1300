@@ -20,14 +20,19 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#14325c" />
+    <meta name="theme-color" content="#14325c" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1420" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.shortTitle} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="It’s called a tax cap. It’s also a cap on Farmington’s schools. Ballot Question 2, Nov. 3, 2026." />
     <meta name="twitter:card" content="summary_large_image" />
     <Analytics />
   </head>

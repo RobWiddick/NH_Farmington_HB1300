@@ -67,13 +67,6 @@ export const sources = defineSources({
     date: 'May 27, 2026',
     kind: 'law',
   },
-  'rsa-32-5-b': {
-    short: 'RSA 32:5-b',
-    title: 'RSA 32:5-b, existing local tax caps (adjusts for population or enrollment)',
-    publisher: 'New Hampshire General Court',
-    url: 'https://gc.nh.gov/rsa/html/III/32/32-5-b.htm',
-    kind: 'law',
-  },
 
   // ---------- Government data ----------
   'census-f33-2016': {
@@ -206,7 +199,7 @@ export const sources = defineSources({
     kind: 'local',
   },
   'sdganh-scores': {
-    short: 'NH test results data',
+    short: 'SDGA-NH data',
     title: 'NH State Proficiency / Achievement Results, 2009–2026 (compiled from NH Department of Education data)',
     publisher: 'School District Governance Association of NH',
     url: 'https://docs.google.com/spreadsheets/d/1p02O-ZDE4d9UYmO1NvfHr3ZY97DU4BDD1uQ1AHx7LR4/edit?gid=1166254865#gid=1166254865',
@@ -297,6 +290,23 @@ export const sources = defineSources({
     publisher: 'FSDTV 25, Farmington School District (YouTube)',
     url: 'https://www.youtube.com/watch?v=qcF6xnfGMWc&t=2241s',
     date: 'Oct. 19, 2026',
+    kind: 'local',
+  },
+
+  'school-board-video-0914': {
+    short: 'School Board video',
+    title: '9-14-26 Farmington NH School Board Meeting (HB 1300 discussion begins at 32:43)',
+    publisher: 'FSDTV 25, Farmington School District (YouTube)',
+    url: 'https://www.youtube.com/watch?v=BAhpgsBuxBU&t=2114s',
+    date: 'Sept. 14, 2026',
+    kind: 'local',
+  },
+  'farmington-ballot-2026': {
+    short: '2026 school ballot',
+    title: 'Farmington School District sample ballot, March 10, 2026 (Article 3 operating budget: $19,376,646.01)',
+    publisher: 'Town of Farmington, NH',
+    url: 'https://www.farmington.nh.us/DocumentCenter/View/2884',
+    date: 'March 2026',
     kind: 'local',
   },
 
@@ -439,7 +449,7 @@ export const sources = defineSources({
     kind: 'news',
   },
   'sped-gap': {
-    short: 'Concord Monitor',
+    short: 'Valley News (Monitor story)',
     title: 'NH boosts special education aid, but 10% gap remains for schools',
     publisher: 'Concord Monitor (Jeremy Margolis), via Valley News',
     url: 'https://vnews.com/2025/10/17/state-special-ed-funding-gap/',
@@ -561,11 +571,19 @@ export const sources = defineSources({
     date: 'June 2026',
     kind: 'research',
   },
+  'sorensen-2021': {
+    short: 'Sorensen, Kim & Hwang (2021)',
+    title: 'The distributional effects of property tax constraints on school districts. National Tax Journal 74(3)',
+    publisher: 'Lucy Sorensen, Yuhan Kim & Moontae Hwang',
+    url: 'https://doi.org/10.1086/716231',
+    date: '2021',
+    kind: 'research',
+  },
   'unh-poll': {
     short: 'UNH poll',
     title: 'Granite State Poll: HB 1300 school tax cap question',
     publisher: 'UNH Survey Center',
-    url: 'https://scholars.unh.edu/survey_center_polls/1005/',
+    url: 'https://scholars.unh.edu/cgi/viewcontent.cgi?article=2004&context=survey_center_polls',
     date: 'Sept. 24, 2026',
     kind: 'research',
   },
@@ -588,14 +606,6 @@ export const sources = defineSources({
     kind: 'advocacy-con',
     note: 'Nonpartisan policy research group; figures are from the U.S. Census Bureau and NH Department of Revenue Administration',
   },
-  'aftnh-testimony': {
-    short: 'AFT-NH',
-    title: 'Testimony in opposition to HB 1300',
-    publisher: 'AFT-New Hampshire (teachers union)',
-    url: 'https://nh.aft.org/state-house-news/aft-nh-testimony-opposition-hb-1300',
-    date: '2026',
-    kind: 'advocacy-con',
-  },
   'jbc-spending': {
     short: 'Josiah Bartlett Center',
     title: 'Per-pupil spending in NH nearly doubles from 2001-2024 as district public schools spend $1.25 billion more on 54,000 fewer students',
@@ -610,6 +620,14 @@ export const sources = defineSources({
     publisher: 'Josiah Bartlett Center for Public Policy (Andrew Cline)',
     url: 'https://jbartlett.org/2026/07/capping-school-district-budget-growth-and-property-taxes-the-massachusetts-way/',
     date: 'July 29, 2026',
+    kind: 'advocacy-pro',
+  },
+  'jbc-firstchance': {
+    short: 'Josiah Bartlett Center',
+    title: 'New Hampshire’s first statewide chance to cap property tax growth comes in November',
+    publisher: 'Josiah Bartlett Center for Public Policy (Andrew Cline)',
+    url: 'https://jbartlett.org/2026/09/new-hampshires-first-statewide-chance-to-cap-property-tax-growth-comes-in-november/',
+    date: 'Sept. 18, 2026',
     kind: 'advocacy-pro',
   },
   'housegop-signing': {

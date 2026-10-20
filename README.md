@@ -51,7 +51,7 @@ GA4 (measurement ID set in `src/data/site.ts` → `ga4Id`; set it to `''` to tur
 | `share` | Someone uses a share link | `section_id`, `method`, `content_type`, `item_id` |
 | `nav_click` | Someone uses a jump link to a section | `section_id`, `link_text`, `target_section` |
 
-Section IDs, in page order: `top`, `quick`, `ballot`, `math`, `farmington`, `sixty`, `nearby`, `other-side`, `unknowns`, `vote`, `faq`, `sources`.
+Section IDs, in page order: `top`, `quick`, `farmington`, `ballot`, `sixty`, `other-side`, `vote` (end of the short version), then `math`, `nearby`, `unknowns`, `faq`, `sources`.
 
 **One-time GA4 setup so these show up in reports** (Admin → Data display → Custom definitions → Create custom dimension, scope *Event*): `section_id`, `section_title`, `source_label`, `faq_question`, `target_section`. Optionally add a custom metric for `section_index`. Then build an Explore → Free form report with *Event name* and *section_id* as rows and *Event count* / *Total users* as values to see how far people get and what they read. Comparing `section_view` with `section_read` per section shows where people stop and read and where they skim.
 
@@ -86,6 +86,8 @@ To use a custom domain, add it in Cloudflare → Workers & Pages → your projec
 
 ## Before launch checklist
 
-- [ ] Fill in the "Paid for by" disclosure in `src/data/site.ts` (NH RSA 664:14 generally requires political advertising about a ballot measure to identify who paid for it — confirm what applies to you).
-- [ ] Re-check items marked *needs confirmation* in `src/data/figures.ts` against the original downloads.
+- [ ] Fill in the "Paid for by" disclosure in `src/data/site.ts` (NH RSA 664:14 generally requires political advertising about a ballot measure to identify who paid for it — confirm what applies to you). Make sure no school district time, money or equipment is used for the site.
+- [ ] Set `publisher` (shown in the hero as "We're …") and `contactEmail` (the footer's "Tell us" link) in `src/data/site.ts`.
+- [ ] The district's Oct. 19, 2026 figures ($377,523 / $738,287 / ~$360,000, 5.73%) are preliminary estimates from its presentation; update them if the district publishes revised numbers or its handouts.
 - [ ] Update `lastUpdated` in `src/data/site.ts`.
+- [ ] Set the `SITE_URL` repository variable if you use a custom domain.

@@ -21,8 +21,11 @@ export const scores: { year: number; math: [number, number]; ela: [number, numbe
 // ("Net Required Local Education Tax Effort" on the state-approved tax rate
 // sheet in each Town Report). Tax year Y pays for the school year starting
 // July of year Y (e.g. the 2022 levy appears as the "school district
-// assessment" in the FY2023 audit).
+// assessment" in the FY2023 audit). The 2016 figure is approximate: the 2016
+// local school rate ($13.31, 2017 Town Report) times 2016 total assessed value
+// ($444,256,146); Census reports $5,915K in FY2017 property tax revenue.
 export const levy: { year: number; amount: number; source: string }[] = [
+  { year: 2016, amount: 5_913_049, source: 'town-report-2017' },
   { year: 2017, amount: 7_074_095, source: 'town-report-2017' },
   { year: 2018, amount: 6_146_065, source: 'town-report-2018' },
   { year: 2019, amount: 6_615_489, source: 'town-report-2019' },
@@ -34,29 +37,34 @@ export const levy: { year: number; amount: number; source: string }[] = [
   { year: 2025, amount: 7_873_518, source: 'town-report-2025' },
 ];
 
-// HB 1300's inflation figure: 12-month change in the Northeast CPI-U
-// (CUUR0100SA0, not seasonally adjusted) for March of the prior fiscal year.
-// For a levy that pays for the school year starting July of year Y, that is
-// March of year Y. Index values: Mar 2017 258.510, 2018 263.556, 2019 268.025,
-// 2020 272.531, 2021 278.197, 2022 298.403, 2023 311.243, 2024 321.741,
-// 2025 332.049, 2026 344.142.
-export const capInflation: Record<number, number> = {
-  2018: 1.95,
-  2019: 1.7,
-  2020: 1.68,
-  2021: 2.08,
-  2022: 7.26,
-  2023: 4.3,
-  2024: 3.37,
-  2025: 3.2,
-  2026: 3.64,
+// Northeast CPI-U (CUUR0100SA0, not seasonally adjusted), March index values.
+export const marchCpiNortheast: Record<number, number> = {
+  2016: 252.854,
+  2017: 258.51,
+  2018: 263.556,
+  2019: 268.025,
+  2020: 272.531,
+  2021: 278.197,
+  2022: 298.403,
+  2023: 311.243,
+  2024: 321.741,
+  2025: 332.049,
+  2026: 344.142,
 };
 
-// Most the "new construction" allowance could have added each year: the growth
-// in Farmington's total assessed value (education tax base on the same tax
-// rate sheets) in years without a town-wide revaluation. In the revaluation
-// years (2019, 2024) the true figure is unknown, so we assume a generous 3%.
+// HB 1300's inflation figure: the 12-month change in that index "for the month
+// of March in the prior fiscal year." For a levy that pays for the school year
+// starting July of year Y, that is the 12 months ending March of year Y.
+export const capInflation = (year: number) => (marchCpiNortheast[year] / marchCpiNortheast[year - 1] - 1) * 100;
+
+// Estimate of what "new construction" could have added each year: the growth in
+// Farmington's total assessed value on the same tax rate sheets in years without
+// a town-wide revaluation. (Net value change isn't a hard ceiling: in 2020,
+// non-utility value fell slightly after the 2019 revaluation.) In the
+// revaluation years (2019, 2024) the true figure is unknown, so we assume a
+// generous 3%.
 export const constructionAllowance: Record<number, { pct: number; estimated: boolean }> = {
+  2017: { pct: 0.93, estimated: false }, // $444,256,146 -> $448,412,073
   2018: { pct: 0.03, estimated: false }, // $448,412,073 -> $448,546,993
   2019: { pct: 3, estimated: true }, // revaluation year
   2020: { pct: 0.05, estimated: false }, // $556,874,665 -> $557,174,859
@@ -67,12 +75,22 @@ export const constructionAllowance: Record<number, { pct: number; estimated: boo
   2025: { pct: 0.93, estimated: false }, // $1,032,071,890 -> $1,041,710,729
 };
 
+// "close" = over the estimate by less than 1 point, i.e. within what a larger
+// new-construction allowance could plausibly cover.
 export const levyYearChanges = levy.slice(1).map((row, i) => {
   const prev = levy[i];
   const change = (row.amount / prev.amount - 1) * 100;
-  const cap = capInflation[row.year];
+  const cap = capInflation(row.year);
   const allowance = constructionAllowance[row.year];
-  return { year: row.year, change, cap, over: change > cap + allowance.pct, revaluation: allowance.estimated };
+  const margin = change - (cap + allowance.pct);
+  return {
+    year: row.year,
+    change,
+    cap,
+    over: margin > 1,
+    close: margin > 0 && margin <= 1,
+    revaluation: allowance.estimated,
+  };
 });
 
 // Health insurance increase added to the 2026-27 default budget at the

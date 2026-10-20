@@ -15,15 +15,17 @@ const bar = (v: number) => {
   return `left:${left.toFixed(2)}%;width:${width.toFixed(2)}%`;
 };
 const over = (r: { over: boolean }) => r.over;
+const close = (r: { close: boolean }) => r.close;
 ---
 <figure class="levy-chart">
   <div class="legend" aria-hidden="true">
     <span>Farmington’s school tax levy, change from the year before</span>
     <span class="b">Inflation figure the cap would have allowed</span>
+    <span class="c">Years the levy grew faster than the cap would have allowed</span>
   </div>
   <ol class="levy-rows" role="list">
     {rows.map((r) => (
-      <li class={over(r) ? 'is-over' : ''}>
+      <li class={over(r) ? 'is-over' : close(r) ? 'is-close' : ''}>
         <span class="yr">{r.year}</span>
         <span class="tracks" aria-hidden="true">
           <span class="zero" style={`left:${zero.toFixed(2)}%`} />
@@ -31,9 +33,10 @@ const over = (r: { over: boolean }) => r.over;
           <span class="b2" style={bar(r.cap)} />
         </span>
         <span class="vals">
-          <span class="sr-only">{r.year}: levy changed {pct(r.change)}; the cap’s inflation figure was {pct(r.cap)}{over(r) ? '; over the cap' : ''}.</span>
+          <span class="sr-only">{r.year}: levy changed {pct(r.change)}; the cap’s inflation figure was {pct(r.cap)}{over(r) ? '; over the cap' : close(r) ? '; narrowly over the cap' : ''}.</span>
           <span aria-hidden="true"><b>{pct(r.change)}</b> vs {pct(r.cap)}</span>
           {over(r) && <span class="flag" aria-hidden="true">Over</span>}
+          {close(r) && <span class="flag close" aria-hidden="true">Close</span>}
         </span>
       </li>
     ))}
@@ -50,7 +53,7 @@ const over = (r: { over: boolean }) => r.over;
   }
   .levy-rows li {
     display: grid;
-    grid-template-columns: 2.9rem minmax(0, 1fr) 8.6rem;
+    grid-template-columns: 2.9rem minmax(0, 1fr) minmax(8.6rem, max-content);
     align-items: center;
     gap: 0.6rem;
     margin: 0;
@@ -83,8 +86,12 @@ const over = (r: { over: boolean }) => r.over;
     top: 0.16rem;
     background: var(--chart-a);
   }
-  .is-over .b1 {
+  .is-over .b1,
+  .is-close .b1 {
     background: var(--chart-c);
+  }
+  .is-close .b1 {
+    opacity: 0.6;
   }
   .b2 {
     bottom: 0.16rem;
@@ -109,9 +116,12 @@ const over = (r: { over: boolean }) => r.over;
     border-radius: 4px;
     padding: 0.18rem 0.3rem;
   }
+  .flag.close {
+    border-style: dashed;
+  }
   @media (max-width: 420px) {
     .levy-rows li {
-      grid-template-columns: 2.6rem minmax(0, 1fr) 7.4rem;
+      grid-template-columns: 2.6rem minmax(0, 1fr) minmax(7.4rem, max-content);
       gap: 0.4rem;
       font-size: 0.85rem;
     }

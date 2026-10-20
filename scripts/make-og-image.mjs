@@ -27,7 +27,7 @@ const html = `<!doctype html><html><head><style>
   .pill{background:#14325c;color:#fff;border-radius:999px;padding:14px 26px;font-weight:700;white-space:nowrap;margin-left:24px}
 </style></head><body><div class="bar"></div><div class="c">
   <div class="k">Farmington, NH · <b>Ballot Question 2</b> · Nov. 3, 2026</div>
-  <h1>It’s called a tax cap. It’s really a <em>cap on Farmington’s schools.</em></h1>
+  <h1>It’s called a tax cap. It’s also a <em>cap on Farmington’s schools.</em></h1>
   <div class="f"><span>What HB 1300 does — in plain English, with sources.</span><span class="pill">Read before you vote</span></div>
 </div></body></html>`;
 

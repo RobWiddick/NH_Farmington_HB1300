@@ -1,9 +1,12 @@
 // Site-wide settings. Edit these before launch.
 export const site = {
-  title: 'Question 2 & Farmington Schools',
+  title: 'Question 2 & Farmington Schools: NH HB 1300 tax cap',
+  // Who publishes the site, e.g. 'Farmington Friends of Public Schools'. Shown in
+  // the hero ("We're …"). Leave '' to hide.
+  publisher: '',
   shortTitle: 'Farmington: Question 2',
   description:
-    'A plain-language, fully sourced look at NH House Bill 1300 — the school tax cap question on the November 3, 2026 ballot — and what it would mean for Farmington schools.',
+    'Why we recommend No on Question 2: a plain-English, fully sourced look at the HB 1300 school tax cap and what it would mean for Farmington schools.',
   electionDate: 'Tuesday, November 3, 2026',
   electionDateShort: 'Vote Tuesday, Nov. 3',
   lastUpdated: 'October 20, 2026',
