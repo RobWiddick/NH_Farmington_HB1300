@@ -20,7 +20,7 @@ npm test         # production build + outside-link check
 | Page copy and section order | `src/pages/index.astro` |
 | Every source (title, publisher, URL, date) | `src/data/sources.ts` |
 | Numbers used in charts and tables | `src/data/figures.ts` |
-| Site title, "paid for by" line, last-updated date, GA4 ID | `src/data/site.ts` |
+| Site title, optional "paid for by" line, last-updated date, GA4 ID | `src/data/site.ts` |
 | Analytics events | `src/scripts/analytics.ts` |
 | Styles | `src/styles/global.css` |
 
@@ -86,7 +86,7 @@ To use a custom domain, add it in Cloudflare → Workers & Pages → your projec
 
 ## Before launch checklist
 
-- [ ] Fill in the "Paid for by" disclosure in `src/data/site.ts` (NH RSA 664:14 generally requires political advertising about a ballot measure to identify who paid for it — confirm what applies to you). Make sure no school district time, money or equipment is used for the site.
+- [ ] The "Paid for by" footer line is off (`disclosure: ''` in `src/data/site.ts`), relying on RSA 664:14, V's exemption for "a lone individual who independently authors, produces, and distributes political advertising." Turn it back on if a committee, organization or other people take over producing or distributing the site. Keep school district time, money and equipment out of it.
 - [ ] Set `publisher` (shown in the hero as "We're …") and `contactEmail` (the footer's "Tell us" link) in `src/data/site.ts`.
 - [ ] The district's Oct. 19, 2026 figures ($377,523 / $738,287 / ~$360,000, 5.73%) are preliminary estimates from its presentation; update them if the district publishes revised numbers or its handouts.
 - [ ] Update `lastUpdated` in `src/data/site.ts`.

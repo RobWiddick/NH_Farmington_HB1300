@@ -10,10 +10,11 @@ export const site = {
   electionDate: 'Tuesday, November 3, 2026',
   electionDateShort: 'Vote Tuesday, Nov. 3',
   lastUpdated: 'October 20, 2026',
-  // New Hampshire law (RSA 664:14) generally requires political advertising
-  // about a ballot measure to name who paid for it. Fill this in before
-  // launch, or confirm with the Secretary of State that it is not required.
-  disclosure: 'Paid for by [NAME], [STREET ADDRESS], Farmington, NH 03835.',
+  // Optional "Paid for by" line shown in the footer. Left empty: RSA 664:14, V
+  // exempts "a lone individual who independently authors, produces, and
+  // distributes political advertising." Fill this in if that stops being true
+  // (e.g. a committee or organization takes over the site).
+  disclosure: '',
   contactEmail: '',
   // Google Analytics 4 measurement ID. Set to '' to turn analytics off.
   ga4Id: 'G-HDL10H5ND4',

@@ -952,7 +952,7 @@ const ballotText = {
 
   <footer class="site-footer" slot="footer">
     <div class="wrap">
-      <p class="disclosure">{site.disclosure}</p>
+      {site.disclosure && <p class="disclosure">{site.disclosure}</p>}
       <p>
         Last updated {site.lastUpdated}. Spotted an error?
         {site.contactEmail ? <a href={`mailto:${site.contactEmail}`}>Tell us</a> : 'Tell us'} and we’ll fix it.
