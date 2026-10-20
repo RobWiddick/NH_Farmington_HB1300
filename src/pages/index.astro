@@ -4,8 +4,13 @@ import Cite from '../components/Cite.astro';
 import DotGrid from '../components/DotGrid.astro';
 import SourceList from '../components/SourceList.astro';
 import ShareRow from '../components/ShareRow.astro';
+import LevyChart from '../components/LevyChart.astro';
+import BarCompare from '../components/BarCompare.astro';
 import { site } from '../data/site';
 import { scores } from '../data/figures';
+
+// Deep links into the Oct. 19, 2026 Farmington School Board video.
+const vid = (seconds: number) => `https://www.youtube.com/watch?v=qcF6xnfGMWc&t=${seconds}s`;
 
 const ballotText = {
   before:
@@ -54,11 +59,11 @@ const ballotText = {
         <dl>
           <div><dt>2</dt><dd>caps in one yes-or-no question: one on the school tax levy, one on administration</dd></div>
           <div><dt>60%</dt><dd>“yes” needed to adopt the cap, and again every time a budget needs to go over it</dd></div>
-          <div><dt>3.6%</dt><dd>Northeast inflation, March 2025 to March 2026. The cap lets the school levy grow by a figure like this, plus new construction</dd></div>
-          <div><dt>0</dt><dd>adjustments for enrollment, special education, health insurance, or lost state aid</dd></div>
+          <div><dt>$360K</dt><dd>first-year gap Farmington’s school leaders project, before special ed, fuel and transportation</dd></div>
+          <div><dt>5.73%</dt><dd>Farmington’s central-office share, already under the 6% limit. The levy cap is what bites.</dd></div>
         </dl>
         <p class="small muted" style="margin:0">
-          <Cite id="rsa-32-5-i" label="The law" /> <Cite id="bls-cpi-ne" />
+          <Cite id="rsa-32-5-i" label="The law" /> <Cite id="school-board-video" href={vid(2772)} label="School Board, Oct. 19" />
         </p>
       </aside>
     </div>
@@ -96,8 +101,11 @@ const ballotText = {
         </li>
         <li>
           <p>
-            <strong>Farmington’s school spending has not kept up with inflation.</strong> PLACEHOLDER — verified
-            spending-vs-inflation figures go here.
+            <strong>Farmington’s own estimate: a $360,000 gap in year one.</strong> District leaders estimate the cap
+            would allow about $377,500 more for the 2027–28 budget, while known increases in contracts and health
+            insurance alone total about $738,300. That’s before special education, fuel and transportation.
+            <Cite id="school-board-video" href={vid(2772)} label="School Board video" />
+            <a href="#farmington">See the Farmington numbers</a>
           </p>
         </li>
         <li>
@@ -312,11 +320,134 @@ const ballotText = {
   <!-- ===================== FARMINGTON ===================== -->
   <section id="farmington">
     <div class="wrap">
-      <p class="kicker">Farmington’s record</p>
-      <h2>Farmington already does more with less</h2>
+      <p class="kicker">What it means for Farmington</p>
+      <h2>Farmington isn’t a runaway budget. The cap would still bite.</h2>
+      <p class="lede">
+        Farmington’s own school leaders project a $360,000 shortfall in the first year under the cap. That’s in a town
+        whose school taxes have grown far more slowly than prices, and whose voters already decide every budget.
+      </p>
+
+      <div class="callout bad district-estimate">
+        <h3>Farmington’s own estimate: a $360,000 gap in year one</h3>
+        <p>
+          At the October 19 School Board meeting, district leaders walked through what the cap would mean for the
+          2027–28 budget, the first one it would cover. Assuming 3% inflation and little new construction, they estimate
+          the cap would allow about <strong>$377,500</strong> more. <Cite id="school-board-video" href={vid(2717)} label="Video, 45:17" />
+        </p>
+        <BarCompare
+          label="Farmington School District estimate for 2027-28"
+          rows={[
+            { label: 'What the cap would allow', value: 377523, display: '$377,523', tone: 'b' },
+            { label: 'Known increases: contracts, health insurance (+19%), dental', value: 738287, display: '$738,287', tone: 'c' },
+          ]}
+        />
+        <p style="margin-top:1rem">
+          That leaves a gap of about <strong>$360,000</strong>, and it doesn’t yet count special education,
+          out-of-district placements, utilities, fuel or transportation.
+          <Cite id="school-board-video" href={vid(2772)} label="Video, 46:12" /> <Cite id="school-board-video" href={vid(2960)} label="49:20" />
+          Their conclusion: it’s “pretty safe to say should this tax cap be put into place … that we’ll fall short.”
+          <Cite id="school-board-video" href={vid(3754)} label="1:02:34" />
+        </p>
+        <p class="small">
+          These are the district’s estimates, not final budgets. The gap depends on the inflation figure: if it comes in
+          higher than 3%, the cap allows more and the gap shrinks.
+        </p>
+      </div>
+
       <div class="prose">
-        <p class="lede">PLACEHOLDER — verified spending vs. inflation.</p>
+        <h3>Already stretched</h3>
+        <p>
+          District leaders said Farmington has lost about 11 full-time positions over the last couple of years that
+          weren’t replaced. The high school has no music teacher of its own, and one librarian covers two schools.
+          <Cite id="school-board-video" href={vid(3920)} label="Video, 1:05:20" /> For this school year, the district
+          had to add $700,000 to its fallback budget just for rising health insurance costs.
+          <Cite id="farmington-ar-2026" label="Deliberative session minutes" />
+        </p>
+        <p>
+          Cuts can’t come from special education, because each student’s plan (IEP) “is a legal document and what is
+          promised in that document has to be delivered.” So reductions would fall on regular education.
+          <Cite id="school-board-video" href={vid(4161)} label="Video, 1:09:21" />
+        </p>
+        <p>
+          <strong>The “administration” half wouldn’t change anything here.</strong> Farmington’s central office already
+          costs about 5.73% of the budget, under the 6% limit. The tax levy cap is the part that would bite.
+          <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
+        </p>
+      </div>
+
+      <div class="grid three" style="margin-top:1.5rem">
+        <div class="card">
+          <h3>Growing slower than prices</h3>
+          <p>
+            From 2016 to 2024, Farmington’s day-to-day school spending rose about 10%, while consumer prices rose about
+            31%. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="bls-cpi-us" /> Enrollment fell
+            by nearly a quarter, so spending per student rose 43%, less than the statewide 50%. Farmington now spends
+            about the state average per student.
+            <Cite id="census-f33-2016-states" /> <Cite id="census-f33-2024-states" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Voters already decide</h3>
+          <p>
+            Farmington votes on its school budget by ballot every March. In 2026, voters turned down the proposed
+            budget 239–337, so a smaller fallback (“default”) budget took effect.
+            <Cite id="farmington-special-warrant-2026" /> <Cite id="farmington-results-2026" /> In 2025, they rejected a petitioned school tax cap, 185–228.
+            <Cite id="farmington-results-2025" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Less to draw on</h3>
+          <p>
+            Farmington’s median household income is $66,943, compared with $99,031 statewide.
+            <Cite id="acs-income-farmington" /> <Cite id="acs-income-nh" /> About 4 in 10 Farmington students qualify
+            for free or reduced-price lunch, compared with about 1 in 4 statewide.
+            <Cite id="nces-lunch-farmington" /> <Cite id="nces-lunch-nh" /> The state puts Farmington in its top school
+            building aid tier, reserved for “less affluent communities.” <Cite id="nhed-building-aid" />
+          </p>
+        </div>
+      </div>
+
+      <div class="prose">
+        <h3>Even slow growth would hit the cap</h3>
+        <p>
+          From 2017 to 2025, Farmington’s school tax levy grew 11%, while Northeast prices rose 28%. But the levy goes up
+          and down from year to year. Under HB 1300, each year’s limit starts from the year before, so a down year becomes
+          the new ceiling. In 4 of those 8 years, the levy rose more than the cap would have allowed.
+        </p>
+      </div>
+      <LevyChart>
+        <figcaption>
+          Red bars mark years the levy grew faster than the cap’s inflation figure plus the most that new construction
+          could have added. Levy: state-approved tax rate sheets in Farmington’s town reports
+          <Cite id="town-report-2017" /> <Cite id="town-report-2018" /> <Cite id="town-report-2019" />
+          <Cite id="town-report-2020" /> <Cite id="town-report-2021" /> <Cite id="town-report-2022" />
+          <Cite id="town-report-2023" /> <Cite id="town-report-2024" /> <Cite id="town-report-2025" label="2025" />.
+          Inflation: <Cite id="bls-cpi-ne" />.
+        </figcaption>
+      </LevyChart>
+      <div class="prose">
+        <details>
+          <summary>How we figured this</summary>
+          <p>
+            We compared each year’s change in Farmington’s “local education” tax levy with the 12-month change in the
+            Northeast consumer price index for March of the year before the school year it paid for, as HB 1300
+            specifies. We then added the most that “new construction” could have contributed: the growth in Farmington’s
+            total taxable value, which was under 1% in every year without a town-wide revaluation. For the two
+            revaluation years (2019 and 2024), we generously assumed 3%; both years were still over. Farmington’s
+            school district has no bond payments, so HB 1300’s exclusion for building debt doesn’t change the result.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
+          </p>
+        </details>
+
+      </div>
+
+      <div class="prose">
         <h3>Farmington already knows what a tight year looks like</h3>
+        <p>
+          Farmington’s school finances have had real problems, and it’s fair to say so. The district’s 2023 audit came
+          back without an opinion because “inadequate or no documentation exists to support material account balances
+          and transactions.” <Cite id="farmington-audit-2023" />
+        </p>
         <p>
           In 2025–26 the school district ran short of money. The board chair said problems in the business office, which
           has since been reorganized, were “coupled with unanticipated healthcare bills.” The district froze spending
@@ -324,8 +455,8 @@ const ballotText = {
           <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" />
         </p>
         <p>
-          A tax cap didn’t cause that shortfall. But under a cap, rebuilding afterward would take a 60% vote for any
-          budget above the limit.
+          A tax cap didn’t cause that shortfall, and a cap won’t fix bookkeeping. But under a cap, rebuilding afterward
+          would take a 60% vote for any budget above the limit.
         </p>
 
         <h3>Students had been gaining ground</h3>
@@ -377,12 +508,9 @@ const ballotText = {
         </details>
 
         <p style="margin-top:1.5rem">
-          Farmington also starts with less to work with. The state puts Farmington in its top tier for school building
-          aid, a 60% rate it reserves for “less affluent communities.” <Cite id="nhed-building-aid" />
-        </p>
-        <p>
-          Hear it from the people who build the budget: the Farmington School Board discussed HB 1300 at its October 19
-          meeting. <Cite id="school-board-video" label="Watch the presentation (about 36 minutes in)" />
+          Hear it from the people who build the budget: the Farmington School Board’s October 19 presentation on HB 1300
+          runs about 35 minutes, with questions from residents.
+          <Cite id="school-board-video" label="Watch from 37:21" />
         </p>
       </div>
     </div>
@@ -535,8 +663,10 @@ const ballotText = {
                 <Cite id="keene-innis" />
               </td>
               <td data-label="Worth weighing">
-                Research on tax caps in other states found the cuts fell on instruction at least as much as on
-                administration. <Cite id="figlio-1997" /> <Cite id="figlio-1998" />
+                Farmington’s central office already runs under 6%, so that part changes nothing here.
+                <Cite id="school-board-video" href={vid(3749)} label="School Board video" /> And research on tax caps in
+                other states found the cuts fell on instruction at least as much as on administration.
+                <Cite id="figlio-1997" /> <Cite id="figlio-1998" />
               </td>
             </tr>
             <tr>
@@ -685,6 +815,13 @@ const ballotText = {
             Not right away. HB 1300 has no option to repeal a cap early. The question comes back in November 2028, and
             the law itself ends January 1, 2032.
             <Cite id="nhb-howitworks" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, XVII" />
+          </p>
+        </details>
+        <details>
+          <summary>Would the 6% administration cap save Farmington money?</summary>
+          <p>
+            Probably not. District leaders say Farmington’s central office costs about 5.73% of the budget, already under
+            the 6% limit. <Cite id="school-board-video" href={vid(3749)} label="School Board video, 1:02:29" />
           </p>
         </details>
         <details>
