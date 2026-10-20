@@ -84,6 +84,14 @@ export const sources = defineSources({
     kind: 'data',
   },
 
+  'nhrs-rates': {
+    short: 'NHRS',
+    title: 'Employer contribution rates (teachers: 19.23% for 2025–27, 18.26% for 2027–29)',
+    publisher: 'New Hampshire Retirement System',
+    url: 'https://www.nhrs.org/employers/employer-contribution-rates',
+    kind: 'data',
+  },
+
   // ---------- Courts ----------
   'bates-complaint': {
     short: 'Lawsuit filing',
@@ -262,6 +270,30 @@ export const sources = defineSources({
     publisher: 'Concord Monitor (Emilia Wisniewski)',
     url: 'https://www.concordmonitor.com/2026/06/04/franklin-school-budget-cuts-programs-staff/',
     date: 'June 4, 2026',
+    kind: 'news',
+  },
+  'vnews-health': {
+    short: 'Valley News',
+    title: 'Double-digit health insurance rate hikes hit Upper Valley schools',
+    publisher: 'Valley News (Liz Sauchelli)',
+    url: 'https://vnews.com/2025/11/20/new-hampshire-school-insurance-costs-rise/',
+    date: 'Nov. 20, 2025',
+    kind: 'news',
+  },
+  'nhb-sped': {
+    short: 'NH Bulletin',
+    title: 'New Hampshire’s new special education aid formula, explained',
+    publisher: 'New Hampshire Bulletin (Ethan DeWitt)',
+    url: 'https://newhampshirebulletin.com/2026/07/10/new-hampshires-new-special-education-aid-formula-explained/',
+    date: 'July 10, 2026',
+    kind: 'news',
+  },
+  'sped-gap': {
+    short: 'Concord Monitor',
+    title: 'NH boosts special education aid, but 10% gap remains for schools',
+    publisher: 'Concord Monitor (Jeremy Margolis), via Valley News',
+    url: 'https://vnews.com/2025/10/17/state-special-ed-funding-gap/',
+    date: 'Oct. 17, 2025',
     kind: 'news',
   },
   'nhb-state-share': {
