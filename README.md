@@ -27,8 +27,8 @@ npm test         # production build + outside-link check
 **Citing a source.** Add it once to `src/data/sources.ts`, then cite it next to the claim:
 
 ```astro
-<Cite id="hb1300-chaptered" />                      <!-- uses the source's short label -->
-<Cite id="hb1300-chaptered" label="RSA 32:5-i, VIII" />
+<Cite id="hb1300-text" />                           <!-- uses the source's short label -->
+<Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
 <Cite id="school-board-video" href="https://www.youtube.com/watch?v=qcF6xnfGMWc&t=2160s" label="Watch at 36:00" />
 ```
 
