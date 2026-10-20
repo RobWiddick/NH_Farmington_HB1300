@@ -1,0 +1,30 @@
+---
+// Lists every source in src/data/sources.ts, grouped by kind, so readers can
+// check our work. Outside links open in a new window with rel="nofollow".
+import { sources, kindLabels, type SourceKind } from '../data/sources';
+
+const order: SourceKind[] = ['law', 'data', 'court', 'local', 'news', 'research', 'advocacy-con', 'advocacy-pro'];
+const groups = order
+  .map((kind) => ({
+    kind,
+    items: Object.values(sources)
+      .filter((s) => s.kind === kind)
+      .sort((a, b) => a.publisher.localeCompare(b.publisher) || a.title.localeCompare(b.title)),
+  }))
+  .filter((g) => g.items.length);
+---
+<div class="sources">
+  {groups.map((g) => (
+    <>
+      <h3>{kindLabels[g.kind]}</h3>
+      <ol>
+        {g.items.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="nofollow noopener noreferrer">{s.title}<span class="sr-only"> (opens in a new window)</span></a>
+            {' — '}{s.publisher}{s.date ? `, ${s.date}` : ''}{s.note ? `. ${s.note}` : ''}
+          </li>
+        ))}
+      </ol>
+    </>
+  ))}
+</div>

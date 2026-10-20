@@ -1,0 +1,20 @@
+{
+  "name": "farmington-hb1300",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plain-language voter information on NH HB 1300 (Ballot Question 2) and what it means for Farmington schools.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check:links": "node scripts/check-links.mjs dist",
+    "test": "npm run build && npm run check:links"
+  },
+  "dependencies": {
+    "astro": "7.3.8"
+  }
+}
