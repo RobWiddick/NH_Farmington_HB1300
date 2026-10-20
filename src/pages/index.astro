@@ -5,6 +5,7 @@ import DotGrid from '../components/DotGrid.astro';
 import SourceList from '../components/SourceList.astro';
 import ShareRow from '../components/ShareRow.astro';
 import { site } from '../data/site';
+import { scores } from '../data/figures';
 
 const ballotText = {
   before:
@@ -315,7 +316,67 @@ const ballotText = {
       <h2>Farmington already does more with less</h2>
       <div class="prose">
         <p class="lede">PLACEHOLDER — verified spending vs. inflation.</p>
+        <h3>Farmington already knows what a tight year looks like</h3>
         <p>
+          In 2025–26 the school district ran short of money. The board chair said problems in the business office, which
+          has since been reorganized, were “coupled with unanticipated healthcare bills.” The district froze spending
+          and, mid-year, carried out its “first Reduction in Force (RIF) in years.”
+          <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" />
+        </p>
+        <p>
+          A tax cap didn’t cause that shortfall. But under a cap, rebuilding afterward would take a 60% vote for any
+          budget above the limit.
+        </p>
+
+        <h3>Students had been gaining ground</h3>
+        <p>
+          Farmington students have long scored below the state average. Between 2021 and 2024 they closed most of that
+          gap in math and reading, and in science they beat the state average in 2022, 2023 and 2025.
+          <Cite id="farmington-ar-2025" label="Farmington annual report" /> <Cite id="sdganh-scores" />
+        </p>
+        <p>
+          In spring 2026, the same school year as the freeze and layoffs, scores fell back: reading went from 49% to 41%
+          proficient and science from 45% to 26%, while state averages held steady.
+          <Cite id="sdganh-scores" /> <Cite id="keene-2026-scores" /> We can’t prove the budget trouble caused the drop.
+          Farmington tests only 140 to 430 students a year, and each year tests different kids. But it shows how quickly
+          progress can slip.
+        </p>
+        <details>
+          <summary>See every year’s scores</summary>
+          <div class="table-wrap">
+            <table class="scores">
+              <caption>Percent of students proficient or better (Farmington / state)</caption>
+              <thead>
+                <tr><th scope="col">Spring</th><th scope="col" class="num">Math</th><th scope="col" class="num">Reading</th><th scope="col" class="num">Science</th></tr>
+              </thead>
+              <tbody>
+                {scores.map((r) => (
+                  <tr>
+                    <th scope="row">{r.year}</th>
+                    {r.year === 2020 ? (
+                      <td colspan="3" class="muted">No state tests (COVID-19)</td>
+                    ) : (
+                      <>
+                        <td class="num">{r.math[0]}% / {r.math[1]}%</td>
+                        <td class="num">{r.ela[0]}% / {r.ela[1]}%</td>
+                        <td class="num">{r.sci[0]}% / {r.sci[1]}%</td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="small muted">
+            All tested grades: math and reading in grades 3–8 plus the grade 11 SAT; science in grades 5, 8 and 11. The
+            grade 11 SAT changed format in 2024. 2026 results were released September 2, 2026. Sources: Farmington annual
+            reports <Cite id="farmington-ar-2025" label="2025" /> <Cite id="farmington-ar-2026" label="2026" />, state
+            test data <Cite id="sdganh-scores" />, and state averages for 2018 <Cite id="nhpr-2018-scores" /> and 2026
+            <Cite id="keene-2026-scores" />.
+          </p>
+        </details>
+
+        <p style="margin-top:1.5rem">
           Farmington also starts with less to work with. The state puts Farmington in its top tier for school building
           aid, a 60% rate it reserves for “less affluent communities.” <Cite id="nhed-building-aid" />
         </p>

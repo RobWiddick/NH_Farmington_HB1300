@@ -825,3 +825,19 @@ figcaption {
     color: var(--chart-a);
   }
 }
+
+/* Score table keeps its grid on phones (short rows) */
+table.scores th[scope='row'] {
+  font-weight: 700;
+}
+table.scores td,
+table.scores th {
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+.prose h3 {
+  margin-top: 1.75rem;
+}
+details .table-wrap {
+  margin-bottom: 0.75rem;
+}
