@@ -12,5 +12,7 @@ export const site = {
   // launch, or confirm with the Secretary of State that it is not required.
   disclosure: 'Paid for by [NAME], [STREET ADDRESS], Farmington, NH 03835.',
   contactEmail: '',
+  // Google Analytics 4 measurement ID. Set to '' to turn analytics off.
+  ga4Id: 'G-HDL10H5ND4',
   shareText: 'Before you vote on Question 2, read what it really does to Farmington schools:',
 };
