@@ -1,4 +1,344 @@
 ---
-const t = 'smoke';
+import Base from '../layouts/Base.astro';
+import Cite from '../components/Cite.astro';
+import DotGrid from '../components/DotGrid.astro';
+import SourceList from '../components/SourceList.astro';
+import { site } from '../data/site';
+
+const ballotText = {
+  before:
+    '“Shall the Town of FARMINGTON limit property tax growth for FARMINGTON SCHOOL DISTRICT (SAU #61) under RSA 32:5-i? If adopted for a two-year period: (1) the local property tax levy may not grow beyond the prior year’s amount, adjusted for inflation and new construction; (2) SAU central office spending may not exceed 6 percent of total school district appropriations; and (3) bonded capital costs are excluded from both limits. ',
+  marked:
+    'These caps apply only to administrative operations of the SAU central office and do not affect classroom instruction, school-based services, or other municipal expenditures.',
+  after: ' These limits may be overridden as provided in RSA 32:5-i. Adoption requires a three-fifths (3/5) majority vote.”',
+};
 ---
-<html><body><h1>{t}</h1></body></html>
+<Base>
+  <header class="topbar" slot="header">
+    <div class="wrap">
+      <a class="brand" href="#top">
+        <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#14325c"/><path d="M14 46V18h22v6H21v5h13v6H21v11z" fill="#fff"/><circle cx="46" cy="40" r="7" fill="#f2b33d"/></svg>
+        <span>Farmington &amp; Question 2</span>
+      </a>
+      <nav class="topnav" aria-label="Sections">
+        <a class="hide-xs" href="#quick">1-minute version</a>
+        <a class="hide-sm" href="#ballot">The wording</a>
+        <a class="hide-sm" href="#math">The math</a>
+        <a class="hide-sm" href="#vote">How to vote</a>
+        <a href="#sources">Sources</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" id="top">
+    <div class="wrap">
+      <p class="date-pill"><span class="dot" aria-hidden="true"></span>Election Day: {site.electionDate} · Question 2 is on the back of your ballot</p>
+      <h1>It’s called a tax cap. It’s really a cap on <em>Farmington’s schools.</em></h1>
+      <p class="lede">
+        Question 2 would limit how much Farmington can raise in property taxes for its schools each year. That
+        limit covers <strong>everything</strong> the school budget pays for, not just administration. Going over it
+        would take a 60% vote.
+      </p>
+      <p class="lede"><strong>We recommend voting No on Question 2.</strong> Here’s why, in plain English, with a source for every fact.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#quick">Read the 1-minute version</a>
+        <a class="btn ghost" href="#ballot">See the exact ballot wording</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== QUICK ===================== -->
+  <section id="quick" class="alt">
+    <div class="wrap">
+      <p class="kicker">The 1-minute version</p>
+      <h2>Five things to know before you vote</h2>
+      <ol class="steps prose">
+        <li>
+          <p>
+            <strong>It limits all school property-tax money, not just administration.</strong> Question 2 has two
+            limits. One caps central-office administration at 6% of the budget. The other caps the school district’s
+            whole property-tax levy, which helps pay for teachers, buses, heat and special education.
+            <Cite id="rsa-32-5-i" label="The law" />
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>The ballot’s promise about classrooms only fits half of it.</strong> The ballot says “these caps”
+            do not affect classroom instruction. One of the bill’s own sponsors said that sentence describes only the
+            6% administration cap, though “he wasn’t 100 percent sure.”
+            <Cite id="keene-innis" />
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>The limit grows with general inflation, not with school costs.</strong> It allows growth for
+            inflation and new construction. It has no adjustment for enrollment, special-education needs, health
+            insurance increases, or cuts in state aid.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>Farmington’s school spending has not kept up with inflation.</strong> PLACEHOLDER — verified
+            spending-vs-inflation figures go here.
+          </p>
+        </li>
+        <li>
+          <p>
+            <strong>Once it’s in place, a minority can block a budget.</strong> Any budget over the cap needs 60%
+            “yes” to pass. So 41 voters out of 100 could block a budget that 59 of them support.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, X" />
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== BALLOT ===================== -->
+  <section id="ballot">
+    <div class="wrap">
+      <p class="kicker">Read it closely</p>
+      <h2>What the ballot says vs. what the law does</h2>
+      <div class="prose">
+        <p class="lede">
+          Here is Question 2 exactly as it appears on the back of Farmington’s ballot. Look at the highlighted sentence.
+        </p>
+        <figure>
+          <div class="ballot" role="img" aria-label="Replica of Question 2 on the Farmington ballot, with the sentence about classroom instruction highlighted">
+            <div class="q">Statutory question required by HB 1300, Chapter 324, 2026</div>
+            <p><strong>2.</strong> {ballotText.before}<mark>{ballotText.marked}</mark>{ballotText.after}</p>
+            <div class="choices" aria-hidden="true"><span><span class="oval"></span>Yes</span><span><span class="oval"></span>No</span></div>
+          </div>
+          <figcaption>Wording from the <Cite id="farmington-sample-ballot" label="Town of Farmington sample ballot" />. The same wording is set by state law for every town. <Cite id="rsa-32-5-i" label="RSA 32:5-i, V" /></figcaption>
+        </figure>
+      </div>
+
+      <div class="table-wrap">
+        <table class="stack">
+          <caption>Side by side</caption>
+          <thead>
+            <tr><th scope="col">The ballot says</th><th scope="col">The law itself says</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="The ballot says">“These caps apply only to administrative operations of the SAU central office…”</td>
+              <td data-label="The law itself says">
+                One of the two caps is on the district’s whole property-tax levy: “the estimated amount of local taxes
+                to be raised for the fiscal year attributable to the school district.” That money pays for the entire
+                school budget, not just the central office. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII & XV" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="The ballot says">“…and do not affect classroom instruction, school-based services…”</td>
+              <td data-label="The law itself says">
+                Only the 6% administration cap excludes classroom instruction. The levy cap has no such exclusion. If a
+                budget would raise more than the cap allows, the state “shall not approve any tax rate that exceeds the
+                certified limit” until the budget comes down or 60% of voters override it. The law doesn’t say which
+                parts of the budget would be cut. <Cite id="rsa-32-5-i" label="RSA 32:5-i, IX & XI" />
+                <Cite id="vnews-wording" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="The ballot says">“If adopted for a two-year period”</td>
+              <td data-label="The law itself says">
+                The rules section of the law never sets a two-year limit. Its only end date is January 1, 2032.
+                News outlets have described it as a two-year cap (the 2027–28 and 2028–29 school years). Nobody can
+                say for sure until the state clarifies.
+                <Cite id="rsa-32-5-i" label="RSA 32:5-i, XII & XVII" />
+                <Cite id="rhnh-explainer" />
+                <Cite id="nhb-howitworks" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="The ballot says">“limit property tax growth”</td>
+              <td data-label="The law itself says">
+                It limits only the school district’s share. It doesn’t limit town, county or state education taxes, so
+                your own tax bill can still go up.
+                <Cite id="nhpr-explainer" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid two" style="margin-top:1.5rem">
+        <div class="card">
+          <h3>So, is it really a “tax cap”?</h3>
+          <p>
+            Partly. It does cap the total amount the school district can raise in property taxes. But it is
+            <strong>not</strong> a cap on your tax bill or your tax rate. It doesn’t lower anyone’s taxes, and it lets
+            the school levy grow with inflation and new construction. Even a news outlet friendly to the cap wrote
+            that it “would not guarantee a particular limit on an individual homeowner’s bill.”
+            <Cite id="nhjournal-poll" />
+          </p>
+          <p>
+            A clearer name would be a <strong>school funding cap</strong>.
+          </p>
+        </div>
+        <div class="card">
+          <h3>The other side, in fairness</h3>
+          <p>
+            Rep. Ross Berry (R-Weare), who wrote the cap language, says the classroom sentence is accurate. His view is
+            that the 6% limit is “the only spending cap that exists,” and the other limit caps taxes, not spending.
+            <Cite id="vnews-wording" /> <Cite id="nhb-origin" label="Who wrote it" />
+          </p>
+          <p>
+            Two voters sued, saying the wording is misleading. The courts refused to block the question before the
+            election: Superior Court on Sept. 16, and the NH Supreme Court on Sept. 17 and Sept. 28. No court has
+            ruled on whether the wording itself is lawful.
+            <Cite id="superior-order" /> <Cite id="nhsc-order-0917" /> <Cite id="nhpr-court" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MATH ===================== -->
+  <section id="math" class="alt">
+    <div class="wrap">
+      <p class="kicker">The math</p>
+      <h2>A limit that grows slower than school costs</h2>
+      <div class="prose">
+        <p class="lede">The formula in the law is short:</p>
+        <div class="card" style="margin-bottom:1.25rem">
+          <p style="font:700 1.15rem/1.5 var(--serif);margin:0">
+            Next year’s limit = last year’s school tax levy × (1 + inflation + new construction)
+          </p>
+          <p class="small muted" style="margin:.5rem 0 0">
+            Debt payments on approved building projects are left out of the calculation.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII & XVI" />
+          </p>
+        </div>
+        <ul>
+          <li>
+            <strong>“Inflation”</strong> means the 12-month change in consumer prices in the Northeast, measured in
+            March. Between March 2025 and March 2026 that was about 3.6%.
+            <Cite id="bls-cpi-ne" />
+          </li>
+          <li>
+            <strong>“New construction”</strong> means new homes, additions and other physical changes. Rising home
+            values and town-wide revaluations don’t count.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII(c)" />
+          </li>
+          <li>
+            <strong>What’s missing:</strong> the formula has no adjustment for more students, new special-education
+            needs, health insurance jumps, or a drop in state or federal aid. New Hampshire’s older tax-cap law, by
+            contrast, adjusts for population or enrollment.
+            <Cite id="rsa-32-5-b" />
+          </li>
+        </ul>
+        <p>PLACEHOLDER — cost drivers and Farmington example.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 60% ===================== -->
+  <section id="sixty">
+    <div class="wrap">
+      <p class="kicker">The 60% rule</p>
+      <h2>Once it’s in, 41 voters can outvote 59</h2>
+      <div class="grid two" style="align-items:center">
+        <div class="prose">
+          <p>
+            If Question 2 passes in Farmington, any school budget that goes over the limit must win
+            <strong>60% “yes”</strong> on the ballot to pass. A majority isn’t enough.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" />
+          </p>
+          <p>
+            That means a budget supported by 59 out of 100 voters would still fail, and the district would have to stay
+            within the cap.
+          </p>
+          <p>
+            HB 1300 also has no way to repeal a cap early. The question comes back on the November 2028 ballot either way.
+            <Cite id="nhb-howitworks" />
+          </p>
+        </div>
+        <figure style="margin:0">
+          <DotGrid yes={59} label="100 dots: 59 voters vote yes on a school budget, 41 vote no. Under the cap, the budget still fails." />
+          <div class="legend" style="margin-top:.75rem"><span>59 vote yes</span><span class="b">41 vote no</span></div>
+          <figcaption>Under the cap, this budget fails.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== UNKNOWNS ===================== -->
+  <section id="unknowns" class="alt">
+    <div class="wrap">
+      <p class="kicker">Honest uncertainty</p>
+      <h2>What nobody knows yet</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>How long it lasts</h3>
+          <p>
+            The ballot says “two-year period.” The law’s rules never set a two-year end; the only end date is
+            January 1, 2032.
+            <Cite id="rhnh-explainer" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, XVII" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>How skipped ballots count</h3>
+          <p>
+            If you leave Question 2 blank, it may not count at all, or it may count against the 60% needed to pass.
+            The state Attorney General’s office has not issued guidance. Mark the choice you mean.
+            <Cite id="nhpr-cuts" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Which inflation number applies</h3>
+          <p>
+            The law uses the March figure “in the prior fiscal year,” and the state tax agency hasn’t published rules
+            explaining which March. That number sets how much the budget can grow.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII(b)" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>What gets cut</h3>
+          <p>
+            The law doesn’t say which parts of a budget must shrink to fit under the cap. That would be left to
+            Farmington’s school board and voters each year.
+            <Cite id="vnews-wording" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VOTE ===================== -->
+  <section id="vote">
+    <div class="wrap">
+      <p class="kicker">How to vote</p>
+      <h2>Flip your ballot over</h2>
+      <ol class="steps prose">
+        <li><p><strong>Vote on {site.electionDate}.</strong> Question 2 is on the general election ballot in every New Hampshire town. <Cite id="rsa-32-5-i" label="RSA 32:5-i, I" /></p></li>
+        <li><p><strong>Turn your ballot over.</strong> Question 2 is on the back. The front says “VOTE BOTH SIDES.” <Cite id="farmington-sample-ballot" /></p></li>
+        <li><p><strong>To keep the cap off Farmington’s schools, fill in “No.”</strong> The cap only takes effect if 60% of voters say yes. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" /></p></li>
+        <li><p><strong>Questions about where or how to vote?</strong> Contact the Farmington Town Clerk. <Cite id="farmington-clerk" /></p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== SOURCES ===================== -->
+  <section id="sources" class="alt">
+    <div class="wrap">
+      <p class="kicker">Check our work</p>
+      <h2>Sources</h2>
+      <div class="prose">
+        <p>
+          Every fact on this page links to where it came from. We relied first on the law itself, government data and
+          court records, then on news reporting. Where we cite groups that take a side, they’re labeled so you can
+          weigh them.
+        </p>
+      </div>
+      <SourceList />
+    </div>
+  </section>
+
+  <footer class="site-footer" slot="footer">
+    <div class="wrap">
+      <p class="disclosure">{site.disclosure}</p>
+      <p>Last updated {site.lastUpdated}. Spotted an error? Tell us and we’ll fix it.</p>
+    </div>
+  </footer>
+</Base>

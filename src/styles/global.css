@@ -276,6 +276,11 @@ section.alt {
 .topnav .hide-sm {
   display: none;
 }
+@media (max-width: 479px) {
+  .topnav .hide-xs {
+    display: none;
+  }
+}
 @media (min-width: 860px) {
   .topnav .hide-sm {
     display: inline-block;
@@ -732,5 +737,41 @@ figcaption {
   }
   details > * {
     display: block !important;
+  }
+}
+
+/* Narrow screens: let the brand truncate and stack comparison tables */
+.brand {
+  min-width: 0;
+}
+.brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 640px) {
+  table.stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+  table.stack tr {
+    display: block;
+    border-top: 1px solid var(--line);
+    padding: 0.4rem 0;
+  }
+  table.stack td {
+    display: block;
+    border: 0;
+    padding: 0.35rem 1rem;
+  }
+  table.stack td::before {
+    content: attr(data-label);
+    display: block;
+    font: 700 0.75rem/1.4 var(--sans);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 }

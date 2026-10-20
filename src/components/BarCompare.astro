@@ -1,0 +1,26 @@
+---
+// Simple horizontal bar comparison. Values share one scale (max = largest value
+// unless `max` is given). Renders plain HTML so it works without JavaScript.
+interface Row {
+  label: string;
+  value: number;
+  display: string;
+  tone?: 'a' | 'b' | 'c';
+}
+interface Props {
+  rows: Row[];
+  max?: number;
+  label: string;
+}
+const { rows, max = Math.max(...rows.map((r) => r.value)), label } = Astro.props;
+---
+<div class="bars" role="group" aria-label={label}>
+  {rows.map((r) => (
+    <div class="bar-row">
+      <div class="bar-label"><span>{r.label}</span><span class="v">{r.display}</span></div>
+      <div class="bar-track" aria-hidden="true">
+        <div class={`bar-fill ${r.tone ?? 'a'}`} style={`width:${Math.max(2, (r.value / max) * 100).toFixed(1)}%`} />
+      </div>
+    </div>
+  ))}
+</div>

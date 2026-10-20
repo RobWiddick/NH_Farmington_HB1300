@@ -1,0 +1,32 @@
+---
+// 100-dot "voters" grid used to show how a 60% rule plays out.
+interface Props {
+  yes: number;
+  label: string;
+}
+const { yes, label } = Astro.props;
+const dots = Array.from({ length: 100 }, (_, i) => i < yes);
+---
+<svg class="dotgrid" viewBox="0 0 200 200" role="img" aria-label={label}>
+  {dots.map((isYes, i) => (
+    <circle
+      cx={10 + (i % 10) * 20}
+      cy={10 + Math.floor(i / 10) * 20}
+      r="7.2"
+      class={isYes ? 'yes' : 'no'}
+    />
+  ))}
+</svg>
+<style>
+  .dotgrid {
+    width: 100%;
+    max-width: 15rem;
+    display: block;
+  }
+  .yes {
+    fill: var(--chart-a);
+  }
+  .no {
+    fill: var(--chart-b);
+  }
+</style>
