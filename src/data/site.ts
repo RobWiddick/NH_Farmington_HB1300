@@ -12,4 +12,5 @@ export const site = {
   // launch, or confirm with the Secretary of State that it is not required.
   disclosure: 'Paid for by [NAME], [STREET ADDRESS], Farmington, NH 03835.',
   contactEmail: '',
+  shareText: 'Before you vote on Question 2, read what it really does to Farmington schools:',
 };

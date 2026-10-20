@@ -37,6 +37,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Check every source is cited and every citation exists
+        run: npm run check:sources
+
       - name: Build site
         run: npm run build
 

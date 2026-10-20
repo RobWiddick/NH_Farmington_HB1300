@@ -118,6 +118,14 @@ export const sources = defineSources({
     url: 'https://www.farmington.nh.us/DocumentCenter/View/3121',
     kind: 'local',
   },
+  'nhed-building-aid': {
+    short: 'NH Dept. of Education',
+    title: 'School Building Aid handout to the House Finance Committee (includes each district’s aid rate)',
+    publisher: 'NH Department of Education, via the Office of Legislative Budget Assistant',
+    url: 'https://gc.nh.gov/LBA/Budget/operating_budgets/2026-2027/HF_Division_II/Division%20II%20-%20NHED%20School%20Building%20Aid%20-%2002-01-25.pdf',
+    date: 'Feb. 1, 2025',
+    kind: 'local',
+  },
   'farmington-clerk': {
     short: 'Town Clerk',
     title: 'Town Clerk / Tax Collector (elections, sample ballot, absentee ballots)',

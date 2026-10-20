@@ -12,7 +12,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check:links": "node scripts/check-links.mjs dist",
-    "test": "npm run build && npm run check:links"
+    "test": "npm run check:sources && npm run build && npm run check:links",
+    "check:sources": "node scripts/check-sources.mjs"
   },
   "dependencies": {
     "astro": "7.3.8"

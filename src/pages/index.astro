@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Cite from '../components/Cite.astro';
 import DotGrid from '../components/DotGrid.astro';
 import SourceList from '../components/SourceList.astro';
+import ShareRow from '../components/ShareRow.astro';
 import { site } from '../data/site';
 
 const ballotText = {
@@ -187,7 +188,8 @@ const ballotText = {
             <Cite id="nhjournal-poll" />
           </p>
           <p>
-            A clearer name would be a <strong>school funding cap</strong>.
+            Supporters call it the “Taxpayer Protection Act.” <Cite id="housegop-signing" /> A clearer name would be a
+            <strong>school funding cap</strong>.
           </p>
         </div>
         <div class="card">
@@ -198,10 +200,15 @@ const ballotText = {
             <Cite id="vnews-wording" /> <Cite id="nhb-origin" label="Who wrote it" />
           </p>
           <p>
-            Two voters sued, saying the wording is misleading. The courts refused to block the question before the
-            election: Superior Court on Sept. 16, and the NH Supreme Court on Sept. 17 and Sept. 28. No court has
-            ruled on whether the wording itself is lawful.
-            <Cite id="superior-order" /> <Cite id="nhsc-order-0917" /> <Cite id="nhpr-court" />
+            Berry also says the two caps belong together: “If you want to cap administrative spending, you have to also
+            cap the revenue side of it, because otherwise, they’ll bloat the rest of the budget to increase the 6%.” <Cite id="monitor-confusion" />
+          </p>
+          <p>
+            Two voters sued, saying the wording is misleading. <Cite id="bates-complaint" /> <Cite id="nhb-lawsuit" />
+            The courts refused to block the question before the election: Superior Court on Sept. 16, and the NH
+            Supreme Court on Sept. 17 and, unanimously, on Sept. 28. No court has ruled on whether the wording itself
+            is lawful.
+            <Cite id="superior-order" /> <Cite id="nhsc-order-0917" /> <Cite id="nhpr-court" /> <Cite id="indepthnh-supreme" />
           </p>
         </div>
       </div>
@@ -242,7 +249,20 @@ const ballotText = {
             <Cite id="rsa-32-5-b" />
           </li>
         </ul>
+        <div class="callout">
+          <p>
+            <strong>The state expects it to squeeze budgets.</strong> While lawmakers were weighing the bill, the NH
+            Department of Education and Department of Revenue Administration told the Legislature’s budget office that
+            where districts adopt the cap, “local school district revenue and school district expenditures could
+            decrease.” <Cite id="hb1300-fiscal-note" />
+          </p>
+        </div>
         <p>PLACEHOLDER — cost drivers and Farmington example.</p>
+        <p>
+          Some of those costs can’t be cut at all. As New Hampshire’s AFT teachers union told lawmakers, “Schools are
+          legally required to provide special education services, regardless of cost.” When a capped budget has to
+          absorb a required cost, something else gives. <Cite id="aftnh-testimony" />
+        </p>
       </div>
     </div>
   </section>
@@ -489,6 +509,15 @@ const ballotText = {
         <li><p><strong>To keep the cap off Farmington’s schools, fill in “No.”</strong> The cap only takes effect if 60% of voters say yes. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" /></p></li>
         <li><p><strong>Questions about where or how to vote?</strong> Contact the Farmington Town Clerk. <Cite id="farmington-clerk" /></p></li>
       </ol>
+      <div class="callout prose">
+        <p>
+          <strong>Most people haven’t heard about this yet.</strong> In a September UNH poll, 46% of likely voters
+          statewide said they’d vote yes, 33% no, and 21% weren’t sure. Only 8% of Granite Staters said they had heard
+          a lot about it. If this
+          page helped you, share it with a neighbor. <Cite id="unh-poll" />
+        </p>
+      </div>
+      <ShareRow />
     </div>
   </section>
 
@@ -549,7 +578,7 @@ const ballotText = {
           <summary>How did this end up on the ballot?</summary>
           <p>
             HB 1300 began as a bill about congressional districts. In January 2026, an amendment replaced it with the
-            tax cap question. <Cite id="nhb-origin" /> The final version passed the House 183–170 and the Senate 15–8,
+            tax cap question. <Cite id="nhb-origin" /> <Cite id="hb1300-text" label="Read the final law" /> The final version passed the House 183–170 and the Senate 15–8,
             and Gov. Kelly Ayotte signed it on July 15, 2026. <Cite id="hb1300-status" />
           </p>
         </details>

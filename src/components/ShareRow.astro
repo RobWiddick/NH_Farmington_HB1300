@@ -1,0 +1,36 @@
+---
+// Plain share links (no tracking scripts). Outside links open in a new window.
+import { site } from '../data/site';
+
+const url = new URL('/', Astro.site).toString();
+const text = `${site.shareText} ${url}`;
+const enc = encodeURIComponent;
+---
+<div class="share" role="group" aria-label="Share this page">
+  <span class="share-label">Share:</span>
+  <a class="btn ghost small-btn" href={`mailto:?subject=${enc(site.title)}&body=${enc(text)}`}>Email</a>
+  <a class="btn ghost small-btn" href={`sms:?&body=${enc(text)}`}>Text</a>
+  <a
+    class="btn ghost small-btn"
+    href={`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`}
+    target="_blank"
+    rel="nofollow noopener noreferrer"
+  >Facebook<span class="sr-only"> (opens in a new window)</span></a>
+</div>
+<style>
+  .share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+  }
+  .share-label {
+    font-weight: 700;
+  }
+  .small-btn {
+    padding: 0.6rem 1rem;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+</style>
