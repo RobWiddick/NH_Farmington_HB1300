@@ -68,6 +68,14 @@ export const sources = defineSources({
     kind: 'law',
   },
 
+  'rsa-40-13': {
+    short: 'RSA 40:13',
+    title: 'RSA 40:13, Use of Official Ballot (SB 2 votes and default budgets)',
+    publisher: 'New Hampshire General Court',
+    url: 'https://gc.nh.gov/rsa/html/III/40/40-13.htm',
+    kind: 'law',
+  },
+
   // ---------- Government data ----------
   'census-f33-2016': {
     short: 'Census 2016',
@@ -235,6 +243,14 @@ export const sources = defineSources({
     title: '2026 special meeting warrant (records the March 10, 2026 budget vote: 239 for, 337 against)',
     publisher: 'Farmington School District, SAU 61',
     url: 'https://www.sau61.org/departments/business-office/files/documents/Warrant%20articles%20with%20attestation.pdf',
+    date: '2026',
+    kind: 'local',
+  },
+  'farmington-default-budget-2026': {
+    short: 'Default budget form',
+    title: '2026 MS-DSB default budget, as posted after the deliberative session ($17,340,746 + $735,900 = $18,076,646)',
+    publisher: 'Farmington School District, SAU 61 (NH Department of Revenue Administration form)',
+    url: 'https://www.sau61.org/files/documents/Default%20Budget%20posted%20after%20deliberative.pdf',
     date: '2026',
     kind: 'local',
   },
@@ -577,6 +593,14 @@ export const sources = defineSources({
     publisher: 'Lucy Sorensen, Yuhan Kim & Moontae Hwang',
     url: 'https://doi.org/10.1086/716231',
     date: '2021',
+    kind: 'research',
+  },
+  'nguyen-hoang-2022': {
+    short: 'Nguyen-Hoang & Zhang (2022)',
+    title: 'Cap and gap: the fiscal effects of property tax levy limits in New York. Education Finance and Policy 17(1)',
+    publisher: 'Phuong Nguyen-Hoang & Pengju Zhang',
+    url: 'https://doi.org/10.1162/edfp_a_00327',
+    date: '2022',
     kind: 'research',
   },
   'unh-poll': {
