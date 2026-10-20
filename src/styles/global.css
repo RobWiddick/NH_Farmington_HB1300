@@ -306,7 +306,7 @@ section.alt {
   gap: 0.5rem;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 1.2rem;
   padding: 0.4rem 0.85rem 0.4rem 0.55rem;
   font: 600 0.9rem/1.2 var(--sans);
   box-shadow: var(--shadow);
@@ -773,5 +773,55 @@ figcaption {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
+  }
+}
+
+/* Hero layout with "at a glance" card */
+.hero-grid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 980px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: 3.5rem;
+  }
+  .glance {
+    margin-top: 4.2rem;
+  }
+}
+.glance h2.kicker {
+  font-family: var(--sans);
+  margin-bottom: 0.6rem;
+}
+.glance dl {
+  margin: 0 0 1rem;
+  display: grid;
+  gap: 0.9rem;
+}
+.glance dl > div {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+}
+.glance dt {
+  font: 700 1.9rem/1 var(--serif);
+  color: var(--brand);
+}
+.glance dd {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+:root[data-theme='dark'] .glance dt {
+  color: var(--chart-a);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .glance dt {
+    color: var(--chart-a);
   }
 }

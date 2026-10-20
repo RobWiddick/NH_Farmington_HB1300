@@ -32,8 +32,9 @@ const ballotText = {
 
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="top">
-    <div class="wrap">
-      <p class="date-pill"><span class="dot" aria-hidden="true"></span>Election Day: {site.electionDate} · Question 2 is on the back of your ballot</p>
+    <div class="wrap hero-grid">
+      <div>
+      <p class="date-pill"><span class="dot" aria-hidden="true"></span>{site.electionDateShort} · Question 2 is on the back of your ballot</p>
       <h1>It’s called a tax cap. It’s really a cap on <em>Farmington’s schools.</em></h1>
       <p class="lede">
         Question 2 would limit how much Farmington can raise in property taxes for its schools each year. That
@@ -45,6 +46,19 @@ const ballotText = {
         <a class="btn primary" href="#quick">Read the 1-minute version</a>
         <a class="btn ghost" href="#ballot">See the exact ballot wording</a>
       </div>
+      </div>
+      <aside class="glance card" aria-labelledby="glance-title">
+        <h2 id="glance-title" class="kicker">Question 2 at a glance</h2>
+        <dl>
+          <div><dt>2</dt><dd>caps in one yes-or-no question: one on the school tax levy, one on administration</dd></div>
+          <div><dt>60%</dt><dd>“yes” needed to adopt the cap, and again every time a budget needs to go over it</dd></div>
+          <div><dt>3.6%</dt><dd>Northeast inflation, March 2025 to March 2026. The cap lets the school levy grow by a figure like this, plus new construction</dd></div>
+          <div><dt>0</dt><dd>adjustments for enrollment, special education, health insurance, or lost state aid</dd></div>
+        </dl>
+        <p class="small muted" style="margin:0">
+          <Cite id="rsa-32-5-i" label="The law" /> <Cite id="bls-cpi-ne" />
+        </p>
+      </aside>
     </div>
   </section>
 
@@ -263,6 +277,165 @@ const ballotText = {
     </div>
   </section>
 
+  <!-- ===================== NEARBY ===================== -->
+  <section id="nearby" class="alt">
+    <div class="wrap">
+      <p class="kicker">Caps next door</p>
+      <h2>Nearby cities already live with tax caps</h2>
+      <p class="lede">
+        Several cities near Farmington have had tax caps for years. Their own budget records show the same pattern:
+        costs rise faster than the cap allows, and the gap is closed by cutting people and programs or by overriding
+        the cap.
+      </p>
+      <div class="grid two">
+        <div class="card">
+          <h3>Rochester</h3>
+          <p>
+            In 2026, Rochester cut 22 positions from its school budget. The city’s finance director pointed to an
+            “inherent structural deficit in the School Department budget due to the reduction of State and Federal
+            funding.” <Cite id="rochester-workshop" />
+          </p>
+          <p>
+            The council used a special exception in the city charter to restore 15 teaching positions.
+            <Cite id="rochester-adopted" /> In fairness, Rochester has also often taxed below its cap: $14.5 million
+            below what it allowed from 2021 to 2025. <Cite id="rochester-below-cap" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Somersworth</h3>
+          <p>
+            In 2025, keeping the same school services meant a budget increase of about 6%. Most of that was teacher
+            contracts, a 14.4% jump in health insurance, and required special education. Staying within the cap meant
+            falling about $1.3 million short, “leading to position cuts and possibly a Career Technical Center program
+            cut.” <Cite id="somersworth-workshop" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Franklin</h3>
+          <p>
+            Franklin’s cap-limited budget for 2026–27 would have eliminated more than 16 positions, including an art
+            teacher, a music teacher and a computer teacher. The district faced $500,000 more for health insurance,
+            nearly $1 million more for special education, and close to $500,000 less in state aid.
+            <Cite id="monitor-franklin" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Dover</h3>
+          <p>
+            Dover’s council voted to go over its cap in 9 of the 18 budget years from 2009 to 2026, much of it for
+            schools. <Cite id="dover-overrides" />
+          </p>
+        </div>
+      </div>
+      <div class="callout prose">
+        <p>
+          <strong>One big difference:</strong> in these cities, the elected city council can vote to go over the cap.
+          Under HB 1300, going over Farmington’s cap would take 60% of voters at the ballot box.
+          <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" />
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== OTHER SIDE ===================== -->
+  <section id="other-side">
+    <div class="wrap">
+      <p class="kicker">The other side</p>
+      <h2>What supporters say, and what to weigh</h2>
+      <p class="lede">
+        People backing Question 2 have real concerns about the cost of living. Here are their strongest arguments,
+        stated fairly, and the facts we think belong next to them.
+      </p>
+      <div class="table-wrap">
+        <table class="stack">
+          <caption>Arguments for the cap</caption>
+          <thead>
+            <tr><th scope="col">Supporters say</th><th scope="col">Worth weighing</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-label="Supporters say">
+                <strong>Property taxes are climbing too fast.</strong> Statewide, local property taxes rose 47.5% from
+                2016 to 2025, or about 12% after inflation. <Cite id="nhfpi-proptax" />
+              </td>
+              <td data-label="Worth weighing">
+                True, and it hurts. But a big reason is that New Hampshire’s state government pays a smaller share of
+                school costs than any other state, leaving more for local property taxes. Question 2 doesn’t change
+                that. It only limits the local share. <Cite id="nhb-state-share" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="Supporters say">
+                <strong>Enrollment is falling while spending rises.</strong> New Hampshire public schools had 160,323
+                students in fall 2025, down from more than 205,000 twenty years earlier. <Cite id="keene-enrollment" />
+                A free-market think tank found per-pupil spending nearly doubled after inflation from 2001 to 2024.
+                <Cite id="jbc-spending" />
+              </td>
+              <td data-label="Worth weighing">
+                Buses, buildings and heat don’t shrink when a few students leave each grade. <Cite id="keene-enrollment" />
+                And statewide trends aren’t Farmington’s story: Farmington’s own spending has grown more slowly than
+                inflation (see above).
+              </td>
+            </tr>
+            <tr>
+              <td data-label="Supporters say">
+                <strong>A November vote lets more people decide.</strong> Spring school-cap votes in 2025 drew only about
+                20% as many voters as the 2024 presidential election. <Cite id="monitor-caps-2025" />
+              </td>
+              <td data-label="Worth weighing">
+                That’s a fair point. But once a cap is in place, every vote to go over it happens at the regular
+                school budget vote, not in November. <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="Supporters say">
+                <strong>It puts money in classrooms, not administration.</strong> Americans for Prosperity-NH says the
+                law “ensures education dollars are spent in the classroom, not on administrative overhead.”
+                <Cite id="keene-innis" />
+              </td>
+              <td data-label="Worth weighing">
+                Research on tax caps in other states found the cuts fell on instruction at least as much as on
+                administration. <Cite id="figlio-1997" /> <Cite id="figlio-1998" />
+              </td>
+            </tr>
+            <tr>
+              <td data-label="Supporters say">
+                <strong>Massachusetts has had a tougher cap since 1980.</strong> Supporters note HB 1300’s cap is
+                tied to inflation, so it never allows less growth than inflation. <Cite id="jbc-massway" />
+              </td>
+              <td data-label="Worth weighing">
+                Massachusetts’ state government pays about 44% of school funding, compared with 28% in New Hampshire.
+                <Cite id="newamerica-ma" /> <Cite id="newamerica-nh" /> And Massachusetts towns can override their
+                cap with a simple majority. HB 1300 requires 60%. <Cite id="ma-primer" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid two" style="margin-top:1.25rem">
+        <div class="card">
+          <h3>What research on tax caps has found</h3>
+          <p>
+            Studies of tax limits in other states mostly found larger classes, lower teacher pay and lower test
+            scores, and no drop in administrative costs. <Cite id="figlio-1997" /> Some studies found little effect on
+            student performance. <Cite id="ddm-1998" /> And caps do slow tax growth: New York’s cut average school tax
+            increases from 6.6% a year to 1.9%. <Cite id="rockinst-ny" />
+          </p>
+        </div>
+        <div class="card">
+          <h3>Not just a party-line issue</h3>
+          <p>
+            In January 2026, the NH House killed a different school budget cap bill 346–9, after Republican Rep.
+            Kristine Perez said a study in her town had convinced her that a tax cap is not an ideal way to restrain
+            spending. <Cite id="nhb-hb675" /> Voters have also rejected local caps: in March 2026, nine towns voted
+            them down. <Cite id="nhpr-rejected" />
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== UNKNOWNS ===================== -->
   <section id="unknowns" class="alt">
     <div class="wrap">
@@ -319,8 +492,93 @@ const ballotText = {
     </div>
   </section>
 
+  <!-- ===================== FAQ ===================== -->
+  <section id="faq" class="alt">
+    <div class="wrap">
+      <p class="kicker">Common questions</p>
+      <h2>Questions people ask</h2>
+      <div class="prose">
+        <details>
+          <summary>Will Question 2 lower my property taxes?</summary>
+          <p>
+            No. It limits how fast the school district’s total property-tax collection can grow. It doesn’t lower what
+            you pay now, and it doesn’t limit town, county or state education taxes.
+            <Cite id="nhjournal-poll" /> <Cite id="nhpr-explainer" />
+          </p>
+        </details>
+        <details>
+          <summary>When would the cap start?</summary>
+          <p>
+            With the budget for the 2027–28 school year, the one Farmington votes on next spring.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, XII" />
+          </p>
+        </details>
+        <details>
+          <summary>Who decides for Farmington?</summary>
+          <p>
+            Farmington voters. Farmington’s ballot asks about the Farmington School District (SAU #61). The cap takes
+            effect if 60% of voters voting in the district approve it.
+            <Cite id="farmington-sample-ballot" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" />
+          </p>
+        </details>
+        <details>
+          <summary>What if Farmington’s schools need more than the cap allows?</summary>
+          <p>
+            Voters would have to approve going over the cap by 60%. If that vote fails, the state won’t approve a
+            school tax rate above the cap, so the budget has to shrink to fit.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, X & XI" />
+          </p>
+        </details>
+        <details>
+          <summary>If it passes and doesn’t work, can we undo it?</summary>
+          <p>
+            Not right away. HB 1300 has no option to repeal a cap early. The question comes back in November 2028, and
+            the law itself ends January 1, 2032.
+            <Cite id="nhb-howitworks" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, XVII" />
+          </p>
+        </details>
+        <details>
+          <summary>Couldn’t towns already adopt tax caps?</summary>
+          <p>
+            Yes. Since 2011, voters have been able to petition for a local cap, which also needs 60% to pass. In
+            2025 and 2026 many districts voted on caps and most rejected them. HB 1300 puts the question on every
+            ballot automatically. <Cite id="nhb-howitworks" />
+          </p>
+        </details>
+        <details>
+          <summary>How did this end up on the ballot?</summary>
+          <p>
+            HB 1300 began as a bill about congressional districts. In January 2026, an amendment replaced it with the
+            tax cap question. <Cite id="nhb-origin" /> The final version passed the House 183–170 and the Senate 15–8,
+            and Gov. Kelly Ayotte signed it on July 15, 2026. <Cite id="hb1300-status" />
+          </p>
+        </details>
+      </div>
+
+      <h3 style="margin-top:2.5rem">Plain-English glossary</h3>
+      <dl class="glossary prose">
+        <dt>Levy</dt>
+        <dd>The total amount of money the school district raises from property taxes in a year.</dd>
+        <dt>Appropriation</dt>
+        <dd>The amount voters approve the district to spend.</dd>
+        <dt>SAU</dt>
+        <dd>School Administrative Unit: the superintendent’s central office. Farmington’s is SAU 61.</dd>
+        <dt>Override</dt>
+        <dd>A vote to go over the cap. Under HB 1300 it needs 60% “yes.”</dd>
+        <dt>Inflation (CPI)</dt>
+        <dd>How much everyday prices went up. HB 1300 uses the Northeast Consumer Price Index, measured in March.</dd>
+        <dt>New construction</dt>
+        <dd>Value added by new buildings and additions. Rising prices of existing homes don’t count.</dd>
+        <dt>Bonded capital costs</dt>
+        <dd>Loan payments for school buildings. These are left out of the cap.</dd>
+        <dt>DRA</dt>
+        <dd>The NH Department of Revenue Administration, which approves tax rates and would enforce the cap.</dd>
+      </dl>
+    </div>
+  </section>
+
   <!-- ===================== SOURCES ===================== -->
-  <section id="sources" class="alt">
+  <section id="sources">
     <div class="wrap">
       <p class="kicker">Check our work</p>
       <h2>Sources</h2>
