@@ -76,7 +76,7 @@ const GREETING = /^(hi|hello|hey|hiya|howdy|thanks|thank you|thx|good (morning|a
 const ON_TOPIC_HINT =
   /\b(tax|taxes|levy|cap|caps|school|schools|budget|farmington|question\s*2|hb\s*1300|rsa|ballot|vote|voting|sau|teacher|inflation|override|60%|default|town|district|lawsuit|court|ankarberg|innis|berry|supporters?|opponents?|source|sources)\b/i;
 
-// Extra searches for two kinds of first question that need more than the
+// Extra searches for three kinds of first question that need more than the
 // question's own wording finds. The planner writes these queries too, but it
 // often finishes after the first search has to start (see PLAN_TIMEOUT_MS), so
 // these run alongside the first search. The reranker drops what doesn't help.
@@ -92,6 +92,11 @@ const QUERY_HINTS: { test: RegExp; queries: string[] }[] = [
     // "How should I vote?", "What's the best argument for Yes?", "What do supporters say?"
     test: /\b(how (?:should|do|would) i vote|should i vote|vote (?:yes|no) on|(?:best|strongest|main) (?:argument|case|reason)s?|pros and cons|arguments? (?:for|against)|why (?:vote|would anyone|should anyone|do people)|good idea|bad idea|worth (?:it|voting)|what do (?:supporters|opponents|critics)\b)/i,
     queries: ["the guide author's reasons to vote No on Question 2", "supporters' strongest arguments for the school tax cap"],
+  },
+  {
+    // "I'm 72 and my taxes are too high. Is there any help?", "Is there tax relief for seniors?"
+    test: /\b(seniors?|elderly|older (?:residents?|homeowners?|people)|retired|retirees?|fixed incomes?|social security|i'?m (?:6[5-9]|[7-9]\d)\b|exemptions?|defer(?:ral|ring)?|tax relief|relief programs?|help (?:with|paying) (?:my |our )?(?:property )?taxes|(?:can'?t|cannot) afford (?:my |our |the )?(?:property )?tax)/i,
+    queries: ['help for residents on fixed incomes: Farmington elderly exemption, tax deferral and the state low- and moderate-income relief program'],
   },
 ];
 

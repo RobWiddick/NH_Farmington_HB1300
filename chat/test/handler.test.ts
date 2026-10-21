@@ -337,11 +337,13 @@ test('the answer prompt keeps the bot grounded and neutral about the author', as
   assert.match(p, /hi@hb1300\.com/);
 });
 
-test('hint queries cover broad and how-to-vote first questions, and nothing else', () => {
+test('hint queries cover broad, how-to-vote and tax-relief first questions, and nothing else', () => {
   for (const q of ['What does Question 2 do?', 'What would Question 2 actually do?', 'Explain HB 1300', 'what is this ballot question about', 'Can you summarize the tax cap?', "What's HB 1300?", 'Tell me about Question 2', 'What does question 2 mean for Farmington?'])
     assert.equal(hintQueries(q).length, 1, q);
   for (const q of ['How should I vote?', "What's the best argument for voting yes?", 'Is the cap a good idea?', 'pros and cons of question 2', 'What do supporters of the cap say?'])
     assert.equal(hintQueries(q).length, 2, q);
+  for (const q of ["I'm 72 and my property taxes are too high. Is there any help besides the cap?", 'Is there tax relief for seniors?', "I'm retired on a fixed income", 'How does the elderly exemption work?'])
+    assert.match(hintQueries(q).join(' '), /elderly exemption/, q);
   // Specific questions (from the test battery) that the question's own wording finds.
   for (const q of [
     'What is the 60% rule?', 'When would the cap start?', 'Who decides for Farmington?', 'Tell me about Dover', 'hi',
