@@ -230,7 +230,7 @@ export const sources = defineSources({
     publisher: 'New Hampshire Department of Education',
     url: 'https://my.doe.nh.gov/iPlatform/DOE25/DOE25Reports',
     kind: 'data',
-    note: 'Fiscal 2025 figures have not yet been audited.',
+    note: 'No audit of fiscal 2025 has been published yet.',
   },
   'nces-enrollment-farmington': {
     short: 'NCES enrollment',
@@ -462,6 +462,14 @@ export const sources = defineSources({
     publisher: 'Town of Farmington, NH',
     url: 'https://www.farmington.nh.us/DocumentCenter/View/2894',
     date: 'March 10, 2026',
+    kind: 'local',
+  },
+  'farmington-audit-2016': {
+    short: 'FY2016 audit',
+    title: 'Farmington School District annual financial statements, June 30, 2016, with independent auditors’ report (tuition revenue; note 15 on Middleton’s withdrawal and the SAU 61 merger)',
+    publisher: 'Melanson Heath, for the Farmington School District (posted in the district’s audit folder linked from sau61.org)',
+    url: 'https://drive.google.com/file/d/1PMQyQibpFf0i0i5gXQewrndXYUCiCLUq/view',
+    date: 'March 29, 2018',
     kind: 'local',
   },
   'farmington-audit-2023': {
