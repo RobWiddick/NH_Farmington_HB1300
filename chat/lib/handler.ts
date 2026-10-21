@@ -247,7 +247,7 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     chunks = combine(await Promise.allSettled([firstSearch, ...more]));
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
-    return json(503, { error: 'The assistant can’t reach its sources right now.' });
+    return json(503, { error: 'The assistant can’t reach its sources right now.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
   }
   if (!chunks.length) {
     log('no_match', { queries: p.queries.length });
@@ -277,8 +277,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
       ...(effort ? { reasoning_effort: effort } : {}),
     });
   } catch (err) {
-    log('model_error', { error: String(err).slice(0, 200) });
-    return json(503, { error: 'The assistant is busy right now. Please try again in a moment.' });
+    log('model_error', { model, error: String(err).slice(0, 200) });
+    return json(503, { error: 'The assistant is busy right now. Please try again in a moment.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
   }
   if (!(stream instanceof ReadableStream)) {
     log('model_error', { error: 'no stream' });
