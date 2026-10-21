@@ -632,10 +632,10 @@ export const sources = defineSources({
   },
   'wallethub-schools-2026': {
     short: 'WalletHub',
-    title: 'States with the Best & Worst School Systems (2026), as published by the Arizona Daily Star',
+    title: 'States with the Best & Worst School Systems (2026)',
     publisher: 'WalletHub (Adam McCann)',
-    url: 'https://tucson.com/news/nation-world/business/personal-finance/article_d42914fd-a2e2-5b0e-9195-bbe757b543b8.html',
-    date: 'July 19, 2026; updated Aug. 4, 2026',
+    url: 'https://wallethub.com/edu/e/states-with-the-best-schools/5335',
+    date: 'July 20, 2026',
     kind: 'research',
   },
   'newamerica-nh': {
