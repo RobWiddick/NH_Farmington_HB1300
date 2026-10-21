@@ -642,6 +642,41 @@ dl.glossary dd {
   font-size: 0.95rem;
   color: var(--muted);
 }
+.site-footer a {
+  color: var(--link);
+}
+.footer-contact > span {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.footer-contact > span.chat-only {
+  display: none;
+}
+html.chat-ready .footer-contact > span.chat-only {
+  display: block;
+}
+.chat-only {
+  display: none;
+}
+html.chat-ready .chat-only {
+  display: revert;
+}
+.faq-ask {
+  margin-top: 1.5rem;
+}
+.linklike {
+  font: inherit;
+  color: var(--link);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+.linklike:hover {
+  text-decoration-thickness: 2px;
+}
 .site-footer .disclosure {
   display: inline-block;
   border: 1px solid var(--ink);

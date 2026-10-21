@@ -18,6 +18,7 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {site.publisher && <meta name="author" content={site.publisher} />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#14325c" media="(prefers-color-scheme: light)" />
