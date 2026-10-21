@@ -957,7 +957,7 @@ figcaption {
 }
 .glance h2.kicker {
   font-family: var(--sans);
-  margin-bottom: 0.6rem;
+  margin-bottom: 1.1rem;
 }
 .glance dl {
   margin: 0 0 1rem;
@@ -968,7 +968,8 @@ figcaption {
   display: grid;
   grid-template-columns: 5.6rem 1fr;
   gap: 0.75rem;
-  align-items: baseline;
+  /* Center each number on its description so it doesn't sit above the text */
+  align-items: center;
   padding-bottom: 0.9rem;
   border-bottom: 1px solid var(--line);
 }
