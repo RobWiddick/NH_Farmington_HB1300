@@ -140,6 +140,9 @@ export function combine(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
 }
 
 /** All distinct chunks from several searches, best score first. Throws only if every search failed. */
+/** Identifies a passage across searches (the same passage can come back from several queries). */
+export const chunkId = (c: Chunk) => `${c.key}\u0000${c.text.slice(0, 120)}`;
+
 export function pool(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
   const ok = settled.filter((s): s is PromiseFulfilledResult<Chunk[]> => s.status === 'fulfilled');
   if (!ok.length) {
@@ -149,7 +152,7 @@ export function pool(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
   const best = new Map<string, Chunk>();
   // AI Search already drops results below its match threshold; scores are only used for ordering here.
   for (const c of ok.flatMap((s) => s.value)) {
-    const id = `${c.key}\u0000${c.text.slice(0, 120)}`;
+    const id = chunkId(c);
     const prev = best.get(id);
     if (!prev || c.score > prev.score) best.set(id, c);
   }
@@ -195,6 +198,17 @@ export function demote(chunks: Chunk[], text: string): Chunk[] {
       return rule && !rule.unless.test(text) ? { ...c, score: c.score * rule.factor } : c;
     })
     .sort((a, b) => b.score - a.score);
+}
+
+/** `ranked` with the `pins` moved to the front (in their order), each passage once. */
+export function pinFirst(pins: Chunk[], ranked: Chunk[]): Chunk[] {
+  const seen = new Set<string>();
+  return [...pins, ...ranked].filter((c) => {
+    const id = chunkId(c);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 /** The best chunks within the context budget, at most MAX_PER_DOC from one document. */

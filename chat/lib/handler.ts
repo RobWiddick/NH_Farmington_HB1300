@@ -15,7 +15,7 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { demote, lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
+import { chunkId, demote, lastSearch, pinFirst, pool, rerank, search, searchOptions, select } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 // Chosen by grading the full 39-question test battery against live answers
@@ -42,6 +42,9 @@ const EVAL_MODELS = new Set([
   '@cf/mistralai/mistral-small-3.1-24b-instruct',
   '@cf/meta/llama-3.1-8b-instruct-fast',
 ]);
+
+// Passages each hint query is guaranteed in the answer's context.
+const HINT_PINS = 2;
 
 // How much longer to wait for a cut-short planner before a "not found" reply.
 const LATE_PLAN_MS = 3000;
@@ -342,7 +345,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   try {
     const searched = new Set([question, ...hints].map((q) => q.toLowerCase()));
     const more = p.queries.filter((q) => !searched.has(q.toLowerCase())).map((q) => search(env, q, sOpts));
-    let candidates = pool(await Promise.allSettled([...firstSearches, ...more]));
+    const settled = await Promise.allSettled([...firstSearches, ...more]);
+    let candidates = pool(settled);
     // AI Search occasionally returns nothing for a query it answers fine a moment
     // later; retry (twice, briefly spaced) before telling the visitor nothing was found.
     for (const wait of [300, 1000]) {
@@ -353,7 +357,16 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     // Rerank against the planner's standalone version of the question, so a
     // follow-up like "and Dover?" is scored as "Dover tax cap ...".
     const ranked = selfRerank ? await rerank(env, p.queries[0] || question, candidates) : candidates;
-    chunks = select(demote(ranked, `${question} ${p.queries.join(' ')}`));
+    const ordered = demote(ranked, `${question} ${p.queries.join(' ')}`);
+    // Each hint query keeps its best passages, so the reranker (which scores
+    // against the question as asked) can't leave out one side of "How should I vote?".
+    const pins = hints.flatMap((_, i) => {
+      const r = settled[i + 1];
+      if (r?.status !== 'fulfilled') return [];
+      const ids = new Set(r.value.map(chunkId));
+      return ordered.filter((c) => ids.has(chunkId(c))).slice(0, HINT_PINS);
+    });
+    chunks = select(pinFirst(pins, ordered));
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
     return json(503, { error: 'The assistant can’t reach its sources right now.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });

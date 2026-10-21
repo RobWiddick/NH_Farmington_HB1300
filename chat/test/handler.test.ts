@@ -404,3 +404,29 @@ test('when nothing is found, a slow planner still gets to call a first question 
   const found = await readEvents(await handleChat(req(ask('Can you write me a poem about autumn?')), slowOffTopic(fakeEnv())));
   assert.equal(found.meta.status, 'answer', 'when documents were found, the answer model handles scope (rule 9)');
 });
+
+test("a how-to-vote question keeps both sides' passages even when the reranker prefers others", async () => {
+  const byQuery: Record<string, { key: string; text: string }[]> = {
+    "the guide author's reasons to vote No on Question 2": [{ key: 'site--quick--01-main.md', text: 'I recommend voting No because...' }],
+    "supporters' strongest arguments for the school tax cap": [{ key: 'site--other-side--01-main.md', text: 'Supporters say property taxes are climbing too fast.' }],
+  };
+  const generic = Array.from({ length: 12 }, (_, i) => ({ key: `site--vote--0${i % 4}-x.md`, text: `How to vote, part ${i}` }));
+  const env: Env = {
+    ...fakeEnv(),
+    CHAT_EVAL: 'true',
+    AI: {
+      ...fakeEnv().AI!,
+      async run(model: string, input: unknown) {
+        const i = input as { stream?: boolean; contexts?: { text: string }[] };
+        // Reranker: score the supporters' passage lowest of all.
+        if (i.contexts) return { response: i.contexts.map((c, id) => ({ id, score: c.text.startsWith('Supporters') ? 0.01 : 0.9 - id / 100 })) };
+        return fakeEnv().AI!.run(model, input);
+      },
+      autorag: () => ({ search: async (args: { query: string }) => legacyResult(byQuery[args.query] ?? generic) }),
+    },
+  };
+  const res = await readEvents(await handleChat(req(ask('How should I vote on Question 2?'), { 'x-plan-timeout': '1' }), env));
+  const keys = (res.meta.debug.chunks as { key: string }[]).map((c) => c.key);
+  assert.ok(keys.includes('site--other-side--01-main.md'), keys.join(', '));
+  assert.ok(keys.includes('site--quick--01-main.md'), keys.join(', '));
+});
