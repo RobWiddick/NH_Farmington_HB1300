@@ -7,6 +7,8 @@
 //   vote_slider { yes_pct }                      (debounced)
 //   reveal_open { item }
 //   calendar_add { method: 'ics' | 'google' }
+//   chart_subject { subject: 'math' | 'ela' | 'sci' }
+//   menu_open
 import { send, sectionOf } from './analytics';
 
 const money = (n: number) => `$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
@@ -187,4 +189,64 @@ export function initVoteDay() {
   document.querySelectorAll<HTMLAnchorElement>('[data-cal]').forEach((a) =>
     a.addEventListener('click', () => send('calendar_add', { ...sectionOf(a), method: a.dataset.cal ?? '' })),
   );
+}
+
+/** The top bar's "Sections" menu (src/components/SectionMenu.astro). */
+export function initMenu() {
+  const menu = document.querySelector<HTMLDetailsElement>('[data-menu]');
+  if (!menu || menu.dataset.ready) return;
+  menu.dataset.ready = '1';
+  const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]'));
+  const close = () => {
+    menu.open = false;
+  };
+  // Mark the section at the top of the screen, so the open menu shows where you are.
+  const markCurrent = () => {
+    const y = 90;
+    let current = '';
+    for (const a of links) {
+      const el = document.getElementById(a.hash.slice(1));
+      if (el && el.getBoundingClientRect().top <= y) current = a.hash;
+    }
+    links.forEach((a) => (a.hash === current ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+  };
+  menu.addEventListener('toggle', () => {
+    if (!menu.open) return;
+    markCurrent();
+    send('menu_open', { ...sectionOf(menu) });
+  });
+  links.forEach((a) => a.addEventListener('click', close));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.open) {
+      close();
+      menu.querySelector('summary')?.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (menu.open && !menu.contains(e.target as Node)) close();
+  });
+}
+
+/** Subject buttons for the test-score charts (src/components/ScoreChart.astro). */
+export function initScoreCharts() {
+  document.querySelectorAll<HTMLElement>('[data-scores]').forEach((root) => {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const controls = root.querySelector<HTMLElement>('[data-score-controls]');
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-score-subject]'));
+    const charts = Array.from(root.querySelectorAll<HTMLElement>('[data-score-chart]'));
+    if (!controls || !buttons.length) return;
+    controls.hidden = false;
+    const show = (key: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scoreSubject === key)));
+      charts.forEach((c) => (c.hidden = c.dataset.scoreChart !== key));
+    };
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        show(b.dataset.scoreSubject ?? 'math');
+        send('chart_subject', { ...sectionOf(root), subject: b.dataset.scoreSubject ?? '' });
+      }),
+    );
+    show(buttons[0].dataset.scoreSubject ?? 'math');
+  });
 }

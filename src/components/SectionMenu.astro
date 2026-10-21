@@ -1,0 +1,23 @@
+---
+// "Sections" menu for the sticky top bar: every section of the page, at every
+// screen width. It's a native <details>, so it opens and jumps without
+// JavaScript; src/scripts/interactive.ts (initMenu) closes it after a jump, on
+// Escape or on a click outside, and marks the section being read.
+import { navSections } from '../data/sections';
+---
+<details class="menu" data-menu>
+  <summary class="menu-btn">
+    <svg class="icon-open" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <svg class="icon-close" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Sections</span>
+  </summary>
+  <nav class="menu-panel" aria-label="All sections">
+    <ol>
+      {navSections.map((s) => <li><a href={`#${s.id}`} data-menu-link>{s.label}</a></li>)}
+    </ol>
+  </nav>
+</details>
+<script>
+  import { initMenu } from '../scripts/interactive';
+  initMenu();
+</script>

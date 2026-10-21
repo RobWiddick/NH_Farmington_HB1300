@@ -7,9 +7,10 @@
 //   share          a share link was used
 //   nav_click      a top-bar or button link to a section was used
 //   chat_*         the assistant was used (see src/scripts/chat.ts); no question text is sent
-//   calc_change, vote_slider, reveal_open, calendar_add
+//   calc_change, vote_slider, reveal_open, calendar_add, chart_subject
 //                  the page's interactive pieces were used (see src/scripts/interactive.ts)
 //   theme_change   light/dark mode was switched (see src/scripts/theme.ts)
+//   menu_open      the top bar's "Sections" menu was opened
 //
 // Every event carries section_id / section_title so reports can be broken
 // down by section (register them as event-scoped custom dimensions in GA4).
@@ -154,7 +155,7 @@ function trackClicks() {
     }
   });
 
-  document.querySelectorAll('details').forEach((d) => {
+  document.querySelectorAll('details:not([data-menu])').forEach((d) => {
     d.addEventListener('toggle', () => {
       if (!d.open) return;
       const q = d.querySelector('summary')?.textContent?.replace(/\s+/g, ' ').trim() ?? '';

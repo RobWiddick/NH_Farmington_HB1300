@@ -1,0 +1,102 @@
+---
+// Farmington vs. New Hampshire test scores, one line chart per subject. Without
+// JavaScript all three charts show, one under another; with it, buttons switch
+// between them (initScoreCharts in src/scripts/interactive.ts). The full numbers
+// are in the table that follows this chart on the page.
+import { scores } from '../data/figures';
+
+type Key = 'math' | 'ela' | 'sci';
+const subjects: { key: Key; label: string }[] = [
+  { key: 'math', label: 'Math' },
+  { key: 'ela', label: 'Reading' },
+  { key: 'sci', label: 'Science' },
+];
+
+// A compact drawing (440 units wide) so the text stays readable when it shrinks to a phone screen.
+const W = 440;
+const H = 250;
+const pad = { l: 40, r: 46, t: 14, b: 34 };
+const years = scores.map((s) => s.year);
+const yMax = 70;
+const x = (year: number) => pad.l + ((year - years[0]) / (years[years.length - 1] - years[0])) * (W - pad.l - pad.r);
+const y = (v: number) => pad.t + (1 - v / yMax) * (H - pad.t - pad.b);
+const tested = scores.filter((s) => s.year !== 2020);
+
+// One path per run of consecutive tested years, so the 2020 gap shows as a break.
+function paths(key: Key, which: 0 | 1): string[] {
+  const runs: string[][] = [];
+  let run: string[] = [];
+  for (const s of scores) {
+    if (s.year === 2020) {
+      if (run.length) runs.push(run);
+      run = [];
+      continue;
+    }
+    run.push(`${x(s.year).toFixed(1)},${y(s[key][which]).toFixed(1)}`);
+  }
+  if (run.length) runs.push(run);
+  return runs.map((r) => `M${r.join('L')}`);
+}
+
+function summary(key: Key, label: string): string {
+  const first = tested[0];
+  const last = tested[tested.length - 1];
+  const prev = tested[tested.length - 2];
+  return `${label}, percent of students proficient or better. Farmington: ${first[key][0]}% in ${first.year}, ${prev[key][0]}% in ${prev.year}, ${last[key][0]}% in ${last.year}. New Hampshire: ${first[key][1]}% in ${first.year}, ${prev[key][1]}% in ${prev.year}, ${last[key][1]}% in ${last.year}. No state tests in 2020.`;
+}
+const last = tested[tested.length - 1];
+// End-of-line labels: keep them at least 16px apart when the two values are close.
+function endLabels(key: Key): [number, number] {
+  let f = y(last[key][0]) + 4;
+  let st = y(last[key][1]) + 4;
+  const gap = 14 - Math.abs(f - st);
+  if (gap > 0) {
+    const shift = gap / 2;
+    if (f > st) [f, st] = [f + shift, st - shift];
+    else [f, st] = [f - shift, st + shift];
+  }
+  return [f, st];
+}
+---
+<div class="scores-viz" data-scores>
+  <div class="seg" role="group" aria-label="Choose a subject" data-score-controls hidden>
+    {subjects.map((s, i) => (
+      <button type="button" data-score-subject={s.key} aria-pressed={i === 0 ? 'true' : 'false'}>{s.label}</button>
+    ))}
+  </div>
+  {subjects.map((s) => (
+    <figure class="score-chart" data-score-chart={s.key}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={summary(s.key, s.label)}>
+        {[0, 20, 40, 60].map((v) => (
+          <g class="grid">
+            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} />
+            <text x={pad.l - 8} y={y(v) + 4} text-anchor="end">{v}%</text>
+          </g>
+        ))}
+        {years.map((yr) => (
+          <text class="tick" x={x(yr)} y={H - pad.b + 20} text-anchor="middle">{`’${String(yr).slice(2)}`}</text>
+        ))}
+        <text class="gap-note" x={x(2020)} y={y(6)} text-anchor="middle">no tests</text>
+        {paths(s.key, 1).map((d) => <path class="line state" d={d} />)}
+        {paths(s.key, 0).map((d) => <path class="line farm" d={d} />)}
+        {tested.map((t) => (
+          <>
+            <circle class="pt state" cx={x(t.year)} cy={y(t[s.key][1])} r="3.5"><title>{`New Hampshire, ${t.year}: ${t[s.key][1]}%`}</title></circle>
+            <circle class="pt farm" cx={x(t.year)} cy={y(t[s.key][0])} r="4"><title>{`Farmington, ${t.year}: ${t[s.key][0]}%`}</title></circle>
+          </>
+        ))}
+        <text class="end farm" x={x(last.year) + 8} y={endLabels(s.key)[0]}>{`${last[s.key][0]}%`}</text>
+        <text class="end state" x={x(last.year) + 8} y={endLabels(s.key)[1]}>{`${last[s.key][1]}%`}</text>
+      </svg>
+      <figcaption>
+        <span class="key"><span class="sw farm"></span>Farmington</span>
+        <span class="key"><span class="sw state"></span>New Hampshire</span>
+        <span class="muted">{s.label}: percent of students proficient or better, spring of each year</span>
+      </figcaption>
+    </figure>
+  ))}
+</div>
+<script>
+  import { initScoreCharts } from '../scripts/interactive';
+  initScoreCharts();
+</script>

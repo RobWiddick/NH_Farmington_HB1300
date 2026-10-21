@@ -5,8 +5,9 @@ import VoteSlider from '../components/VoteSlider.astro';
 import CapCalculator from '../components/CapCalculator.astro';
 import SourceList from '../components/SourceList.astro';
 import ShareRow from '../components/ShareRow.astro';
-import LevyChart from '../components/LevyChart.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import SectionMenu from '../components/SectionMenu.astro';
+import ScoreChart from '../components/ScoreChart.astro';
 import { site, calendarEvent } from '../data/site';
 import { scores } from '../data/figures';
 
@@ -36,14 +37,14 @@ const ballotText = {
         <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="12" fill="#14325c"/><path d="M14 46V18h22v6H21v5h13v6H21v11z" fill="#fff"/><circle cx="46" cy="40" r="7" fill="#f2b33d"/></svg>
         <span>Farmington &amp; Question 2</span>
       </a>
-      <nav class="topnav" aria-label="Sections">
-        <a class="hide-xs" href="#quick">1-minute version</a>
-        <a class="hide-sm" href="#farmington">Farmington</a>
-        <a class="hide-sm" href="#ballot">The wording</a>
-        <a class="hide-sm" href="#other-side">Other side</a>
-        <a class="hide-sm" href="#vote">How to vote</a>
-        <a href="#sources">Sources</a>
+      <nav class="topnav" aria-label="Main sections">
+        <a href="#quick">1-minute version</a>
+        <a href="#farmington">Farmington</a>
+        <a href="#ballot">The wording</a>
+        <a href="#other-side">Other side</a>
+        <a href="#vote">How to vote</a>
       </nav>
+      <SectionMenu />
       <ThemeToggle />
     </div>
   </header>
@@ -313,8 +314,9 @@ const ballotText = {
           challenge,” said the board had made “significant changes to our business department” to strengthen financial
           management, and said those challenges, “coupled with unanticipated healthcare bills,” led to a mid-year
           Reduction in Force: the district’s first layoffs in years, along with a spending freeze.
-          <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" /> A new business administrator was
-          due to start in late October 2026. <Cite id="school-board-video" href={vid(395)} label="Video, 6:35" />
+          <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" /> The district has taken steps to
+          address its financial management challenges, including hiring a new business administrator scheduled to begin
+          in late October 2026. <Cite id="school-board-video" href={vid(395)} label="Video, 6:35" />
         </p>
         <p>
           Cap supporters can fairly point to this as a reason voters want firmer limits. My view: a tax cap didn’t cause
@@ -322,48 +324,6 @@ const ballotText = {
           vote.
         </p>
 
-        <p class="sub-stat" aria-hidden="true"><b>4 of 9</b> recent years over what the cap would have allowed</p>
-        <h3>Would past budgets have fit under the cap?</h3>
-        <p class="takeaway">
-          Not always. By my estimate, Farmington’s school levy rose clearly more than the cap would have allowed in 4 of
-          the last 9 years.
-        </p>
-        <p>
-          Over the past decade, Farmington’s school tax levy has roughly kept pace with prices: up about 33% from 2016 to
-          2025, against 31% Northeast inflation. But it swings from year to year, up 20% in 2017 and down 13% in 2018.
-          HB 1300 starts each year’s limit from the year before, so room left unused in a lean year is lost. Looking back,
-          the levy rose clearly more than the cap would have allowed in 4 of the last 9 years, and narrowly (by about
-          $47,000) in a fifth. That’s a look back, not a prediction: under a cap, the district would have budgeted
-          differently, for example by not lowering taxes in a good year.
-        </p>
-      </div>
-      <LevyChart>
-        <figcaption>
-          Red bars mark years the levy grew more than 1 point faster than the cap’s inflation figure plus my estimate of
-          what new construction could have added; “Close” marks a year it was over by less than 1 point. Levy: state-approved tax rate sheets in Farmington’s town reports
-          <Cite id="town-report-2017" /> <Cite id="town-report-2018" /> <Cite id="town-report-2019" />
-          <Cite id="town-report-2020" /> <Cite id="town-report-2021" /> <Cite id="town-report-2022" />
-          <Cite id="town-report-2023" /> <Cite id="town-report-2024" /> <Cite id="town-report-2025" label="2025" />.
-          Inflation: <Cite id="bls-cpi-ne" />.
-        </figcaption>
-      </LevyChart>
-      <div class="prose">
-        <details>
-          <summary>How I figured this</summary>
-          <p>
-            For each year, I took the change in Farmington’s “local education” tax levy and compared it with the
-            inflation figure HB 1300 specifies: the 12-month change in Northeast consumer prices ending in March of the
-            prior fiscal year (the March just before the school year the levy paid for). Then I added an estimate of
-            what “new construction” could have added: the growth in Farmington’s total taxable value, which was under 1%
-            in every year without a town-wide revaluation. For the two revaluation years (2019 and 2024), I generously
-            assumed 3%; both were still over. 2020 is a close call: the levy beat the estimate by about $47,000, which a
-            new-construction allowance above 0.8% would have covered. The 2016 levy is approximate (the 2016 school tax
-            rate times that year’s total assessed value). Reading the law to use March a year earlier gives 5 of 9 years
-            over, so my reading is the cautious one. Farmington’s school district has no bond payments, so HB 1300’s
-            exclusion for building debt doesn’t change the result. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
-            <Cite id="school-board-video" href={vid(3420)} label="Video, 57:00" />
-          </p>
-        </details>
         <details>
           <summary>How Farmington’s spending has changed since 2016</summary>
           <p>
@@ -375,19 +335,21 @@ const ballotText = {
             <Cite id="census-f33-2016-states" /> <Cite id="census-f33-2024-states" />
           </p>
         </details>
-        <details>
-          <summary>Farmington’s families and tax base</summary>
-          <p>
-            Farmington’s median household income is $66,943, compared with $99,031 statewide, so tax increases hit harder
-            here. That’s a real reason some neighbors support a cap. <Cite id="acs-income-farmington" />
-            <Cite id="acs-income-nh" /> It also means more kids rely on school: about 4 in 10 Farmington students qualify
-            for free or reduced-price lunch, compared with about 1 in 4 statewide.
-            <Cite id="nces-lunch-farmington" /> <Cite id="nces-lunch-nh" /> The state puts Farmington in its top school
-            building aid tier, reserved for “less affluent communities.” <Cite id="nhed-building-aid" />
-          </p>
-        </details>
-        <details>
-          <summary>Test scores, 2018–2026</summary>
+        <p style="margin-top:1.5rem">
+          Hear it from the people who build the budget: the district’s presentation on HB 1300 at the October 19 School
+          Board meeting runs about 35 minutes, with questions from residents. <Cite id="school-board-video" label="Watch from 37:21" />
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== OUTCOMES ===================== -->
+  <section id="outcomes" class="alt">
+    <div class="wrap">
+      <p class="kicker">Student outcomes</p>
+      <h2>Farmington students were closing the gap with the state</h2>
+      <div class="prose">
+
           <p>
             Farmington students have long scored below the state average. Between 2021 and 2024 they closed most of that
             gap in math and reading, and in science they edged past the state in 2022 (by 1 point) and beat it in 2023 and
@@ -399,6 +361,11 @@ const ballotText = {
             lean year in Farmington’s schools, not as proof of cause. Farmington tests only 140 to 430 students a year,
             and each year tests different kids.
           </p>
+      </div>
+      <ScoreChart />
+      <div class="prose">
+        <details>
+          <summary>All the numbers, and what they cover</summary>
           <div class="table-wrap" tabindex="0" role="region" aria-labelledby="scores-cap">
             <table class="scores">
               <caption id="scores-cap">Percent of students proficient or better (Farmington / state)</caption>
@@ -432,10 +399,25 @@ const ballotText = {
             2026 math and reading <Cite id="keene-2026-scores" />.
           </p>
         </details>
-        <p style="margin-top:1.5rem">
-          Hear it from the people who build the budget: the district’s presentation on HB 1300 at the October 19 School
-          Board meeting runs about 35 minutes, with questions from residents. <Cite id="school-board-video" label="Watch from 37:21" />
-        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== COMMUNITY ===================== -->
+  <section id="community">
+    <div class="wrap">
+      <p class="kicker">Families and taxpayers</p>
+      <h2>Farmington’s families and tax base</h2>
+      <div class="prose">
+
+          <p>
+            Farmington’s median household income is $66,943, compared with $99,031 statewide, so tax increases hit harder
+            here. That’s a real reason some neighbors support a cap. <Cite id="acs-income-farmington" />
+            <Cite id="acs-income-nh" /> It also means more kids rely on school: about 4 in 10 Farmington students qualify
+            for free or reduced-price lunch, compared with about 1 in 4 statewide.
+            <Cite id="nces-lunch-farmington" /> <Cite id="nces-lunch-nh" /> The state puts Farmington in its top school
+            building aid tier, reserved for “less affluent communities.” <Cite id="nhed-building-aid" />
+          </p>
       </div>
     </div>
   </section>
@@ -796,7 +778,8 @@ const ballotText = {
           </p>
           <p class="small muted" style="margin:.5rem 0 0">
             Bond payments for school building projects, once certified by the state, are left out.
-            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII & XVI" />
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII & XVI" /> Farmington’s school district has no bond payments,
+            so this exclusion wouldn’t change its cap. <Cite id="school-board-video" href={vid(3420)} label="Video, 57:00" />
           </p>
         </div>
         <ul>

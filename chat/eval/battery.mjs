@@ -18,7 +18,7 @@ export const battery = [
   { id: 'far-admin-share', cat: 'farmington', q: 'Would the 6% administration cap affect Farmington?' },
   { id: 'far-votes-2026', cat: 'farmington', q: 'How did Farmington vote on the school budget in 2026?' },
   { id: 'far-cap-2025', cat: 'farmington', q: 'Has Farmington voted on a tax cap before?' },
-  { id: 'far-levy', cat: 'farmington', q: "Has Farmington's school tax levy grown faster than inflation?" },
+  { id: 'far-spending', cat: 'farmington', q: "Has Farmington's school spending kept up with inflation?" },
   { id: 'far-cuts', cat: 'farmington', q: 'What would Farmington cut if the cap passes?' },
   { id: 'far-income', cat: 'farmington', q: 'Why does this matter more in Farmington than in richer towns?' },
   { id: 'far-money-trouble', cat: 'farmington', q: "Didn't Farmington's school district have money problems?" },

@@ -279,17 +279,120 @@ section.alt {
 .topnav a:hover {
   background: var(--paper-2);
 }
-.topnav .hide-sm {
-  display: none !important;
-}
-@media (max-width: 479px) {
-  .topnav .hide-xs {
-    display: none !important;
+/* Shortcut links only where they fit; the "Sections" menu covers every width. */
+@media (max-width: 1139px) {
+  .topnav {
+    display: none;
   }
 }
-@media (min-width: 1040px) {
-  .topnav .hide-sm {
-    display: inline-flex !important;
+
+/* "Sections" menu (a <details>; undo the FAQ accordion styles) */
+.menu {
+  position: relative;
+  flex: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+}
+.menu > .menu-panel {
+  padding-bottom: 0.4rem;
+}
+.topbar .menu {
+  margin-left: auto;
+}
+@media (min-width: 1140px) {
+  .topbar .menu {
+    margin-left: 0;
+  }
+}
+.menu-btn {
+  list-style: none;
+  display: inline-flex;
+  justify-content: flex-start;
+  font-weight: 650;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0 0.95rem 0 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: 650 0.92rem/1 var(--sans);
+  cursor: pointer;
+  user-select: none;
+}
+.menu-btn::-webkit-details-marker {
+  display: none;
+}
+.menu-btn::after,
+.menu[open] .menu-btn::after {
+  content: none;
+}
+.menu-btn:hover {
+  border-color: color-mix(in srgb, var(--ink) 35%, var(--line));
+}
+.menu .icon-close,
+.menu[open] .icon-open {
+  display: none;
+}
+.menu[open] .icon-close {
+  display: block;
+}
+.menu-panel {
+  /* Fixed to the top bar's content edge, so it fits a phone screen whatever
+     sits next to the button. */
+  position: fixed;
+  top: 4rem;
+  right: calc(max(0px, (100vw - var(--wide) - 2 * var(--gutter)) / 2) + var(--gutter));
+  width: min(20rem, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100vh - 5rem);
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 30px rgb(10 20 40 / 0.18);
+  padding: 0.4rem;
+  z-index: 60;
+}
+.menu-panel ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.menu-panel li + li {
+  margin: 0;
+}
+.menu-panel a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.35rem 0.8rem;
+  border-radius: 10px;
+  color: var(--ink);
+  font: 600 0.98rem/1.25 var(--sans);
+  text-decoration: none;
+}
+.menu-panel a:hover {
+  background: var(--paper-2);
+}
+.menu-panel a[aria-current] {
+  background: color-mix(in srgb, var(--link) 12%, transparent);
+  color: var(--link);
+}
+.menu-panel a[aria-current]::after {
+  content: 'You’re here';
+  margin-left: auto;
+  padding-left: 0.75rem;
+  font: 600 0.75rem/1 var(--sans);
+  color: var(--muted);
+}
+@media print {
+  .menu {
+    display: none !important;
   }
 }
 
@@ -695,67 +798,6 @@ figcaption {
   color: var(--muted);
   margin-top: 0.6rem;
 }
-.bars {
-  display: grid;
-  gap: 0.85rem;
-}
-.bar-row {
-  display: grid;
-  gap: 0.3rem;
-}
-.bar-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  font-weight: 600;
-  font-size: 0.98rem;
-}
-.bar-label .v {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.bar-track {
-  height: 1.15rem;
-  background: var(--chart-track);
-  border-radius: 999px;
-  overflow: hidden;
-}
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: var(--chart-a);
-}
-.bar-fill.b {
-  background: var(--chart-b);
-}
-.bar-fill.c {
-  background: var(--chart-c);
-}
-.legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.2rem;
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 0.8rem;
-}
-.legend span::before {
-  content: '';
-  display: inline-block;
-  width: 0.8rem;
-  height: 0.8rem;
-  border-radius: 3px;
-  margin-right: 0.4rem;
-  vertical-align: -0.05rem;
-  background: var(--chart-a);
-}
-.legend .b::before {
-  background: var(--chart-b);
-}
-.legend .c::before {
-  background: var(--chart-c);
-}
-
 /* Print */
 @media print {
   :root,
@@ -806,8 +848,9 @@ figcaption {
   .kicker {
     break-after: avoid;
   }
-  .levy-chart,
-  .bars {
+  .score-chart,
+  .spend-chart,
+  .calc-bars {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -824,26 +867,6 @@ figcaption {
   }
   summary::after {
     content: none;
-  }
-}
-
-/* Windows High Contrast / forced colors: keep charts visible */
-@media (forced-colors: active) {
-  .tracks,
-  .bar-track {
-    border: 1px solid CanvasText;
-  }
-  .b1,
-  .bar-fill,
-  .legend span::before {
-    background: CanvasText !important;
-    forced-color-adjust: none;
-  }
-  .b2,
-  .bar-fill.b,
-  .legend .b::before {
-    background: Highlight !important;
-    forced-color-adjust: none;
   }
 }
 
@@ -1890,5 +1913,131 @@ html:has(dialog.chat[open]) .to-top {
   }
   .calc-fill.allow {
     background: Highlight !important;
+  }
+}
+
+/* Test-score charts */
+.scores-viz {
+  margin: 1.25rem 0;
+}
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  margin-bottom: 0.75rem;
+}
+.seg[hidden] {
+  display: none;
+}
+.seg button {
+  min-height: 40px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font: 650 0.95rem/1 var(--sans);
+  cursor: pointer;
+}
+.seg button[aria-pressed='true'] {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+.score-chart {
+  max-width: 40rem;
+  margin: 0 0 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.75rem 0.75rem 0.6rem;
+}
+.score-chart[hidden] {
+  display: none;
+}
+.score-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.score-chart .grid line {
+  stroke: var(--line);
+}
+.score-chart .grid text,
+.score-chart .tick,
+.score-chart .gap-note {
+  fill: var(--muted);
+  font: 500 14px var(--sans);
+}
+.score-chart .gap-note {
+  font-style: italic;
+}
+.score-chart .line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.score-chart .line.farm,
+.score-chart .pt.farm {
+  stroke: var(--chart-a);
+}
+.score-chart .pt.farm {
+  fill: var(--chart-a);
+}
+.score-chart .line.state {
+  stroke: var(--chart-b);
+  stroke-dasharray: 7 6;
+}
+.score-chart .pt.state {
+  fill: var(--card);
+  stroke: var(--chart-b);
+  stroke-width: 2.5;
+}
+.score-chart .end {
+  font: 700 15px var(--sans);
+}
+.score-chart .end.farm {
+  fill: var(--chart-a);
+}
+.score-chart .end.state {
+  fill: var(--chart-b);
+}
+.score-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+.score-chart .key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+.score-chart .sw {
+  display: inline-block;
+  width: 1.4rem;
+  height: 0;
+  border-top: 3px solid var(--chart-a);
+}
+.score-chart .sw.state {
+  border-top: 3px dashed var(--chart-b);
+}
+@media print {
+  .seg {
+    display: none !important;
+  }
+  .score-chart[hidden] {
+    display: block !important;
+  }
+}
+@media (forced-colors: active) {
+  .score-chart .line.farm,
+  .score-chart .line.state {
+    stroke: CanvasText;
   }
 }
