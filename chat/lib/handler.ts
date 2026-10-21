@@ -28,7 +28,11 @@ export const DEFAULT_CHAT_MODEL = '@cf/deepseek-ai/deepseek-v4.1-flash-1017';
 // Used when the answer model errors (for example Workers AI's per-minute model
 // limit): as accurate, just slower.
 export const FALLBACK_CHAT_MODEL = '@cf/zai-org/glm-5.3-flash';
-export const DEFAULT_PLANNER_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+// The query planner. Measured on the live preview (Oct. 2026), writing queries took
+// DeepSeek V4.1 Flash (reasoning off) 1.1–3.4s and Llama 4 Scout 3.9–6.9s; DeepSeek
+// also wrote the best queries (resolved follow-ups, translated, flagged off-topic).
+// Llama 3.1 8B was faster but missed follow-ups and a prompt injection.
+export const DEFAULT_PLANNER_MODEL = '@cf/deepseek-ai/deepseek-v4.1-flash-1017';
 
 // Models that CHAT_EVAL mode lets a request pick with the x-chat-model header.
 const EVAL_MODELS = new Set([

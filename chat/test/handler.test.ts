@@ -158,10 +158,12 @@ test('demote pushes the lawsuit complaint down unless the question is about the 
 });
 
 test('PLAN_MODE=followups skips the planner on a first question but not on follow-ups', async () => {
-  const calls: { model: string; input: { stream?: boolean } }[] = [];
+  const calls: { model: string; input: { stream?: boolean; contexts?: unknown } }[] = [];
+  // The planner is the one model call that is neither streamed (the answer) nor a rerank.
+  const plannerCalls = () => calls.filter((c) => !c.input.stream && !c.input.contexts);
   const env = { ...fakeEnv({ calls: calls as unknown[] }), PLAN_MODE: 'followups' };
   await readEvents(await handleChat(req(ask('What does Question 2 do?')), env));
-  assert.ok(!calls.some((c) => c.model.includes('scout')), 'no planner call on a first question');
+  assert.equal(plannerCalls().length, 0, 'no planner call on a first question');
   const hi = await readEvents(await handleChat(req(ask('Hi there!')), env));
   assert.equal(hi.meta.status, 'greeting');
   calls.length = 0;
@@ -171,7 +173,7 @@ test('PLAN_MODE=followups skips the planner on a first question but not on follo
       env,
     ),
   );
-  assert.ok(calls.some((c) => c.model.includes('scout')), 'planner runs for a follow-up');
+  assert.equal(plannerCalls().length, 1, 'planner runs for a follow-up');
 });
 
 test('normalizeMarkers repairs the citation formats models actually write', async () => {
