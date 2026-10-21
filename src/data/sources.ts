@@ -17,7 +17,7 @@ export const kindLabels: Record<SourceKind, string> = {
   court: 'Court records',
   local: 'Farmington and SAU 61',
   news: 'News reporting',
-  research: 'Research, statistics and polling',
+  research: 'Research, statistics, and polling',
   'advocacy-con': 'Groups that oppose the cap (labeled so you can weigh them)',
   'advocacy-pro': 'Groups and officials that support the cap (labeled so you can weigh them)',
 };
@@ -241,14 +241,14 @@ export const sources = defineSources({
   },
   'census-f33-2024-tables': {
     short: 'Census, FY2024 tables',
-    title: 'Public Elementary-Secondary Education Finances, FY2024: summary tables (Tables 1, 4, 5 and 14: revenue by source and per-pupil spending by district size)',
+    title: 'Public Elementary-Secondary Education Finances, FY2024: summary tables (Tables 1, 4, 5, and 14: revenue by source and per-pupil spending by district size)',
     publisher: 'U.S. Census Bureau',
     url: 'https://www2.census.gov/programs-surveys/school-finances/tables/2024/secondary-education-finance/elsec24_sumtables.xlsx',
     kind: 'data',
   },
   'nhed-finance-2025': {
     short: 'NH DOE finance data',
-    title: 'Education funding orientation: equalized valuation per pupil (2023–24), local education tax rates (2023) and adequacy aid per pupil (FY2026 estimate)',
+    title: 'Education funding orientation: equalized valuation per pupil (2023–24), local education tax rates (2023), and adequacy aid per pupil (FY2026 estimate)',
     publisher: 'New Hampshire Department of Education, Bureau of School Finance (posted by the NH Legislative Budget Assistant)',
     url: 'https://gc.nh.gov/LBA/Budget/operating_budgets/2026-2027/HF_Division_II/Division%20II%20-%20NHED%20Orientation%20-%20ETF%20&%20School%20District%20Finance%20-%2002-03-25.pdf',
     date: 'Feb. 3, 2025',
@@ -804,7 +804,7 @@ export const sources = defineSources({
   'jjp-2016': {
     short: 'Jackson, Johnson & Persico (2016)',
     title: 'The Effects of School Spending on Educational and Economic Outcomes: Evidence from School Finance Reforms. Quarterly Journal of Economics 131(1)',
-    publisher: 'C. Kirabo Jackson, Rucker C. Johnson and Claudia Persico',
+    publisher: 'C. Kirabo Jackson, Rucker C. Johnson, and Claudia Persico',
     url: 'https://doi.org/10.1093/qje/qjv036',
     date: '2016',
     kind: 'research',
@@ -820,7 +820,7 @@ export const sources = defineSources({
   'jackson-wigger-xiong-2021': {
     short: 'Jackson, Wigger & Xiong (2021)',
     title: 'Do School Spending Cuts Matter? Evidence from the Great Recession. American Economic Journal: Economic Policy 13(2)',
-    publisher: 'C. Kirabo Jackson, Cora Wigger and Heyu Xiong',
+    publisher: 'C. Kirabo Jackson, Cora Wigger, and Heyu Xiong',
     url: 'https://www.aeaweb.org/articles?id=10.1257/pol.20180674',
     date: 'May 2021',
     kind: 'research',
@@ -844,7 +844,7 @@ export const sources = defineSources({
   'andrews-2002': {
     short: 'Andrews, Duncombe & Yinger (2002)',
     title: 'Revisiting economies of size in American education: are we any closer to a consensus? Economics of Education Review 21(3)',
-    publisher: 'Matthew Andrews, William Duncombe and John Yinger',
+    publisher: 'Matthew Andrews, William Duncombe, and John Yinger',
     url: 'https://doi.org/10.1016/S0272-7757(01)00006-1',
     date: 'June 2002',
     kind: 'research',
@@ -860,7 +860,7 @@ export const sources = defineSources({
   'mcgee-2021': {
     short: 'McGee, Mills & Goldstein (2021)',
     title: 'The Effect of School District Consolidation on Student Achievement: Evidence from Arkansas (EdWorkingPaper 21-347, not peer-reviewed)',
-    publisher: 'Josh B. McGee, Jonathan N. Mills and Jessica S. Goldstein, University of Arkansas',
+    publisher: 'Josh B. McGee, Jonathan N. Mills, and Jessica S. Goldstein, University of Arkansas',
     url: 'https://doi.org/10.26300/q9j5-x653',
     date: 'January 2021',
     kind: 'research',

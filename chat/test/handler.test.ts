@@ -332,7 +332,7 @@ test('the answer prompt keeps the bot grounded and neutral about the author', as
   const { answerPrompt } = await import('../lib/prompts.ts');
   const p = answerPrompt('2026-10-21');
   assert.match(p, /Brittni Widdick/);
-  assert.match(p, /Never use he, she, his or her for the author/);
+  assert.match(p, /Never use he, she, his, or her for the author/);
   assert.match(p, /Never fill gaps from memory/);
   assert.match(p, /hi@hb1300\.com/);
 });
