@@ -248,7 +248,7 @@ const ballotText = {
         </blockquote>
 
         <p class="sub-stat" aria-hidden="true"><b>11</b> full-time positions lost and not replaced</p>
-        <h3>Where would cuts come from?</h3>
+        <h3 id="cuts">Where would cuts come from?</h3>
         <p class="takeaway">
           No specific cuts have been proposed. Special-education services can’t be cut, district leaders said, so cuts
           would fall on regular education: staff, the biggest cost, and programs that aren’t graduation requirements,
@@ -269,6 +269,28 @@ const ballotText = {
           So cuts would fall on regular education. <Cite id="school-board-video" href={vid(4161)} label="Video, 1:09:21" /> Staff is the biggest cost,
           district leaders said, and programs that aren’t graduation requirements, like athletics and theater, would
           get a hard look. No specific cuts have been proposed.
+          <Cite id="school-board-video" href={vid(3790)} label="Video, 1:03:10" />
+        </p>
+        <p>
+          <strong>Some costs aren’t optional.</strong> Federal law requires the district to provide the services written
+          into each special-education student’s plan, and the U.S. Supreme Court has ruled that a district can’t refuse a
+          needed service because it’s expensive. <Cite id="idea-1414" label="IDEA, 20 U.S.C. 1414(d)" />
+          <Cite id="garret-f" /> Federal rules also generally bar a district from spending less on special education than
+          the year before, with exceptions such as fewer students needing services.
+          <Cite id="cfr-300-203" label="34 CFR 300.203" /> And state rules set a floor every school must meet to keep its
+          approval: instruction in the core subjects plus the arts, health, physical education and computer science, along
+          with licensed school counselors and library media services. <Cite id="ed-306" href="https://www.law.cornell.edu/regulations/new-hampshire/N-H-Admin-Code-SS-Ed-306.21" label="NH rules Ed 306.21" />
+          <Cite id="ed-306" href="https://www.law.cornell.edu/regulations/new-hampshire/N-H-Admin-Code-SS-Ed-306.12" label="Ed 306.12" /> <Cite id="rsa-193-e-2-a" /> The cap makes no exception for
+          any of these costs. Only state-approved building-bond payments are left out.
+          <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
+        </p>
+        <p>
+          That doesn’t mean every course or job is protected. School boards decide how to meet the standards. They can
+          share specialists between schools, offer some required courses online or through regional technical centers,
+          or ask the state to approve another way of complying. <Cite id="rsa-193-e-2-a" label="RSA 193-E:2-a, V" />
+          <Cite id="ed-306" href="https://www.law.cornell.edu/regulations/new-hampshire/N-H-Admin-Code-SS-Ed-306.22" label="Ed 306.22" /> <Cite id="ed-306" href="https://www.law.cornell.edu/regulations/new-hampshire/N-H-Admin-Code-SS-Ed-306.25" label="Ed 306.25" />
+          So reductions would fall hardest on what the district provides above those minimums, such as extra staff,
+          electives, sports and clubs, which is where district leaders said they would look.
           <Cite id="school-board-video" href={vid(3790)} label="Video, 1:03:10" />
         </p>
         <p>
@@ -741,7 +763,7 @@ const ballotText = {
       <ol class="steps prose">
         <li><p><strong>Vote on {site.electionDate}.</strong> Question 2 is on the general election ballot in every New Hampshire town and city ward. <Cite id="rsa-32-5-i" label="RSA 32:5-i, I" /></p></li>
         <li><p><strong>Turn your ballot over.</strong> Question 2 is on the back; the front says “VOTE BOTH SIDES.” <Cite id="farmington-sample-ballot" /></p></li>
-        <li><p><strong>Don’t skip it.</strong> If you leave Question 2 blank, it may not count at all, or it may count against the 60% needed to pass. As of mid-October, the Attorney General’s office hadn’t said which. Mark the choice you mean. <Cite id="nhpr-cuts" /></p></li>
+        <li><p><strong>Don’t skip it.</strong> District leaders have said a blank isn’t counted in the 60%, but the law doesn’t say so directly, and as of mid-October the Attorney General’s office hadn’t weighed in. Mark the choice you mean. <Cite id="school-board-video" href={vid(2372)} label="Video, 39:32" /> <Cite id="nhpr-cuts" /> <a href="#unknowns">Why it’s unsettled</a></p></li>
         <li><p><strong>To keep the cap off Farmington’s schools, fill in “No.”</strong> The cap takes effect only if 60% of voters say yes. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" /></p></li>
         <li><p><strong>Questions about where or how to vote?</strong> Contact the Farmington Town Clerk. <Cite id="farmington-clerk" /></p></li>
       </ol>
@@ -759,11 +781,74 @@ const ballotText = {
   <div class="more-divider">
     <div class="wrap prose">
       <p>
-        <strong>That’s the short version.</strong> Below: the math behind the cap, what happened in other New Hampshire
-        cities with caps, open questions, an FAQ, and every source.
+        <strong>That’s the short version.</strong> Below: how New Hampshire compares with other states, the math behind
+        the cap, what happened in other New Hampshire cities with caps, open questions, an FAQ, and every source.
       </p>
     </div>
   </div>
+
+  <!-- ===================== NH CONTEXT ===================== -->
+  <section id="nh-context">
+    <div class="wrap">
+      <p class="kicker">New Hampshire in context</p>
+      <h2>High spending, high costs, and the smallest state share</h2>
+      <p class="lede">
+        New Hampshire is often criticized for spending more per student than most states. That criticism deserves
+        context.
+      </p>
+      <div class="stat-tiles">
+        <div class="stat-tile">
+          <p class="stat-num">14th</p>
+          <p class="stat-label">most expensive state to live in, about 8.5% above the U.S. average</p>
+          <p class="stat-src"><Cite id="meric-col-2026" /></p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-num">4th</p>
+          <p class="stat-label">best public school system in WalletHub’s 2026 ranking</p>
+          <p class="stat-src"><Cite id="wallethub-schools-2026" /></p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-num">$23,619</p>
+          <p class="stat-label">spent per student in 2024–25, 6th highest of the 50 states and 32% above the U.S. average</p>
+          <p class="stat-src"><Cite id="nea-rankings-2026" /></p>
+        </div>
+        <div class="stat-tile">
+          <p class="stat-num">28.2%</p>
+          <p class="stat-label">of school revenue from the state, the smallest share of any state (U.S. average: 47.2%)</p>
+          <p class="stat-src"><Cite id="nea-rankings-2026" /></p>
+        </div>
+      </div>
+      <div class="prose">
+        <p>
+          New Hampshire is also one of the more expensive states to live in, mostly because of housing and utilities, and
+          its public schools rank near the top in national comparisons. <Cite id="meric-col-2026" />
+          <Cite id="wallethub-schools-2026" />
+        </p>
+        <p>
+          More importantly, New Hampshire puts an unusually large share of school costs on local communities. In
+          2024–25, 65.7% of public school revenue came from local sources, the largest share of any state; 28.2% came
+          from the state and 6.0% from the federal government. <Cite id="nea-rankings-2026" /> Census figures for the
+          year before tell the same story: the smallest state share in the country, at about 28%.
+          <Cite id="census-f33-2024-states" label="Census FY2024" /> <Cite id="newamerica-nh" />
+        </p>
+        <p>
+          High per-student spending doesn’t automatically mean a district is overspending, and a statewide average
+          doesn’t describe every district. Farmington spent about the state average per student in 2024, and less than
+          about 7 in 10 New Hampshire districts. <Cite id="census-f33-2024-states" label="Census FY2024" /> The question
+          isn’t simply how much New Hampshire spends on education. It’s how those costs are shared, whether communities
+          can afford their part, and whether students get comparable opportunities wherever they live.
+        </p>
+        <p class="small muted">
+          About these figures: per-student spending covers day-to-day operating costs and isn’t adjusted for prices.
+          Counting the District of Columbia, New Hampshire’s spending ranks 7th. <Cite id="nea-rankings-2026" /> WalletHub
+          is a private company that combines 32 measures into its own index. MERIC’s cost-of-living figure averages the
+          New Hampshire cities that take part in its survey, not Farmington. And how the statewide education property tax
+          is counted changes the state’s share; one analysis puts it at about 19%. Either way, New Hampshire’s is the
+          smallest. <Cite id="indepthnh-wallethub" />
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- ===================== MATH ===================== -->
   <section id="math" class="alt">
@@ -821,8 +906,9 @@ const ballotText = {
         <div class="card">
           <h4>Special education</h4>
           <p>
-            Federal law requires districts to provide special education services, no matter the cost.
-            <Cite id="nhb-sped" /> Local property taxes paid 83% of special-education costs in 2023–24. In 2024–25, the
+            Federal law requires districts to provide the services in each student’s special-education plan, and the U.S.
+            Supreme Court has ruled that a district can’t refuse a needed service because of its cost.
+            <Cite id="nhb-sped" /> <Cite id="garret-f" /> Local property taxes paid 83% of special-education costs in 2023–24. In 2024–25, the
             state paid only 66% of the aid it owed for the most expensive cases. It rose to 90% the next year, and the
             state must now pay at least 80%. <Cite id="sped-gap" />
           </p>
@@ -931,8 +1017,16 @@ const ballotText = {
         <div class="card">
           <h3>How skipped ballots count</h3>
           <p>
-            If you leave Question 2 blank, it may not count at all, or it may count against the 60% needed to pass. As of
-            mid-October, the Attorney General’s office hadn’t issued guidance. <Cite id="nhpr-cuts" />
+            At the Oct. 19 School Board meeting, district leaders told residents that if you don’t turn your ballot over,
+            you’re “not counted in the 60%”: a blank wouldn’t count for or against the cap.
+            <Cite id="school-board-video" href={vid(2372)} label="Video, 39:32" /> That’s one reading of the law. The law
+            says the cap takes effect if “a 3/5 majority of the voters voting” in the district approve it.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI(a)" /> But unlike the older local tax-cap law, and this law’s own
+            rule for overriding a cap, it doesn’t say that only Yes and No votes count.
+            <Cite id="rsa-32-5-c" label="RSA 32:5-c, I" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" /> In mid-October,
+            NHPR reported this was unlikely to be settled until the Attorney General’s office issued guidance; as of Oct.
+            21, I hadn’t found any. <Cite id="nhpr-cuts" /> To be sure your vote counts the way you mean, fill in Yes or
+            No.
           </p>
         </div>
         <div class="card">
@@ -949,7 +1043,9 @@ const ballotText = {
           <p>
             The law doesn’t say which parts of a budget must shrink to fit under the cap. That would fall mainly to
             Farmington’s school board, with voters weighing in at the deliberative session and on the ballot.
-            <Cite id="rsa-32-5-i" label="RSA 32:5-i, XI" /> <Cite id="vnews-wording" />
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, XI" /> <Cite id="vnews-wording" /> Some costs can’t simply be cut,
+            like the services in special-education plans and the state’s minimum standards for schools, so cuts would
+            land mostly on what the district provides above those minimums. <a href="#cuts">What’s required</a>
           </p>
         </div>
       </div>

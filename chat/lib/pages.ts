@@ -11,6 +11,7 @@ export const pages: Record<string, string> = {
   sixty: 'The 60% rule',
   'other-side': 'What supporters say',
   vote: 'How to vote',
+  'nh-context': 'New Hampshire in context',
   math: 'The math',
   nearby: 'Caps in other NH cities',
   unknowns: 'What nobody knows yet',
