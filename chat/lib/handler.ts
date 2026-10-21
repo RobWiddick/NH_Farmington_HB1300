@@ -236,6 +236,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     if (mx >= 1 && mx <= 50) sOpts.max = mx;
     const rr = request.headers.get('x-search-rerank');
     if (rr === 'on' || rr === 'off') sOpts.rerank = rr === 'on';
+    const sh = request.headers.get('x-search-shape');
+    if (sh === 'legacy-query' || sh === 'legacy-messages') sOpts.shape = sh;
   }
   let selfRerank = env.SELF_RERANK !== 'false';
   if (evalMode) {
@@ -281,6 +283,16 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
     return json(503, { error: 'The assistant can’t reach its sources right now.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
+  }
+  if (evalMode && request.headers.get('x-search-only') === '1') {
+    return json(200, {
+      queries: p.queries,
+      planMs,
+      searchMs: Date.now() - started - planMs,
+      search: sOpts,
+      lastSearch: { ...lastSearch },
+      chunks: chunks.map((c) => ({ key: c.key, score: c.score, text: c.text.slice(0, 160) })),
+    });
   }
   if (!chunks.length) {
     log('no_match', { queries: p.queries.length });

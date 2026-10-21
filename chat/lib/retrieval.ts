@@ -17,6 +17,8 @@ export interface SearchOptions {
    *  score, which can leave a plainly answerable question with no results. The
    *  handler reranks the candidates itself instead (see rerank()). */
   rerank: boolean;
+  /** Force a request shape for env.AI.autorag().search (testing). */
+  shape?: Shape;
 }
 
 /** Search settings from env vars (SEARCH_MAX, SEARCH_THRESHOLD, SEARCH_RERANK), with defaults. */
@@ -34,7 +36,7 @@ export const lastSearch: { shape?: string; raw?: number } = {};
 const MAX_PER_DOC = 3;
 const MAX_CONTEXT_CHARS = 12_000;
 
-type Shape = 'legacy-query' | 'legacy-messages';
+export type Shape = 'legacy-query' | 'legacy-messages';
 let legacyShape: Shape | undefined;
 
 function asRecord(v: unknown): Record<string, unknown> {
@@ -103,12 +105,12 @@ async function searchOnce(env: Env, query: string, opts: SearchOptions = searchO
   };
   // The legacy binding's documented request shape has changed over time; use
   // whichever one this runtime accepts and remember it.
-  const order: Shape[] = legacyShape ? [legacyShape] : ['legacy-query', 'legacy-messages'];
+  const order: Shape[] = opts.shape ? [opts.shape] : legacyShape ? [legacyShape] : ['legacy-messages', 'legacy-query'];
   let lastError: unknown;
   for (const shape of order) {
     try {
       const res = await autorag.search(shapes[shape]);
-      legacyShape = shape;
+      if (!opts.shape) legacyShape = shape;
       const chunks = normalize(res);
       lastSearch.shape = shape;
       lastSearch.raw = chunks.length;
