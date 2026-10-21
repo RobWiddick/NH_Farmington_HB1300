@@ -141,14 +141,20 @@ jobs:
           URL: ${{ steps.deploy.outputs.deployment-url }}
         run: |
           sleep 10
-          out=$(curl -sS -m 60 -w '\nHTTP %{http_code}' -X POST "$URL/api/chat" \
+          curl -sS -m 90 -o answer.txt -w '%{http_code}' -X POST "$URL/api/chat" \
             -H "origin: $URL" -H 'content-type: application/json' \
-            -d '{"messages":[{"role":"user","content":"Does Question 2 only cap administration?"}]}' || true)
-          echo "$out" | head -c 2500
-          echo
-          if echo "$out" | grep -q '"status":"answer"'; then
-            echo "### Assistant test: answered with sources" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "::warning title=Assistant test question::The deployed assistant did not answer. See this step's log."
-            echo "### Assistant test: no answer (see log)" >> "$GITHUB_STEP_SUMMARY"
-          fi
+            -d '{"messages":[{"role":"user","content":"Does Question 2 only cap administration?"}]}' > status.txt || true
+          node -e '
+            const fs = require("fs");
+            const raw = fs.readFileSync("answer.txt", "utf8"), http = fs.readFileSync("status.txt", "utf8");
+            let meta = null, text = "";
+            for (const block of raw.split("\n\n")) {
+              const ev = /^event: (.*)$/m.exec(block)?.[1], data = /^data: (.*)$/m.exec(block)?.[1];
+              if (!data || data === "[DONE]") continue;
+              try { const o = JSON.parse(data); if (ev === "meta") meta = o; else text += o.response ?? o.choices?.[0]?.delta?.content ?? ""; } catch {}
+            }
+            const ok = meta?.status === "answer" && text.trim().length > 0;
+            console.log(`HTTP ${http} status=${meta?.status ?? "none"} sources=${meta?.sources?.length ?? 0}\n\n${text.trim() || raw.slice(0, 500)}`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### Assistant test: ${ok ? "answered with sources" : "no answer (see log)"}\n\n> Does Question 2 only cap administration?\n\n${text.trim().slice(0, 1500)}\n`);
+            if (!ok) console.log("::warning title=Assistant test question::The deployed assistant did not answer. See this step\x27s log.");
+          '
