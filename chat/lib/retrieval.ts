@@ -92,7 +92,14 @@ async function searchOnce(env: Env, query: string): Promise<Chunk[]> {
 
 /** Runs every query, then keeps the best distinct chunks within the context budget. */
 export async function retrieve(env: Env, queries: string[]): Promise<Chunk[]> {
-  const settled = await Promise.allSettled(queries.map((q) => searchOnce(env, q)));
+  return combine(await Promise.allSettled(queries.map((q) => searchOnce(env, q))));
+}
+
+/** One search, so the handler can start it before planning finishes. */
+export const search = searchOnce;
+
+/** Merges several searches' results: the best distinct chunks within the context budget. */
+export function combine(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
   const ok = settled.filter((s): s is PromiseFulfilledResult<Chunk[]> => s.status === 'fulfilled');
   if (!ok.length) {
     const reason = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')?.reason;

@@ -87,6 +87,8 @@ test('rateLimited allows a burst, then asks the visitor to wait', () => {
   for (let i = 0; i < 8; i++) assert.equal(rateLimited('1.2.3.4', t + i), 0);
   assert.ok(rateLimited('1.2.3.4', t + 10) > 0);
   assert.equal(rateLimited('1.2.3.4', t + 61_000), 0);
+  for (let i = 0; i < 3; i++) assert.equal(rateLimited('5.6.7.8', t + i, 3, 100), 0);
+  assert.ok(rateLimited('5.6.7.8', t + 5, 3, 100) > 0, 'custom per-minute limit');
 });
 
 test('plan resolves follow-ups, keeps the question, and never refuses on-topic words', async () => {
@@ -133,6 +135,27 @@ test('rejects other methods, other origins and bad bodies', async () => {
   assert.equal((await handleChat(req(ask('hi')), { AI_SEARCH_INSTANCE: 'x' })).status, 503);
 });
 
+test('eval mode lets previews pick an allowed model and returns debug info', async () => {
+  const calls: { model: string; input: { stream?: boolean; reasoning_effort?: string } }[] = [];
+  const headers = { 'x-chat-model': '@cf/deepseek-ai/deepseek-v4.1-flash-1017', 'x-reasoning-effort': 'none' };
+  const on = await readEvents(await handleChat(req(ask('What does Question 2 do?'), headers), { ...fakeEnv({ calls: calls as unknown[] }), CHAT_EVAL: 'true' }));
+  const answer = calls.find((c) => c.input.stream)!;
+  assert.equal(answer.model, '@cf/deepseek-ai/deepseek-v4.1-flash-1017');
+  assert.equal(answer.input.reasoning_effort, 'none');
+  assert.ok(on.meta.debug && Array.isArray(on.meta.debug.chunks));
+
+  calls.length = 0;
+  const off = await readEvents(await handleChat(req(ask('What does Question 2 do?'), { ...headers, 'x-chat-model': '@cf/some/expensive-model' }), { ...fakeEnv({ calls: calls as unknown[] }), CHAT_EVAL: 'true' }));
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/meta/llama-3.3-70b-instruct-fp8-fast', 'unlisted model ignored');
+  assert.ok(off.meta.debug);
+
+  calls.length = 0;
+  const prod = await readEvents(await handleChat(req(ask('What does Question 2 do?'), headers), fakeEnv({ calls: calls as unknown[] })));
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/meta/llama-3.3-70b-instruct-fp8-fast', 'headers ignored without CHAT_EVAL');
+  assert.equal(calls.find((c) => c.input.stream)!.input.reasoning_effort, undefined);
+  assert.equal(prod.meta.debug, undefined);
+});
+
 test('answers with the retrieved documents and an allowlist of citations', async () => {
   const calls: { model: string; input: { messages: { role: string; content: string }[] } }[] = [];
   const res = await handleChat(req(ask('Does Question 2 only cap administration?')), fakeEnv({ calls: calls as unknown[] }));
@@ -162,17 +185,18 @@ test('does not ask the model to answer when nothing relevant is found', async ()
   assert.ok(!calls.some((c) => (c as { input: { stream?: boolean } }).input.stream), 'no answer model call');
 });
 
-test('greetings and off-topic requests get fixed replies without searching', async () => {
-  let searched = false;
+test('greetings and off-topic requests get fixed replies without the answer model', async () => {
+  let searches = 0;
   const search = () => {
-    searched = true;
+    searches++;
     return legacyResult([]);
   };
   const hi = await readEvents(await handleChat(req(ask('hello!')), fakeEnv({ plan: { scope: 'greeting', queries: [] }, search })));
   assert.equal(hi.meta.status, 'greeting');
   const off = await readEvents(await handleChat(req(ask('write a poem about cats')), fakeEnv({ plan: { scope: 'off_topic', queries: [] }, search })));
   assert.equal(off.meta.status, 'off_topic');
-  assert.equal(searched, false);
+  // Only the speculative search of the question as asked (started while planning) runs.
+  assert.equal(searches, 2);
 });
 
 test('reports a clear error when AI Search is unreachable', async () => {

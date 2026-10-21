@@ -18,6 +18,13 @@ export interface Env {
   PLANNER_MODEL?: string;
   /** Set to "false" to switch the assistant off without a code change. */
   CHAT_ENABLED?: string;
+  /** Per-visitor question limits (defaults: 8 a minute, 40 an hour). */
+  RATE_PER_MINUTE?: string;
+  RATE_PER_HOUR?: string;
+  /** reasoning_effort for the answer model, for models that have one (e.g. "none"). */
+  CHAT_REASONING?: string;
+  /** "true" on previews while testing: allows x-chat-model / x-reasoning-effort headers and adds debug info. */
+  CHAT_EVAL?: string;
 }
 
 export interface Chunk {

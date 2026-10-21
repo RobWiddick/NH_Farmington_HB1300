@@ -15,11 +15,23 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { retrieve } from './retrieval.ts';
+import { combine, search } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 export const DEFAULT_PLANNER_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
+
+// Models that CHAT_EVAL mode lets a request pick with the x-chat-model header.
+const EVAL_MODELS = new Set([
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+  '@cf/deepseek-ai/deepseek-v4.1-flash-1017',
+  '@cf/openai/gpt-oss-120b',
+  '@cf/zai-org/glm-5.3-flash',
+  '@cf/google/gemma-4-26b-a4b-it',
+  '@cf/qwen/qwen3.8-27b',
+  '@cf/meta/llama-4-scout-17b-16e-instruct',
+  '@cf/mistralai/mistral-small-3.1-24b-instruct',
+]);
 
 export const LIMITS = {
   bodyBytes: 16_000,
@@ -46,12 +58,12 @@ const json = (status: number, body: unknown, headers: Record<string, string> = {
 // Best-effort, per-isolate limiter. For a hard limit, add a Cloudflare WAF rate
 // limiting rule on /api/chat (see README).
 const hits = new Map<string, number[]>();
-export function rateLimited(ip: string, now = Date.now()): number {
+export function rateLimited(ip: string, now = Date.now(), perMinute = LIMITS.perMinute, perHour = LIMITS.perHour): number {
   const recent = (hits.get(ip) ?? []).filter((t) => now - t < 3_600_000);
   const lastMinute = recent.filter((t) => now - t < 60_000);
   let retryAfter = 0;
-  if (lastMinute.length >= LIMITS.perMinute) retryAfter = Math.ceil((60_000 - (now - lastMinute[0])) / 1000);
-  else if (recent.length >= LIMITS.perHour) retryAfter = Math.ceil((3_600_000 - (now - recent[0])) / 1000);
+  if (lastMinute.length >= perMinute) retryAfter = Math.ceil((60_000 - (now - lastMinute[0])) / 1000);
+  else if (recent.length >= perHour) retryAfter = Math.ceil((3_600_000 - (now - recent[0])) / 1000);
   if (!retryAfter) recent.push(now);
   hits.set(ip, recent);
   if (hits.size > 5_000) for (const [k, v] of hits) if (!v.length || now - v[v.length - 1] > 3_600_000) hits.delete(k);
@@ -179,7 +191,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   if (!sameOrigin) return json(403, { error: 'Requests must come from this site.' });
 
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
-  const wait = rateLimited(ip);
+  const limit = (v: string | undefined, fallback: number) => (Number(v) > 0 ? Number(v) : fallback);
+  const wait = rateLimited(ip, Date.now(), limit(env.RATE_PER_MINUTE, LIMITS.perMinute), limit(env.RATE_PER_HOUR, LIMITS.perHour));
   if (wait) {
     log('rate_limited');
     return json(429, { error: 'Too many questions in a short time. Please wait a minute.' }, { 'retry-after': String(wait) });
@@ -202,7 +215,23 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   const question = msgs[msgs.length - 1].content;
   const history = msgs.slice(0, -1).slice(-LIMITS.historyUsed);
 
+  // CHAT_EVAL (preview deployments only) lets a test harness pick the answer
+  // model and get timings and retrieval details back in the meta event.
+  const evalMode = env.CHAT_EVAL === 'true';
+  let model = env.CHAT_MODEL || DEFAULT_CHAT_MODEL;
+  let effort = env.CHAT_REASONING || '';
+  if (evalMode) {
+    const m = request.headers.get('x-chat-model');
+    if (m && EVAL_MODELS.has(m)) model = m;
+    const e = request.headers.get('x-reasoning-effort');
+    if (e !== null && /^(|none|low|medium|high)$/.test(e)) effort = e;
+  }
+
+  // Search the question as asked while the planner works out better queries.
+  const firstSearch = search(env, question);
+  firstSearch.catch(() => {}); // handled below; avoids an unhandled rejection if we return early
   const p = await plan(env, history, question);
+  const planMs = Date.now() - started;
   if (p.scope === 'greeting') {
     log('greeting');
     return cannedStream({ status: 'greeting', sources: [], pages: [] }, CANNED.greeting);
@@ -214,7 +243,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
 
   let chunks;
   try {
-    chunks = await retrieve(env, p.queries);
+    const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q));
+    chunks = combine(await Promise.allSettled([firstSearch, ...more]));
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
     return json(503, { error: 'The assistant can’t reach its sources right now.' });
@@ -235,13 +265,16 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     },
   ];
 
+  const searchMs = Date.now() - started - planMs;
   let stream: unknown;
   try {
-    stream = await env.AI.run(env.CHAT_MODEL || DEFAULT_CHAT_MODEL, {
+    stream = await env.AI.run(model, {
       messages,
       stream: true,
       max_tokens: LIMITS.answerTokens,
       temperature: 0.2,
+      // Only for models with a reasoning setting (e.g. "none" turns it off on DeepSeek V4).
+      ...(effort ? { reasoning_effort: effort } : {}),
     });
   } catch (err) {
     log('model_error', { error: String(err).slice(0, 200) });
@@ -252,6 +285,8 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     return json(503, { error: 'The assistant is busy right now. Please try again in a moment.' });
   }
 
-  log('answer', { queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length });
-  return relay({ status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages }, stream, ctx);
+  log('answer', { model, queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length, planMs, searchMs });
+  const meta: Meta = { status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages };
+  if (evalMode) meta.debug = { model, effort, queries: p.queries, planMs, searchMs, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
+  return relay(meta, stream, ctx);
 }

@@ -21,3 +21,8 @@ binding = "AI"
 [env.preview.vars]
 AI_SEARCH_INSTANCE = "farmington-hb1300-preview"
 CHAT_ENABLED = "true"
+# Testing aids for previews only (see README): pick a model per request, debug
+# details, and looser limits. Production never sets these.
+CHAT_EVAL = "true"
+RATE_PER_MINUTE = "60"
+RATE_PER_HOUR = "1500"

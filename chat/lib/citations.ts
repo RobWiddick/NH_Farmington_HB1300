@@ -25,6 +25,8 @@ export interface Meta {
   status: 'answer' | 'no_match' | 'off_topic' | 'greeting';
   sources: MetaSource[];
   pages: { id: string; title: string }[];
+  /** Only in CHAT_EVAL mode: model, queries, timings and retrieved chunks. */
+  debug?: Record<string, unknown>;
 }
 
 const isSource = (id: string): id is SourceId => Object.prototype.hasOwnProperty.call(sources, id);
