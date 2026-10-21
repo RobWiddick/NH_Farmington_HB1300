@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildContext } from '../lib/citations.ts';
-import { handleChat, parseMessages, plan, rateLimited } from '../lib/handler.ts';
+import { handleChat, hintQueries, parseMessages, plan, rateLimited } from '../lib/handler.ts';
 import { normalize } from '../lib/retrieval.ts';
 import type { Env } from '../lib/types.ts';
 
@@ -333,4 +333,50 @@ test('the answer prompt keeps the bot grounded and neutral about the author', as
   assert.match(p, /Never use he, she, his or her for the author/);
   assert.match(p, /Never fill gaps from memory/);
   assert.match(p, /hi@hb1300\.com/);
+});
+
+test('hint queries cover broad and how-to-vote first questions, and nothing else', () => {
+  for (const q of ['What does Question 2 do?', 'What would Question 2 actually do?', 'Explain HB 1300', 'what is this ballot question about', 'Can you summarize the tax cap?'])
+    assert.equal(hintQueries(q).length, 1, q);
+  for (const q of ['How should I vote?', "What's the best argument for voting yes?", 'Is the cap a good idea?', 'pros and cons of question 2'])
+    assert.equal(hintQueries(q).length, 2, q);
+  for (const q of ['What is the 60% rule?', 'When would the cap start?', 'Who decides for Farmington?', 'Tell me about Dover', 'hi'])
+    assert.deepEqual(hintQueries(q), [], q);
+});
+
+test('a broad first question also searches the summary hint, alongside the question as asked', async () => {
+  const queries: string[] = [];
+  const env = fakeEnv({ plan: { scope: 'on_topic', queries: ['What would Question 2 actually do?'] } });
+  const rag = env.AI!.autorag!('x');
+  env.AI!.autorag = () => ({
+    search: async (args: { query: string }) => {
+      queries.push(args.query);
+      return rag.search(args as never);
+    },
+  });
+  const res = await readEvents(await handleChat(req(ask('What would Question 2 actually do?')), env));
+  assert.equal(res.meta.status, 'answer');
+  assert.equal(queries[0], 'What would Question 2 actually do?');
+  assert.ok(queries.some((q) => q.startsWith('plain-English summary of what Question 2 does')), queries.join(' | '));
+  assert.equal(new Set(queries).size, queries.length, 'no query searched twice');
+});
+
+test('rerank scores at most RERANK_MAX candidates and keeps the search order if it fails', async () => {
+  const { rerank, RERANK_MAX } = await import('../lib/retrieval.ts');
+  const chunks = Array.from({ length: RERANK_MAX + 25 }, (_, i) => ({ key: `k${i}.md`, text: `t${i}`, score: 1 - i / 1000 }));
+  let scored = 0;
+  const env = {
+    AI: {
+      async run(_m: string, input: { contexts: unknown[] }) {
+        scored = input.contexts.length;
+        return { response: input.contexts.map((_, id) => ({ id, score: id / 100 })) };
+      },
+    },
+  } as unknown as Env;
+  const out = await rerank(env, 'q', chunks);
+  assert.equal(scored, RERANK_MAX);
+  assert.equal(out.length, RERANK_MAX);
+  assert.equal(out[0].key, `k${RERANK_MAX - 1}.md`, 'reordered by the reranker');
+  const failing = { AI: { run: async () => { throw new Error('boom'); } } } as unknown as Env;
+  assert.equal((await rerank(failing, 'q', chunks)).length, chunks.length, 'falls back to all candidates');
 });

@@ -8,6 +8,7 @@ import type { Chunk, Env } from './types.ts';
 export const PER_QUERY = 20;
 export const MATCH_THRESHOLD = 0.25;
 export const RERANK_MODEL = '@cf/baai/bge-reranker-base';
+export const RERANK_MAX = 60; // 3 queries x PER_QUERY results
 const MAX_CHUNKS = 8;
 
 export interface SearchOptions {
@@ -159,8 +160,11 @@ export function pool(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
  * Reorders candidates by how well they answer `query`, using the same reranking
  * model AI Search uses, but without a cut-off. Falls back to the search order.
  */
-export async function rerank(env: Env, query: string, chunks: Chunk[]): Promise<Chunk[]> {
-  if (chunks.length < 2 || !env.AI) return chunks;
+export async function rerank(env: Env, query: string, candidates: Chunk[]): Promise<Chunk[]> {
+  // Score at most RERANK_MAX candidates (the best by search score), so a question
+  // with many queries can't make the reranker call slow or fail.
+  const chunks = candidates.slice(0, RERANK_MAX);
+  if (chunks.length < 2 || !env.AI) return candidates;
   try {
     const out = (await env.AI.run(RERANK_MODEL, {
       query,
@@ -169,10 +173,10 @@ export async function rerank(env: Env, query: string, chunks: Chunk[]): Promise<
     const ranked = (out?.response ?? [])
       .filter((r) => typeof r.id === 'number' && chunks[r.id] && typeof r.score === 'number')
       .map((r) => ({ ...chunks[r.id as number], score: r.score as number }));
-    if (ranked.length !== chunks.length) return chunks;
+    if (ranked.length !== chunks.length) return candidates;
     return ranked.sort((a, b) => b.score - a.score);
   } catch {
-    return chunks;
+    return candidates;
   }
 }
 

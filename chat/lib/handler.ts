@@ -65,6 +65,28 @@ const GREETING = /^(hi|hello|hey|hiya|howdy|thanks|thank you|thx|good (morning|a
 const ON_TOPIC_HINT =
   /\b(tax|taxes|levy|cap|caps|school|schools|budget|farmington|question\s*2|hb\s*1300|rsa|ballot|vote|voting|sau|teacher|inflation|override|60%|default|town|district|lawsuit|court|ankarberg|innis|berry|supporters?|opponents?|source|sources)\b/i;
 
+// Extra searches for two kinds of first question that need more than the
+// question's own wording finds. The planner writes these queries too, but it
+// often finishes after the first search has to start (see PLAN_TIMEOUT_MS), so
+// these run alongside the first search. The reranker drops what doesn't help.
+const QUERY_HINTS: { test: RegExp; queries: string[] }[] = [
+  {
+    // "What does Question 2 do?", "Explain HB 1300", "What is this ballot question about?"
+    test: /^(?=.{0,90}$)(?=.*\b(what(?:'s|’s| is| does| would| will)?|explain|summar\w*|overview|basics|plain english|tl;?dr)\b)(?=.*\b(question\s*2|q2|hb\s*1300|rsa\s*32:5-i|the (?:tax |school )?cap|this (?:law|bill|measure|question|ballot question|tax cap))\b)/i,
+    queries: ['plain-English summary of what Question 2 does: the school levy cap, the 6% central office cap and the 60% vote'],
+  },
+  {
+    // "How should I vote?", "What's the best argument for Yes?", "Is the cap a good idea?"
+    test: /\b(how (?:should|do|would) i vote|should i vote|vote (?:yes|no) on|(?:best|strongest|main) (?:argument|case|reason)s?|pros and cons|arguments? (?:for|against)|why (?:vote|would anyone|should anyone|do people)|good idea|bad idea|worth (?:it|voting))\b/i,
+    queries: ["the guide author's reasons to vote No on Question 2", "supporters' strongest arguments for the school tax cap"],
+  },
+];
+
+/** Extra search queries for a first question (see QUERY_HINTS). */
+export function hintQueries(question: string): string[] {
+  return QUERY_HINTS.filter((h) => h.test.test(question)).flatMap((h) => h.queries);
+}
+
 const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), {
     status,
@@ -275,9 +297,11 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     if (pm === 'always' || pm === 'followups') planMode = pm;
   }
 
-  // Search the question as asked while the planner works out better queries.
-  const firstSearch = search(env, question, sOpts);
-  firstSearch.catch(() => {}); // handled below; avoids an unhandled rejection if we return early
+  // Search the question as asked (plus any hint queries for a first question)
+  // while the planner works out better queries.
+  const hints = history.length ? [] : hintQueries(question);
+  const firstSearches = [question, ...hints].map((q) => search(env, q, sOpts));
+  firstSearches.forEach((s) => s.catch(() => {})); // handled below; avoids an unhandled rejection if we return early
   // A first question doesn't need the planner to make sense, so don't let a slow
   // planner hold it up: after PLAN_TIMEOUT_MS, go ahead with the question as asked.
   const asAsked: Plan = GREETING.test(question) ? { scope: 'greeting', queries: [] } : { scope: 'on_topic', queries: [question] };
@@ -300,14 +324,15 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
 
   let chunks;
   try {
-    const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q, sOpts));
-    let candidates = pool(await Promise.allSettled([firstSearch, ...more]));
+    const searched = new Set([question, ...hints].map((q) => q.toLowerCase()));
+    const more = p.queries.filter((q) => !searched.has(q.toLowerCase())).map((q) => search(env, q, sOpts));
+    let candidates = pool(await Promise.allSettled([...firstSearches, ...more]));
     // AI Search occasionally returns nothing for a query it answers fine a moment
     // later; retry (twice, briefly spaced) before telling the visitor nothing was found.
     for (const wait of [300, 1000]) {
       if (candidates.length) break;
       await new Promise((r) => setTimeout(r, wait));
-      candidates = pool(await Promise.allSettled(p.queries.map((q) => search(env, q, sOpts))));
+      candidates = pool(await Promise.allSettled([...new Set([...p.queries, ...hints])].map((q) => search(env, q, sOpts))));
     }
     // Rerank against the planner's standalone version of the question, so a
     // follow-up like "and Dover?" is scored as "Dover tax cap ...".
@@ -379,6 +404,6 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   log('answer', { model, queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length, planMs, searchMs });
   const meta: Meta = { status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages };
   if (evalMode)
-    meta.debug = { model, effort, planMode, planTimedOut: !!p.timedOut, selfRerank, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
+    meta.debug = { model, effort, planMode, planTimedOut: !!p.timedOut, selfRerank, queries: p.queries, hints, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
   return relay(meta, stream, ctx);
 }
