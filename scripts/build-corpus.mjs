@@ -55,6 +55,10 @@ const slug = (s) =>
     .replace(/-$/, '');
 const clean = (s) => s.replace(/\s+/g, ' ').trim();
 const classes = (el) => (el.getAttribute?.('class') ?? '').split(/\s+/);
+const insideClass = (el, cls) => {
+  for (let p = el.parentNode; p; p = p.parentNode) if (classes(p).includes(cls)) return true;
+  return false;
+};
 
 // ---------- HTML -> markdown-ish text ----------
 
@@ -138,6 +142,12 @@ function walk(node, b) {
       continue;
     }
     if (tag === 'h1' || tag === 'h2') continue; // the section title goes in the document header
+    // The supporters' arguments are cards with their own h3s on the page, but they
+    // read best as one document: "What do supporters say?" then finds them all.
+    if (tag === 'h3' && insideClass(child, 'args')) {
+      b.line(`#### ${clean(child.text)}`);
+      continue;
+    }
     if (tag === 'h3') {
       b.newPart(clean(child.text));
       continue;

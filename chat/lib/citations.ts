@@ -60,7 +60,7 @@ const attr = (s: string) => s.replace(/["<>\n]/g, ' ').replace(/\s+/g, ' ').trim
 const CAUTIONS: Record<string, string> = {
   'bates-complaint': 'A lawsuit filing: one side’s allegations, not findings. The court denied the request to block the question.',
   'school-board-video':
-    'Machine-generated captions of a public meeting; they don’t say who is speaking. Where a speaker calls $738,287 “the gap,” that is the expected cost increase; the shortfall the district estimated is about $360,000 (that minus the ~$377,500 the cap would allow).',
+    'Machine-generated captions of a public meeting; they don’t say who is speaking. Where a speaker calls $738,287 “the gap,” that is the expected cost increase (mostly staff contracts and a projected 19% health-insurance increase); the shortfall the district estimated is about $360,000 (that minus the ~$377,500 the cap would allow).',
   'school-board-video-0914': 'Machine-generated captions of a public meeting; they don’t say who is speaking.',
 };
 const SITE_NOTE = 'Written by the guide’s author, who recommends voting No. “I” and “my” in this text mean the author.';
