@@ -221,22 +221,22 @@ test('rejects other methods, other origins and bad bodies', async () => {
 
 test('eval mode lets previews pick an allowed model and returns debug info', async () => {
   const calls: { model: string; input: { stream?: boolean; reasoning_effort?: string } }[] = [];
-  const headers = { 'x-chat-model': '@cf/deepseek-ai/deepseek-v4.1-flash-1017', 'x-reasoning-effort': 'none' };
+  const headers = { 'x-chat-model': '@cf/openai/gpt-oss-120b', 'x-reasoning-effort': 'medium' };
   const on = await readEvents(await handleChat(req(ask('What does Question 2 do?'), headers), { ...fakeEnv({ calls: calls as unknown[] }), CHAT_EVAL: 'true' }));
   const answer = calls.find((c) => c.input.stream)!;
-  assert.equal(answer.model, '@cf/deepseek-ai/deepseek-v4.1-flash-1017');
-  assert.equal(answer.input.reasoning_effort, 'none');
+  assert.equal(answer.model, '@cf/openai/gpt-oss-120b');
+  assert.equal(answer.input.reasoning_effort, 'medium');
   assert.ok(on.meta.debug && Array.isArray(on.meta.debug.chunks));
 
   calls.length = 0;
   const off = await readEvents(await handleChat(req(ask('What does Question 2 do?'), { ...headers, 'x-chat-model': '@cf/some/expensive-model' }), { ...fakeEnv({ calls: calls as unknown[] }), CHAT_EVAL: 'true' }));
-  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/openai/gpt-oss-120b', 'unlisted model ignored');
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/deepseek-ai/deepseek-v4.1-flash-1017', 'unlisted model ignored');
   assert.ok(off.meta.debug);
 
   calls.length = 0;
   const prod = await readEvents(await handleChat(req(ask('What does Question 2 do?'), headers), fakeEnv({ calls: calls as unknown[] })));
-  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/openai/gpt-oss-120b', 'headers ignored without CHAT_EVAL');
-  assert.equal(calls.find((c) => c.input.stream)!.input.reasoning_effort, 'low', 'GPT-OSS default reasoning');
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/deepseek-ai/deepseek-v4.1-flash-1017', 'headers ignored without CHAT_EVAL');
+  assert.equal(calls.find((c) => c.input.stream)!.input.reasoning_effort, 'none', 'DeepSeek reasoning off by default');
   assert.equal(prod.meta.debug, undefined);
 });
 
@@ -309,7 +309,7 @@ test('falls back to another model when the answer model errors', async () => {
   };
   const res = await readEvents(await handleChat(req(ask('What is the 60% rule?')), env));
   assert.equal(res.meta.status, 'answer');
-  assert.deepEqual(calls, ['@cf/openai/gpt-oss-120b', '@cf/meta/llama-3.3-70b-instruct-fp8-fast']);
+  assert.deepEqual(calls, ['@cf/deepseek-ai/deepseek-v4.1-flash-1017', '@cf/zai-org/glm-5.3-flash']);
 });
 
 test('reports a clear error when AI Search is unreachable', async () => {

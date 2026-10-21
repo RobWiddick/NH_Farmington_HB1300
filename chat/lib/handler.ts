@@ -18,12 +18,16 @@ import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
 import { demote, lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
-// Chosen by grading live answers: on the hardest test questions GPT-OSS 120B kept
-// numbers' conditions, gave both sides and covered both caps where Llama 3.3 70B
-// didn't, at about the same cost (~140 neurons an answer). Both run on Workers Free.
-export const DEFAULT_CHAT_MODEL = '@cf/openai/gpt-oss-120b';
-// Used when the answer model errors (for example Workers AI's per-minute model limit).
-export const FALLBACK_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+// Chosen by grading the full 39-question test battery against live answers
+// (Workers Paid, Oct. 2026). Average grades out of 5 for accuracy / citations /
+// following the rules, and speed and cost per answer:
+//   DeepSeek V4.1 Flash, reasoning off  4.8 / 4.9 / 4.8   4.6s median   ~90 neurons
+//   GLM 5.3 Flash, reasoning low        4.8 / 4.7 / 4.8  11.8s median   ~50 neurons
+//   GPT-OSS 120B, reasoning low         3.5 / 3.7 / 3.6   5.8s median  ~130 neurons
+export const DEFAULT_CHAT_MODEL = '@cf/deepseek-ai/deepseek-v4.1-flash-1017';
+// Used when the answer model errors (for example Workers AI's per-minute model
+// limit): as accurate, just slower.
+export const FALLBACK_CHAT_MODEL = '@cf/zai-org/glm-5.3-flash';
 export const DEFAULT_PLANNER_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
 
 // Models that CHAT_EVAL mode lets a request pick with the x-chat-model header.
@@ -37,6 +41,13 @@ const EVAL_MODELS = new Set([
   '@cf/meta/llama-4-scout-17b-16e-instruct',
   '@cf/mistralai/mistral-small-3.1-24b-instruct',
 ]);
+
+/** Reasoning setting per model: short thinking where it helps, off where it only adds delay. */
+export function defaultEffort(model: string): string {
+  if (model.includes('deepseek-v4')) return 'none';
+  if (model.includes('gpt-oss') || model.includes('glm-5')) return 'low';
+  return '';
+}
 
 export const LIMITS = {
   bodyBytes: 16_000,
@@ -228,13 +239,12 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   // model and get timings and retrieval details back in the meta event.
   const evalMode = env.CHAT_EVAL === 'true';
   let model = env.CHAT_MODEL || DEFAULT_CHAT_MODEL;
-  // GPT-OSS thinks before answering; "low" keeps that short. Other models get no setting.
-  let effort = env.CHAT_REASONING ?? (model.includes('gpt-oss') ? 'low' : '');
+  let effort = env.CHAT_REASONING ?? defaultEffort(model);
   if (evalMode) {
     const m = request.headers.get('x-chat-model');
     if (m && EVAL_MODELS.has(m)) {
       model = m;
-      effort = model.includes('gpt-oss') ? 'low' : '';
+      effort = defaultEffort(model);
     }
     const e = request.headers.get('x-reasoning-effort');
     if (e !== null && /^(|none|low|medium|high)$/.test(e)) effort = e;
@@ -355,7 +365,7 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     log('model_error', { model, fallback, error: String(err).slice(0, 200) });
     try {
       if (!fallback || fallback === model) throw err;
-      stream = await runModel(fallback, fallback.includes('gpt-oss') ? 'low' : '');
+      stream = await runModel(fallback, defaultEffort(fallback));
       model = fallback;
     } catch (err2) {
       return json(503, { error: 'The assistant is busy right now. Please try again in a moment.', ...(evalMode ? { detail: String(err2).slice(0, 300) } : {}) });
