@@ -26,6 +26,3 @@ CHAT_ENABLED = "true"
 # the normal rate limits because they share the account's Workers AI allowance
 # with the live site; raise RATE_PER_MINUTE / RATE_PER_HOUR here only while testing.
 CHAT_EVAL = "true"
-# TEMPORARY for the full test battery; remove after testing.
-RATE_PER_MINUTE = "60"
-RATE_PER_HOUR = "2000"

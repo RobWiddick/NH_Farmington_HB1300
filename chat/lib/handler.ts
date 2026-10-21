@@ -22,6 +22,8 @@ import type { ChatMessage, Env } from './types.ts';
 // numbers' conditions, gave both sides and covered both caps where Llama 3.3 70B
 // didn't, at about the same cost (~140 neurons an answer). Both run on Workers Free.
 export const DEFAULT_CHAT_MODEL = '@cf/openai/gpt-oss-120b';
+// Used when the answer model errors (for example Workers AI's per-minute model limit).
+export const FALLBACK_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 export const DEFAULT_PLANNER_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
 
 // Models that CHAT_EVAL mode lets a request pick with the x-chat-model header.
@@ -334,19 +336,30 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   ];
 
   const searchMs = Date.now() - started - planMs;
-  let stream: unknown;
-  try {
-    stream = await env.AI.run(model, {
+  const runModel = (m: string, e: string) =>
+    env.AI!.run(m, {
       messages,
       stream: true,
       max_tokens: LIMITS.answerTokens,
       temperature: 0.2,
       // Only for models with a reasoning setting (e.g. "none" turns it off on DeepSeek V4).
-      ...(effort ? { reasoning_effort: effort } : {}),
+      ...(e ? { reasoning_effort: e } : {}),
     });
+  let stream: unknown;
+  try {
+    stream = await runModel(model, effort);
   } catch (err) {
-    log('model_error', { model, error: String(err).slice(0, 200) });
-    return json(503, { error: 'The assistant is busy right now. Please try again in a moment.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
+    // A model can be briefly rate-limited or unavailable; answer with the fallback
+    // model rather than an error.
+    const fallback = env.FALLBACK_MODEL ?? FALLBACK_CHAT_MODEL;
+    log('model_error', { model, fallback, error: String(err).slice(0, 200) });
+    try {
+      if (!fallback || fallback === model) throw err;
+      stream = await runModel(fallback, fallback.includes('gpt-oss') ? 'low' : '');
+      model = fallback;
+    } catch (err2) {
+      return json(503, { error: 'The assistant is busy right now. Please try again in a moment.', ...(evalMode ? { detail: String(err2).slice(0, 300) } : {}) });
+    }
   }
   if (!(stream instanceof ReadableStream)) {
     log('model_error', { error: 'no stream' });

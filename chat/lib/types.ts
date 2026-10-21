@@ -15,6 +15,8 @@ export interface Env {
   AI_SEARCH?: { get(name: string): SearchHandle };
   AI_SEARCH_INSTANCE?: string;
   CHAT_MODEL?: string;
+  /** Answer model to use when CHAT_MODEL errors; "" to turn the fallback off. */
+  FALLBACK_MODEL?: string;
   PLANNER_MODEL?: string;
   /** Set to "false" to switch the assistant off without a code change. */
   CHAT_ENABLED?: string;

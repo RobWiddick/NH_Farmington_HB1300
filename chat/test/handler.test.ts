@@ -291,6 +291,27 @@ test('retries once when every search comes back empty', async () => {
   assert.equal(n, 3);
 });
 
+test('falls back to another model when the answer model errors', async () => {
+  const calls: string[] = [];
+  const env: Env = {
+    ...fakeEnv(),
+    AI: {
+      ...fakeEnv().AI!,
+      async run(model: string, input: unknown) {
+        const i = input as { stream?: boolean; contexts?: unknown };
+        if (i.contexts) return { response: [] };
+        if (!i.stream) return { response: '{"scope":"on_topic","queries":["q"]}' };
+        calls.push(model);
+        if (calls.length === 1) throw new Error('3021: rate limiting: inference request per min rate reached');
+        return streamOf(['data: {"response":"ok"}\n\n', 'data: [DONE]\n\n']);
+      },
+    },
+  };
+  const res = await readEvents(await handleChat(req(ask('What is the 60% rule?')), env));
+  assert.equal(res.meta.status, 'answer');
+  assert.deepEqual(calls, ['@cf/openai/gpt-oss-120b', '@cf/meta/llama-3.3-70b-instruct-fp8-fast']);
+});
+
 test('reports a clear error when AI Search is unreachable', async () => {
   const res = await handleChat(
     req(ask('What is the levy?')),
