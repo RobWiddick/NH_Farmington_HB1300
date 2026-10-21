@@ -21,8 +21,8 @@ binding = "AI"
 [env.preview.vars]
 AI_SEARCH_INSTANCE = "farmington-hb1300-preview"
 CHAT_ENABLED = "true"
-# Testing aids for previews only (see README): pick a model per request, debug
-# details, and looser limits. Production never sets these.
+# Testing aid for previews only (see README "Tuning it"): lets a test harness
+# pick the model and get debug details. Production never sets it. Previews keep
+# the normal rate limits because they share the account's Workers AI allowance
+# with the live site; raise RATE_PER_MINUTE / RATE_PER_HOUR here only while testing.
 CHAT_EVAL = "true"
-RATE_PER_MINUTE = "60"
-RATE_PER_HOUR = "1500"
