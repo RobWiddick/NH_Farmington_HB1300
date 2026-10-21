@@ -102,7 +102,10 @@ function inline(parent: HTMLElement, text: string, meta: Meta | undefined, cited
     }
     if (m[0] === prevMarker) continue; // the same citation twice in a row
     prevMarker = m[0];
-    const [kind, id, secs] = [m[2], m[3], m[4]];
+    let [kind, id, secs] = [m[2], m[3], m[4]];
+    // Models sometimes write a page section as a source ([src:quick]) or the reverse.
+    if (kind === 'src' && !srcs.has(id) && pages.has(id)) kind = 'page';
+    else if (kind === 'page' && !pages.has(id) && srcs.has(id)) kind = 'src';
     if (kind === 'src' && srcs.has(id)) {
       parent.append(' ', sourceLink(srcs.get(id)!, secs ? Number(secs) : undefined));
       cited.add(id);
