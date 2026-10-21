@@ -131,8 +131,25 @@ export async function retrieve(env: Env, queries: string[]): Promise<Chunk[]> {
   return combine(await Promise.allSettled(queries.map((q) => searchOnce(env, q))));
 }
 
-/** One search, so the handler can start it before planning finishes. */
-export const search = (env: Env, query: string, opts?: SearchOptions) => searchOnce(env, query, opts);
+/**
+ * Rejects if `p` hasn't settled within `ms`. The call itself keeps running (bindings
+ * can't be cancelled); its result is just ignored, so one stuck call can't stall an answer.
+ */
+export function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${what} timed out after ${ms} ms`)), ms);
+  });
+  return Promise.race([p, late]).finally(() => clearTimeout(timer));
+}
+
+// A search normally takes 0.5–3 s; one once hung for 57 s right after a re-index.
+export const SEARCH_TIMEOUT_MS = 8000;
+export const RERANK_TIMEOUT_MS = 5000;
+
+/** One search, so the handler can start it before planning finishes. A stuck search is dropped. */
+export const search = (env: Env, query: string, opts?: SearchOptions) =>
+  withTimeout(searchOnce(env, query, opts), Number(env.SEARCH_TIMEOUT_MS) || SEARCH_TIMEOUT_MS, 'AI Search');
 
 /** Merges several searches' results: the best distinct chunks within the context budget. */
 export function combine(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
@@ -169,10 +186,11 @@ export async function rerank(env: Env, query: string, candidates: Chunk[]): Prom
   const chunks = candidates.slice(0, RERANK_MAX);
   if (chunks.length < 2 || !env.AI) return candidates;
   try {
-    const out = (await env.AI.run(RERANK_MODEL, {
-      query,
-      contexts: chunks.map((c) => ({ text: c.text.slice(0, 2000) })),
-    })) as { response?: { id?: number; score?: number }[] };
+    const out = (await withTimeout(
+      env.AI.run(RERANK_MODEL, { query, contexts: chunks.map((c) => ({ text: c.text.slice(0, 2000) })) }),
+      Number(env.RERANK_TIMEOUT_MS) || RERANK_TIMEOUT_MS,
+      'Rerank',
+    )) as { response?: { id?: number; score?: number }[] };
     const ranked = (out?.response ?? [])
       .filter((r) => typeof r.id === 'number' && chunks[r.id] && typeof r.score === 'number')
       .map((r) => ({ ...chunks[r.id as number], score: r.score as number }));

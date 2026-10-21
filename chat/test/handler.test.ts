@@ -432,3 +432,47 @@ test("a how-to-vote question keeps both sides' passages even when the reranker p
   assert.ok(keys.includes('site--other-side--01-main.md'), keys.join(', '));
   assert.ok(keys.includes('site--quick--01-main.md'), keys.join(', '));
 });
+
+test('a stuck search, reranker or planner is given up on, and the visitor still gets an answer', async () => {
+  const never = new Promise<never>(() => {});
+  const fast = { SEARCH_TIMEOUT_MS: '50', RERANK_TIMEOUT_MS: '50', PLAN_TIMEOUT_MS: '20' };
+
+  // The summary-hint search never returns; the question's own search does.
+  const base = fakeEnv();
+  const rag = base.AI!.autorag!('x');
+  const stuckHint: Env = {
+    ...base,
+    ...fast,
+    AI: { ...base.AI!, autorag: () => ({ search: (args: { query: string }) => (args.query.startsWith('plain-English summary') ? never : rag.search(args as never)) }) },
+  };
+  let t0 = Date.now();
+  let res = await readEvents(await handleChat(req(ask('What does Question 2 do?')), stuckHint));
+  assert.equal(res.meta.status, 'answer');
+  assert.ok(Date.now() - t0 < 2000, 'answered without waiting on the stuck search');
+
+  // The reranker never returns.
+  const stuckRerank = fakeEnv();
+  const run = stuckRerank.AI!.run.bind(stuckRerank.AI);
+  stuckRerank.AI!.run = (model: string, input: unknown) => ((input as { contexts?: unknown }).contexts ? never : run(model, input));
+  t0 = Date.now();
+  res = await readEvents(await handleChat(req(ask('What is the levy?')), { ...stuckRerank, ...fast }));
+  assert.equal(res.meta.status, 'answer');
+  assert.ok(Date.now() - t0 < 2000, 'answered in search order');
+
+  // The planner never returns on a follow-up (which waits for it).
+  const stuckPlanner = fakeEnv();
+  const run2 = stuckPlanner.AI!.run.bind(stuckPlanner.AI);
+  stuckPlanner.AI!.run = (model: string, input: unknown) => {
+    const i = input as { stream?: boolean; contexts?: unknown };
+    return i.stream || i.contexts ? run2(model, input) : never;
+  };
+  t0 = Date.now();
+  res = await readEvents(
+    await handleChat(
+      req({ messages: [{ role: 'user', content: 'What about Rochester?' }, { role: 'assistant', content: 'Rochester has a cap.' }, { role: 'user', content: 'And Dover?' }] }),
+      { ...stuckPlanner, ...fast },
+    ),
+  );
+  assert.equal(res.meta.status, 'answer');
+  assert.ok(Date.now() - t0 < 2000, 'follow-up searched as asked');
+});

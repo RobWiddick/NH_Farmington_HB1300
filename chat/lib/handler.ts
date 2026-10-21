@@ -15,7 +15,7 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { chunkId, demote, lastSearch, pinFirst, pool, rerank, search, searchOptions, select } from './retrieval.ts';
+import { SEARCH_TIMEOUT_MS, chunkId, demote, lastSearch, pinFirst, pool, rerank, search, searchOptions, select, withTimeout } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 // Chosen by grading the full 39-question test battery against live answers
@@ -165,7 +165,7 @@ export async function plan(env: Env, history: ChatMessage[], question: string, m
       .map((m) => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${stripMarkers(m.content).slice(0, 300)}`)
       .join('\n');
     const effort = defaultEffort(model);
-    const out = await env.AI!.run(model, {
+    const out = await withTimeout(env.AI!.run(model, {
       messages: [
         { role: 'system', content: PLANNER_PROMPT },
         {
@@ -176,7 +176,7 @@ export async function plan(env: Env, history: ChatMessage[], question: string, m
       max_tokens: 160,
       temperature: 0,
       ...(effort ? { reasoning_effort: effort } : {}),
-    });
+    }), Number(env.SEARCH_TIMEOUT_MS) || SEARCH_TIMEOUT_MS, 'Planner');
     const text = modelText(out);
     const parsed = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)) as Partial<Plan>;
     const scope = parsed.scope === 'off_topic' || parsed.scope === 'greeting' ? parsed.scope : 'on_topic';
