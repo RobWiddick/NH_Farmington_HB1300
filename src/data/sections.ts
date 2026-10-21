@@ -11,7 +11,7 @@ export const navSections: { id: string; label: string }[] = [
   { id: 'other-side', label: 'What supporters say' },
   { id: 'alternatives', label: 'What about alternatives?' },
   { id: 'vote', label: 'How to vote' },
-  { id: 'nh-context', label: 'New Hampshire in context' },
+  { id: 'nh-context', label: 'New Hampshire education in context' },
   { id: 'math', label: 'The math' },
   { id: 'nearby', label: 'Caps in other NH cities' },
   { id: 'unknowns', label: 'What nobody knows yet' },

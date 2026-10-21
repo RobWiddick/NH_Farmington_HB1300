@@ -10,7 +10,7 @@ export const site = {
   electionDateShort: 'Vote Tuesday, Nov. 3',
   // Used for the countdown and the "Add to my calendar" links.
   electionDateISO: '2026-11-03',
-  lastUpdated: 'October 20, 2026',
+  lastUpdated: 'October 21, 2026',
   // Optional "Paid for by" line shown in the footer. Left empty: RSA 664:14, V
   // exempts "a lone individual who independently authors, produces, and
   // distributes political advertising." Fill this in if that stops being true

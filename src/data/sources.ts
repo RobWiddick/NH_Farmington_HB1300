@@ -17,7 +17,7 @@ export const kindLabels: Record<SourceKind, string> = {
   court: 'Court records',
   local: 'Farmington and SAU 61',
   news: 'News reporting',
-  research: 'Independent research and polling',
+  research: 'Research, statistics and polling',
   'advocacy-con': 'Groups that oppose the cap (labeled so you can weigh them)',
   'advocacy-pro': 'Groups and officials that support the cap (labeled so you can weigh them)',
 };
@@ -888,7 +888,7 @@ export const sources = defineSources({
     url: 'https://nhfpi.org/assets/2022/06/Advancing-Equity-Through-Changes-to-State-Public-Education-Aid.pdf',
     date: 'June 23, 2022',
     kind: 'advocacy-con',
-    note: 'Nonpartisan policy research group; summarizes and quotes the commission’s final report',
+    note: 'Describes itself as nonpartisan; listed here to be cautious. Summarizes and quotes the commission’s final report',
   },
   'taxfoundation-proptax-2026': {
     short: 'Tax Foundation',
@@ -1011,7 +1011,7 @@ export const sources = defineSources({
     url: 'https://nhfpi.org/blog/state-property-tax-relief-for-homeowners-available-through-june-30/',
     date: 'May 18, 2026',
     kind: 'advocacy-con',
-    note: 'Nonpartisan policy research group',
+    note: 'Describes itself as nonpartisan; listed here to be cautious',
   },
   'nhfpi-proptax': {
     short: 'NHFPI',
@@ -1020,7 +1020,7 @@ export const sources = defineSources({
     url: 'https://nhfpi.org/resource/property-taxes-in-new-hampshire-how-they-work-and-how-they-compare/',
     date: 'April 9, 2026',
     kind: 'advocacy-con',
-    note: 'Nonpartisan policy research group; figures are from the U.S. Census Bureau and NH Department of Revenue Administration',
+    note: 'Describes itself as nonpartisan; listed here to be cautious. Figures are from the U.S. Census Bureau and NH Department of Revenue Administration',
   },
   'jbc-spending': {
     short: 'Josiah Bartlett Center',

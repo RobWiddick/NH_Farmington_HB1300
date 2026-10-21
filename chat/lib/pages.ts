@@ -12,7 +12,7 @@ export const pages: Record<string, string> = {
   'other-side': 'What supporters say',
   alternatives: 'What about alternatives?',
   vote: 'How to vote',
-  'nh-context': 'New Hampshire in context',
+  'nh-context': 'New Hampshire education in context',
   math: 'The math',
   nearby: 'Caps in other NH cities',
   unknowns: 'What nobody knows yet',

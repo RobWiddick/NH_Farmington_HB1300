@@ -68,3 +68,46 @@ export const spendingCategories = {
   ],
   total: { label: 'All day-to-day spending', fy2016: 15_893, fy2024: 17_456 },
 };
+
+// State test results by grade, spring 2024-2026: percent proficient or better,
+// [Farmington, New Hampshire]; null where the state reports only "<10%". Grades
+// 3-8 take the NH SAS; grade 11 takes the SAT in math and reading and the NH SAS
+// in science. Source: SDGA-NH compilation of NH Department of Education results
+// ("Base Data" tab, District Data and State Data rows). About 40-65 Farmington
+// students were tested in each grade.
+type GradeRow = { grade: number; test: string; years: [number | null, number][] };
+export const scoreYearsByGrade = [2024, 2025, 2026];
+export const scoresByGrade: { subject: string; rows: GradeRow[] }[] = [
+  {
+    subject: 'Math',
+    rows: [
+      { grade: 3, test: 'NH SAS', years: [[27, 53], [47, 53], [42, 54]] },
+      { grade: 4, test: 'NH SAS', years: [[55, 49], [45, 52], [33, 52]] },
+      { grade: 5, test: 'NH SAS', years: [[48, 40], [31, 40], [32, 43]] },
+      { grade: 6, test: 'NH SAS', years: [[45, 41], [43, 41], [31, 43]] },
+      { grade: 7, test: 'NH SAS', years: [[40, 40], [20, 41], [40, 44]] },
+      { grade: 8, test: 'NH SAS', years: [[49, 37], [40, 38], [25, 40]] },
+      { grade: 11, test: 'SAT', years: [[10, 30], [null, 31], [13, 30]] },
+    ],
+  },
+  {
+    subject: 'Reading',
+    rows: [
+      { grade: 3, test: 'NH SAS', years: [[41, 50], [39, 49], [42, 51]] },
+      { grade: 4, test: 'NH SAS', years: [[51, 50], [47, 53], [40, 52]] },
+      { grade: 5, test: 'NH SAS', years: [[60, 56], [55, 57], [38, 58]] },
+      { grade: 6, test: 'NH SAS', years: [[33, 52], [52, 53], [50, 52]] },
+      { grade: 7, test: 'NH SAS', years: [[56, 54], [44, 55], [47, 57]] },
+      { grade: 8, test: 'NH SAS', years: [[53, 49], [51, 52], [27, 51]] },
+      { grade: 11, test: 'SAT', years: [[43, 63], [57, 66], [48, 62]] },
+    ],
+  },
+  {
+    subject: 'Science',
+    rows: [
+      { grade: 5, test: 'NH SAS', years: [[41, 36], [29, 38], [16, 38]] },
+      { grade: 8, test: 'NH SAS', years: [[45, 34], [64, 37], [29, 37]] },
+      { grade: 11, test: 'NH SAS', years: [[17, 39], [38, 39], [35, 40]] },
+    ],
+  },
+];

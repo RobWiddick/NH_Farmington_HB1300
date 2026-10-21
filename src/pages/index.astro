@@ -10,7 +10,7 @@ import SectionMenu from '../components/SectionMenu.astro';
 import ScoreChart from '../components/ScoreChart.astro';
 import SpendChart from '../components/SpendChart.astro';
 import { site, calendarEvent } from '../data/site';
-import { scores, spendingCategories } from '../data/figures';
+import { scores, scoresByGrade, scoreYearsByGrade, spendingCategories } from '../data/figures';
 
 // Deep links into the Oct. 19, 2026 Farmington School Board video.
 const vid = (seconds: number) => `https://www.youtube.com/watch?v=qcF6xnfGMWc&t=${seconds}s`;
@@ -87,7 +87,7 @@ const ballotText = {
           <div><dt>2</dt><dd>caps in one yes-or-no question: one on the school property-tax levy, one on administration</dd></div>
           <div><dt>60%</dt><dd>“yes” needed to adopt the cap, and again whenever a budget would need taxes above it</dd></div>
           <div><dt>$360K</dt><dd>first-year gap Farmington’s school leaders project at 3% inflation, before special ed, fuel and transportation</dd></div>
-          <div><dt>&lt;6%</dt><dd>Farmington’s central-office share by the district’s estimate (about 5.5–5.7%), already under the limit. The levy cap is the part that would bite.</dd></div>
+          <div><dt>&lt;6%</dt><dd>Farmington’s central-office share by the district’s estimate (about 5.5–5.7%), just under the limit. The levy cap is the part that would bite.</dd></div>
         </dl>
         <p class="small muted" style="margin:0">
           <Cite id="rsa-32-5-i" label="The law" /> <Cite id="school-board-video" href={vid(2772)} label="School Board, Oct. 19" />
@@ -101,7 +101,9 @@ const ballotText = {
         <ul>
           <li><a href="#quick">5 things to know</a></li>
           <li><a href="#calculator">The $360K gap</a></li>
+          <li><a href="#spending">Spending vs. inflation</a></li>
           <li><a href="#outcomes">Test scores</a></li>
+          <li><a href="#community">Families and taxes</a></li>
           <li><a href="#ballot">The ballot wording</a></li>
           <li><a href="#sixty">The 60% rule</a></li>
           <li><a href="#other-side">Supporters’ case</a></li>
@@ -248,8 +250,10 @@ const ballotText = {
           These are the district’s preliminary estimates, and they could move either way. The 2% and 4% are my math from
           the district’s figures. Two things aren’t settled. Recent Northeast inflation readings (3.6% in March, 4.2% in
           September) are above 3%, which would shrink the gap. <Cite id="bls-cpi-ne" /> But the district started from a
-          tax figure of about $12.6 million; if the levy the cap actually builds on is lower, as state tax-rate figures
-          suggest it may be, the cap would allow less and the gap would grow. <Cite id="town-report-2025" label="2025 tax rate sheet" />
+          tax figure of about $12.6 million, while the state’s tax-rate sheet put Farmington’s local school tax for
+          2025–26 at about $7.9 million, after state aid. <Cite id="town-report-2025" label="2025 tax rate sheet" /> The
+          2026–27 figure, which the cap would build on, will be set this fall. If it is closer to the state’s figure, 3%
+          would allow only about $236,000, and the gap would be closer to $500,000 (my math).
         </p>
         <blockquote class="quote">
           “I worry that should this go to the ballot, people will believe that if it’s implemented, it won’t have a
@@ -269,7 +273,8 @@ const ballotText = {
         <p>
           The district spent about $16.5 million in fiscal 2016 (the school year ending June 2016) and about
           $20.0 million in fiscal 2025, according to its annual financial reports to the state. No audit of fiscal 2025
-          has been published yet. <Cite id="nhdoe-doe25" /> Consumer prices rose 34.1% over the same years. <Cite id="bls-cpi-us" />
+          has been published yet. <Cite id="nhdoe-doe25" /> That total counts spending from every fund, so it isn’t the
+          same as the operating budget voters approve each March (for 2026–27, the $18.1 million default). Consumer prices rose 34.1% over the same years. <Cite id="bls-cpi-us" />
           By my math, buying what $16.5 million bought in 2016 would have taken about $22.2 million in 2025, about
           $2.2 million more than the district spent. Census Bureau figures tell the same story: in every year from 2017
           through 2024, spending stayed below the 2016 level adjusted for inflation, though in some years it grew
@@ -277,9 +282,12 @@ const ballotText = {
         </p>
         <p>
           In fairness, enrollment fell about a quarter over the same period, from 991 students to 738.
-          <Cite id="nces-enrollment-farmington" /> So spending per student rose faster than prices: from 2016 to 2024
-          it rose 43%, while prices rose about 31% and the statewide average per student rose 50%. In 2024 Farmington
-          spent about the state average per student, and less than about 7 in 10 New Hampshire school districts.
+          <Cite id="nces-enrollment-farmington" /> So spending per student rose faster than prices. By the district’s
+          totals above, it rose about 62% from 2016 to 2025 (my math), while prices rose 34%. Census figures, which count
+          only day-to-day spending and allow a statewide comparison but stop at 2024, show a 43% rise from 2016 to 2024,
+          against about 31% for prices and 50% for the statewide average. In 2024 Farmington spent about the state
+          average per student, and less than about 7 in 10 New Hampshire school districts. (The statewide average is
+          weighted toward larger districts, which tend to spend less per student.)
           <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="census-f33-2016-states" />
           <Cite id="census-f33-2024-states" /> Many costs don’t shrink when enrollment does, like buildings, bus
           routes and special education.
@@ -343,7 +351,8 @@ const ballotText = {
             special education; the Census Bureau doesn’t report it separately. Some shifts may reflect how costs were
             recorded rather than real changes: general administration fell while business and central services grew.
             The Census Bureau hasn’t published 2025 yet. The total is day-to-day spending; it leaves out construction,
-            equipment and debt payments.
+            equipment and debt payments. That’s why it shows a bigger loss of buying power (16%) than the 10% above: it
+            stops at 2024, before spending jumped in fiscal 2025, and counts only day-to-day costs.
             <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="bls-cpi-us" />
           </p>
         </details>
@@ -357,7 +366,8 @@ const ballotText = {
             inflation, falls, if state aid and other money don’t keep up. In Farmington, Census Bureau figures show
             that from 2016 to 2024, school property taxes rose about 30%, roughly in step with prices, while state
             money (which in Census figures includes the statewide education property tax) fell about 3% before
-            inflation, as enrollment fell and most state aid is paid per student. Total spending rose about 10%. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" />
+            inflation, as enrollment fell and most state aid is paid per student. Day-to-day spending, the Census
+            measure in the table above, rose about 10%. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" />
             <Cite id="rsa-198-40-a" /> That’s why I don’t think a cap on the local
             tax gets at the real problem. It limits what Farmington can raise, but it doesn’t lower what it costs to
             educate students, or change how those costs are split between the state and towns.
@@ -382,12 +392,9 @@ const ballotText = {
           <Cite id="school-board-video" href={vid(3992)} label="1:06:32" />
         </p>
         <p>
-          A district leader agreed that cuts couldn’t come from special-education services, because each student’s
-          written plan, called an IEP, “is a legal document and what is promised in that document has to be delivered.”
-          So cuts would fall on regular education. <Cite id="school-board-video" href={vid(4161)} label="Video, 1:09:21" /> Staff is the biggest cost,
-          district leaders said, and programs that aren’t graduation requirements, like athletics and theater, would
-          get a hard look. No specific cuts have been proposed.
-          <Cite id="school-board-video" href={vid(3790)} label="Video, 1:03:10" />
+          Why not special education? Each student’s written plan, called an IEP, “is a legal document and what is
+          promised in that document has to be delivered,” a district leader said.
+          <Cite id="school-board-video" href={vid(4161)} label="Video, 1:09:21" />
         </p>
         <p>
           <strong>Some costs aren’t optional.</strong> Federal law requires the district to provide the services written
@@ -417,11 +424,15 @@ const ballotText = {
           <Cite id="farmington-ar-2026" label="Deliberative session minutes" />
         </p>
 
-        <p class="sub-stat" aria-hidden="true"><b>5.5–5.7%</b> central-office share, under the 6% limit</p>
+        <p class="sub-stat" aria-hidden="true"><b>5.5–5.7%</b> central-office share, just under the 6% limit</p>
         <h3>Would the 6% administration limit help here?</h3>
         <p>
-          <strong>Probably not much.</strong> By the district’s estimate, Farmington’s central office costs about
-          5.5–5.7% of the budget, under the 6% limit. The levy cap is the part that would bite. <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
+          <strong>Probably not much, though the margin is thin.</strong> By the district’s count, central-office costs
+          come to about $991,000, about 5.7% of the budget and roughly $47,000 under the 6% limit. The superintendent
+          said some costs, like the district’s IT administrator and part of its legal bills, could land on either side.
+          <Cite id="school-board-video" href={vid(3512)} label="Video, 58:32" /> And because the limit is a share of the
+          budget, it would shrink if the levy cap forced the budget down. For now, the levy cap is the part that would
+          bite. <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
           <Cite id="school-board-video" href={vid(3749)} label="1:02:29" />
         </p>
 
@@ -479,8 +490,9 @@ const ballotText = {
       <h2>Farmington students were closing the gap with the state</h2>
       <div class="prose">
         <p class="takeaway">
-          Despite tight budgets, Farmington has narrowed the gap between its students and the state average. That
-          progress matters, especially in a community facing real economic challenges.
+          Farmington worked to narrow the gap between its students and the state average, and between 2021 and 2024 it
+          closed most of it. In 2026, much of that gap reopened. That progress, and getting it back, matters, especially
+          in a community facing real economic challenges.
         </p>
         <p>
           Farmington students have long scored below the state average. Between 2021 and 2024 they closed most of that
@@ -488,18 +500,21 @@ const ballotText = {
           2025. <Cite id="farmington-ar-2025" label="Farmington annual report" /> <Cite id="sdganh-scores" />
         </p>
         <p>
-          Keeping that progress takes steady support. In spring 2026, after a school year with a spending freeze and the
-          district’s first layoffs in years, results fell: reading went from 49% to 41% of students at grade level or
-          above, math from 33% to 31%, and science from 45% to 26%, while state averages held steady or rose.
-          <Cite id="sdganh-scores" /> <Cite id="keene-2026-scores" />
-          <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" /> That doesn’t show the layoffs
-          caused the drop: Farmington tests only 140 to 430 students a year, each year tests different students, and many
-          things affect scores. But the decline deserves a close look before new limits on school funding.
+          I believe keeping that progress takes steady support. In spring 2026, after a school year with a spending
+          freeze and the district’s first layoffs in years, results fell: reading went from 49% to 41% of students
+          scoring proficient or better, math from 33% to 31%, and science from 45% to 26%, while state averages held
+          steady or rose. <Cite id="sdganh-scores" /> <Cite id="keene-2026-scores" />
+          <Cite id="farmington-ar-2026" label="Farmington annual report, pp. 29–30" /> Math had already slipped a year
+          earlier, from 39% to 33% in spring 2025, before the freeze and layoffs. That doesn’t show the layoffs caused
+          the drop: in 2026 Farmington tested only about 320 students in math and reading and about 140 in science, each
+          year tests different students, and many things affect scores. But the decline deserves a close look before
+          new limits on school funding.
         </p>
         <p class="small muted">
           Choose a subject to see Farmington and New Hampshire side by side. Each point is the share of students scoring
           proficient or better on that spring’s state tests: math and reading in grades 3–8 plus the grade 11 SAT, and
           science in grades 5, 8 and 11. There were no state tests in 2020, and the grade 11 SAT changed format in 2024.
+          Results for each grade and test are below the chart.
         </p>
       </div>
       <ScoreChart />
@@ -537,6 +552,39 @@ const ballotText = {
             as 40% math and 49% reading), Farmington annual reports <Cite id="farmington-ar-2025" label="2025" />
             <Cite id="farmington-ar-2026" label="2026" />, and state averages for 2018 <Cite id="nhpr-2018-scores" /> and
             2026 math and reading <Cite id="keene-2026-scores" />.
+          </p>
+        </details>
+        <details>
+          <summary>Results by grade and test, 2024 to 2026 (Farmington / state)</summary>
+          <div class="table-wrap" tabindex="0" role="region" aria-labelledby="grades-cap">
+            <table class="scores by-grade">
+              <caption id="grades-cap" class="sr-only">Percent of students proficient or better, by grade (Farmington / state)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Grade</th>
+                  <th scope="col">Test</th>
+                  {[...scoreYearsByGrade].reverse().map((y) => <th scope="col" class="num">{y}</th>)}
+                </tr>
+              </thead>
+              {scoresByGrade.map((s) => (
+                <tbody>
+                  <tr class="group"><th scope="rowgroup" colspan={2 + scoreYearsByGrade.length}>{s.subject}</th></tr>
+                  {s.rows.map((r) => (
+                    <tr>
+                      <th scope="row">{r.grade}</th>
+                      <td>{r.test}</td>
+                      {[...r.years].reverse().map(([f, st]) => <td class="num">{f === null ? 'under 10%' : `${f}%`} / {st}%</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
+            </table>
+          </div>
+          <p class="small muted">
+            Grades 3–8 take the state’s NH SAS test. In grade 11, students take the SAT in math and reading and the NH
+            SAS in science. Only about 40 to 65 Farmington students are tested in each grade, so one grade’s results can
+            swing a lot from year to year, and each year’s 5th graders are different children from the year before.
+            <Cite id="sdganh-scores" />
           </p>
         </details>
       </div>
@@ -861,8 +909,8 @@ const ballotText = {
             <h3>Caps do slow tax growth.</h3>
             <p>
               After New York capped school levies, average school tax
-              increases fell to 1.9% a year in 2012–2018, from 6.6% in 2004–2008 (3.1% in the recession years just
-              before). More than 95% of school budgets still passed each year. <Cite id="rockinst-ny" />
+              increases fell to 1.9% a year in 2012–2018, from 6.6% in 2004–2008 and 3.1% in the recession years
+              just before the cap took effect. More than 95% of school budgets still passed each year. <Cite id="rockinst-ny" />
             </p>
           </div>
           <div class="arg-weigh">
@@ -962,9 +1010,11 @@ const ballotText = {
           commission found that small districts need more money per student to reach the same results. For districts
           of 601 to 1,200 students, it estimated about $2,500 more per student than for districts of more than 2,000.
           <Cite id="air-2020" label="AIR draft report, 2020" /> Farmington has about 740.
-          <Cite id="nhed-finance-2025" /> Nationally, central-office administration costs
-          about $690 per student in districts under 3,000 students, about double the $351 average.
-          <Cite id="census-f33-2024-tables" label="Census, FY2024 Table 14" />
+          <Cite id="nhed-finance-2025" /> Nationally, general administration (school boards and superintendents’
+          offices) costs about $690 per student in districts under 3,000 students, about double the $351 average.
+          <Cite id="census-f33-2024-tables" label="Census, FY2024 Table 14" /> Farmington’s came to about $855,000 in
+          2024, roughly $1,100 per student (my math), including its own SAU central office since 2016.
+          <Cite id="census-f33-2024" />
         </p>
 
         <h3>Where state funding stands</h3>
@@ -1093,7 +1143,7 @@ const ballotText = {
       <ol class="steps prose">
         <li><p><strong>Vote on {site.electionDate}.</strong> Question 2 is on the general election ballot in every New Hampshire town and city ward. <Cite id="rsa-32-5-i" label="RSA 32:5-i, I" /></p></li>
         <li><p><strong>Turn your ballot over.</strong> Question 2 is on the back; the front says “VOTE BOTH SIDES.” <Cite id="farmington-sample-ballot" /></p></li>
-        <li><p><strong>Don’t skip it.</strong> District leaders have said a blank isn’t counted in the 60%, but the law doesn’t say so directly, and as of mid-October the Attorney General’s office hadn’t weighed in. Mark the choice you mean. <Cite id="school-board-video" href={vid(2372)} label="Video, 39:32" /> <Cite id="nhpr-cuts" /> <a href="#unknowns">Why it’s unsettled</a></p></li>
+        <li><p><strong>Don’t skip it.</strong> District leaders have said a blank isn’t counted in the 60%, but the law doesn’t say so directly, and under another reading a blank would in effect count as a No. As of Oct. 21 I hadn’t found guidance from the Attorney General’s office. Mark the choice you mean. <Cite id="school-board-video" href={vid(2372)} label="Video, 39:32" /> <Cite id="nhpr-cuts" /> <a href="#unknowns">Why it’s unsettled</a></p></li>
         <li><p><strong>To keep the cap off Farmington’s schools, fill in “No.”</strong> The cap takes effect only if 60% of voters say yes. <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" /></p></li>
         <li><p><strong>Questions about where or how to vote?</strong> Contact the Farmington Town Clerk. <Cite id="farmington-clerk" /></p></li>
       </ol>
@@ -1120,7 +1170,7 @@ const ballotText = {
   <!-- ===================== NH CONTEXT ===================== -->
   <section id="nh-context">
     <div class="wrap">
-      <p class="kicker">New Hampshire in context</p>
+      <p class="kicker">New Hampshire education in context</p>
       <h2>High spending, high costs, and the smallest state share</h2>
       <p class="lede">
         New Hampshire is often criticized for spending more per student than most states. That criticism deserves
@@ -1140,7 +1190,7 @@ const ballotText = {
         <div class="stat-tile">
           <p class="stat-num">$23,619</p>
           <p class="stat-label">spent per student in 2024–25, 6th highest of the 50 states and 32% above the U.S. average</p>
-          <p class="stat-src"><Cite id="nea-rankings-2026" /></p>
+          <p class="stat-src"><Cite id="nea-rankings-2026" label="National Education Association, 2026" /></p>
         </div>
         <div class="stat-tile">
           <p class="stat-num">28.2%</p>
@@ -1164,7 +1214,8 @@ const ballotText = {
         <p>
           High per-student spending doesn’t automatically mean a district is overspending, and a statewide average
           doesn’t describe every district. Farmington spent about the state average per student in 2024, and less than
-          about 7 in 10 New Hampshire districts. <Cite id="census-f33-2024-states" label="Census FY2024" /> The question
+          about 7 in 10 New Hampshire districts. (The statewide average is weighted toward larger districts, which tend
+          to spend less per student.) <Cite id="census-f33-2024-states" label="Census FY2024" /> The question
           isn’t simply how much New Hampshire spends on education. It’s how those costs are shared, whether communities
           can afford their part, and whether students get comparable opportunities wherever they live.
         </p>
@@ -1200,8 +1251,9 @@ const ballotText = {
         <ul>
           <li>
             <strong>“Inflation”</strong> means the 12-month change in consumer prices in the Northeast, measured in
-            March. The most recent figure, March 2025 to March 2026, was about 3.6%. The one for the first capped year
-            isn’t out yet. <Cite id="bls-cpi-ne" />
+            March. The most recent figure, March 2025 to March 2026, was about 3.6%. If the first capped year uses March
+            2027, as the law’s wording suggests, that figure isn’t out yet (see <a href="#unknowns">What nobody knows
+            yet</a>). <Cite id="bls-cpi-ne" />
           </li>
           <li>
             <strong>“New construction”</strong> means new homes, additions and other physical changes. Rising home
@@ -1236,10 +1288,8 @@ const ballotText = {
         <div class="card">
           <h4>Special education</h4>
           <p>
-            Federal law requires districts to provide the services in each student’s special-education plan, and the U.S.
-            Supreme Court has ruled that a district must fund a service a student needs in order to attend school, even
-            when it’s costly.
-            <Cite id="nhb-sped" /> <Cite id="garret-f" /> Local property taxes paid 83% of special-education costs in 2023–24. In 2024–25, the
+            Federal law requires districts to deliver the services in each student’s special-education plan, however
+            costly (see <a href="#cuts">Where would cuts come from?</a>). <Cite id="nhb-sped" /> <Cite id="garret-f" /> Local property taxes paid 83% of special-education costs in 2023–24. In 2024–25, the
             state paid only 66% of the aid it owed for the most expensive cases. It rose to 90% the next year, and the
             state must now pay at least 80%. <Cite id="sped-gap" />
           </p>
@@ -1354,9 +1404,10 @@ const ballotText = {
             says the cap takes effect if “a 3/5 majority of the voters voting” in the district approve it.
             <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI(a)" /> But unlike the older local tax-cap law, and this law’s own
             rule for overriding a cap, it doesn’t say that only Yes and No votes count.
-            <Cite id="rsa-32-5-c" label="RSA 32:5-c, I" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" /> In mid-October,
-            NHPR reported this was unlikely to be settled until the Attorney General’s office issued guidance; as of Oct.
-            21, I hadn’t found any. <Cite id="nhpr-cuts" /> To be sure your vote counts the way you mean, fill in Yes or
+            <Cite id="rsa-32-5-c" label="RSA 32:5-c, I" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" /> Under another
+            reading, NHPR reported, a voter who skips the question would in effect count as a No, because Yes would need
+            60% of everyone who voted. In mid-October, NHPR reported this was unlikely to be settled until the Attorney
+            General’s office issued guidance; as of Oct. 21, I hadn’t found any. <Cite id="nhpr-cuts" /> To be sure your vote counts the way you mean, fill in Yes or
             No.
           </p>
         </div>
@@ -1424,7 +1475,7 @@ const ballotText = {
           <summary>Would the 6% administration cap save Farmington money?</summary>
           <p>
             Probably not much. By the district’s estimate, Farmington’s central office costs about 5.5–5.7% of the budget,
-            already under the 6% limit. <Cite id="school-board-video" href={vid(3749)} label="School Board video, 1:02:29" />
+            just under the 6% limit. <Cite id="school-board-video" href={vid(3749)} label="School Board video, 1:02:29" />
           </p>
         </details>
         <details>
@@ -1483,6 +1534,12 @@ const ballotText = {
         <dd>Loan payments for school buildings, if the state certifies them. These are left out of the cap.</dd>
         <dt>IEP</dt>
         <dd>Individualized Education Program: the written, legally binding plan for a special-education student.</dd>
+        <dt>Deliberative session</dt>
+        <dd>The first part of Farmington’s annual school meeting, in late January or early February, where residents can debate and amend
+          the warrant articles before the March ballot vote.</dd>
+        <dt>Adequacy aid</dt>
+        <dd>The state’s main school aid: a set amount per student, plus extra for students with greater needs. It
+          includes the statewide education property tax each town collects and keeps.</dd>
         <dt>DRA</dt>
         <dd>The NH Department of Revenue Administration, the state tax agency that approves tax rates and would enforce the cap.</dd>
         <dt>RSA</dt>

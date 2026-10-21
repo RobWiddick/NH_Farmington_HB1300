@@ -2100,3 +2100,9 @@ html:has(dialog.chat[open]) .to-top {
   border-top: 2px solid var(--line);
   font-weight: 700;
 }
+
+/* Scores by grade: a label row starts each subject */
+.by-grade tr.group th {
+  background: var(--paper-2);
+  font-weight: 700;
+}
