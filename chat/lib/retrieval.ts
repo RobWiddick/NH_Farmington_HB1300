@@ -174,6 +174,23 @@ export async function rerank(env: Env, query: string, chunks: Chunk[]): Promise<
   }
 }
 
+// Documents that argue one side rank high for many questions because they restate
+// the law at length. Unless the visitor is asking about them, push them down so
+// the guide and the law itself come first.
+const DEMOTE: { key: RegExp; unless: RegExp; factor: number }[] = [
+  { key: /^primary--bates-complaint\.md$/, unless: /lawsuit|\bsu(e|ed|ing|it)\b|court|judge|complaint|plaintiff|legal challenge|bates|wieser/i, factor: 0.25 },
+];
+
+/** Lowers the scores of one-sided documents (see DEMOTE) unless the question is about them. */
+export function demote(chunks: Chunk[], text: string): Chunk[] {
+  return chunks
+    .map((c) => {
+      const rule = DEMOTE.find((d) => d.key.test(c.key));
+      return rule && !rule.unless.test(text) ? { ...c, score: c.score * rule.factor } : c;
+    })
+    .sort((a, b) => b.score - a.score);
+}
+
 /** The best chunks within the context budget, at most MAX_PER_DOC from one document. */
 export function select(ranked: Chunk[]): Chunk[] {
   const perDoc = new Map<string, number>();

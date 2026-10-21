@@ -121,6 +121,16 @@ test('rerank reorders candidates by the reranker and falls back to search order'
   assert.throws(() => pool([{ status: 'rejected', reason: new Error('x') }]));
 });
 
+test('demote pushes the lawsuit complaint down unless the question is about the lawsuit', async () => {
+  const { demote } = await import('../lib/retrieval.ts');
+  const chunks = [
+    { key: 'primary--bates-complaint.md', text: 'x', score: 0.9, metadata: {} },
+    { key: 'site--ballot--01-main.md', text: 'y', score: 0.5, metadata: {} },
+  ];
+  assert.equal(demote(chunks, 'What would Question 2 do?')[0].key, 'site--ballot--01-main.md');
+  assert.equal(demote(chunks, 'Was there a lawsuit about Question 2?')[0].key, 'primary--bates-complaint.md');
+});
+
 test('PLAN_MODE=followups skips the planner on a first question but not on follow-ups', async () => {
   const calls: { model: string; input: { stream?: boolean } }[] = [];
   const env = { ...fakeEnv({ calls: calls as unknown[] }), PLAN_MODE: 'followups' };
@@ -235,6 +245,14 @@ test('greetings and off-topic requests get fixed replies without the answer mode
   assert.equal(searches, 2);
 });
 
+test('retries once when every search comes back empty', async () => {
+  let n = 0;
+  const search = () => (++n <= 1 ? legacyResult([]) : legacyResult([{ key: 'site--sixty--01-main.md', text: 'The 60% rule. [src:rsa-32-5-i]' }]));
+  const res = await readEvents(await handleChat(req(ask('What is the 60% rule?')), fakeEnv({ plan: { scope: 'on_topic', queries: ['What is the 60% rule?'] }, search })));
+  assert.equal(res.meta.status, 'answer');
+  assert.equal(n, 2);
+});
+
 test('reports a clear error when AI Search is unreachable', async () => {
   const res = await handleChat(
     req(ask('What is the levy?')),
@@ -251,7 +269,7 @@ test('the answer prompt keeps the bot grounded and neutral about the author', as
   const { answerPrompt } = await import('../lib/prompts.ts');
   const p = answerPrompt('2026-10-21');
   assert.match(p, /Brittni Widdick/);
-  assert.match(p, /never use he or she for the author/);
+  assert.match(p, /Never use he, she, his or her for the author/);
   assert.match(p, /Never fill gaps from memory/);
   assert.match(p, /hi@hb1300\.com/);
 });

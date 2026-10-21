@@ -15,7 +15,7 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
+import { demote, lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
@@ -276,10 +276,14 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   let chunks;
   try {
     const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q, sOpts));
-    const candidates = pool(await Promise.allSettled([firstSearch, ...more]));
+    let candidates = pool(await Promise.allSettled([firstSearch, ...more]));
+    // AI Search occasionally returns nothing for a query it answers fine a moment
+    // later; retry once before telling the visitor nothing was found.
+    if (!candidates.length) candidates = pool(await Promise.allSettled(p.queries.map((q) => search(env, q, sOpts))));
     // Rerank against the planner's standalone version of the question, so a
     // follow-up like "and Dover?" is scored as "Dover tax cap ...".
-    chunks = select(selfRerank ? await rerank(env, p.queries[0] || question, candidates) : candidates);
+    const ranked = selfRerank ? await rerank(env, p.queries[0] || question, candidates) : candidates;
+    chunks = select(demote(ranked, `${question} ${p.queries.join(' ')}`));
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
     return json(503, { error: 'The assistant can’t reach its sources right now.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
