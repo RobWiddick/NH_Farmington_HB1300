@@ -182,6 +182,8 @@ test('normalizeMarkers repairs the citation formats models actually write', asyn
   assert.equal(normalizeMarkers('[src:rsa-32-5-i; hb1300-text]'), '[src:rsa-32-5-i] [src:hb1300-text]');
   assert.equal(normalizeMarkers('[Page: Farmington]'), '[page:farmington]');
   assert.equal(normalizeMarkers('[src:x@ 12s]'), '[src:x@12]');
+  assert.equal(normalizeMarkers('a【src:bates-complaint】【page:faq】b'), 'a[src:bates-complaint][page:faq]b');
+  assert.equal(normalizeMarkers('［page：top］'), '[page:top]');
   assert.equal(normalizeMarkers('[1] and [see note]'), '[1] and [see note]', 'non-markers untouched');
   assert.equal(normalizeMarkers('[src:bad id!]'), '', 'unreadable markers dropped');
 });

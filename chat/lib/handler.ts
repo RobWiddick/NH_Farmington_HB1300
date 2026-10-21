@@ -21,9 +21,9 @@ import type { ChatMessage, Env } from './types.ts';
 // Chosen by grading the full 39-question test battery against live answers
 // (Workers Paid, Oct. 2026). Average grades out of 5 for accuracy / citations /
 // following the rules, and speed and cost per answer:
-//   DeepSeek V4.1 Flash, reasoning off  4.8 / 4.9 / 4.8   4.6s median   ~90 neurons
-//   GLM 5.3 Flash, reasoning low        4.8 / 4.7 / 4.8  11.8s median   ~50 neurons
-//   GPT-OSS 120B, reasoning low         3.5 / 3.7 / 3.6   5.8s median  ~130 neurons
+//   DeepSeek V4.1 Flash, reasoning off  4.8 / 4.8 / 4.8   4.6s median   ~90 neurons
+//   GLM 5.3 Flash, reasoning low        4.8 / 4.7 / 4.7  11.8s median   ~50 neurons
+//   GPT-OSS 120B, reasoning low         3.5 / 3.5 / 3.6   5.8s median  ~130 neurons
 export const DEFAULT_CHAT_MODEL = '@cf/deepseek-ai/deepseek-v4.1-flash-1017';
 // Used when the answer model errors (for example Workers AI's per-minute model
 // limit): as accurate, just slower.
