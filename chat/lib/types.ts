@@ -23,6 +23,10 @@ export interface Env {
   RATE_PER_HOUR?: string;
   /** reasoning_effort for the answer model, for models that have one (e.g. "none"). */
   CHAT_REASONING?: string;
+  /** Search tuning: results per query, minimum score (0-1), and "false" to turn reranking off. */
+  SEARCH_MAX?: string;
+  SEARCH_THRESHOLD?: string;
+  SEARCH_RERANK?: string;
   /** "true" on previews while testing: allows x-chat-model / x-reasoning-effort headers and adds debug info. */
   CHAT_EVAL?: string;
 }

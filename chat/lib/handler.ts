@@ -15,7 +15,7 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { combine, search } from './retrieval.ts';
+import { combine, lastSearch, search, searchOptions } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
@@ -226,9 +226,18 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     const e = request.headers.get('x-reasoning-effort');
     if (e !== null && /^(|none|low|medium|high)$/.test(e)) effort = e;
   }
+  const sOpts = searchOptions(env);
+  if (evalMode) {
+    const t = Number(request.headers.get('x-search-threshold') ?? NaN);
+    if (t >= 0 && t <= 1) sOpts.threshold = t;
+    const mx = Number(request.headers.get('x-search-max') ?? NaN);
+    if (mx >= 1 && mx <= 50) sOpts.max = mx;
+    const rr = request.headers.get('x-search-rerank');
+    if (rr === 'on' || rr === 'off') sOpts.rerank = rr === 'on';
+  }
 
   // Search the question as asked while the planner works out better queries.
-  const firstSearch = search(env, question);
+  const firstSearch = search(env, question, sOpts);
   firstSearch.catch(() => {}); // handled below; avoids an unhandled rejection if we return early
   const p = await plan(env, history, question);
   const planMs = Date.now() - started;
@@ -243,7 +252,7 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
 
   let chunks;
   try {
-    const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q));
+    const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q, sOpts));
     chunks = combine(await Promise.allSettled([firstSearch, ...more]));
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
@@ -251,7 +260,9 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   }
   if (!chunks.length) {
     log('no_match', { queries: p.queries.length });
-    return cannedStream({ status: 'no_match', sources: [], pages: pageMeta(['sources']) }, CANNED.noMatch);
+    const meta: Meta = { status: 'no_match', sources: [], pages: pageMeta(['sources']) };
+    if (evalMode) meta.debug = { queries: p.queries, planMs, search: sOpts, lastSearch: { ...lastSearch } };
+    return cannedStream(meta, CANNED.noMatch);
   }
 
   const ctxDocs = buildContext(chunks);
@@ -287,6 +298,7 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
 
   log('answer', { model, queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length, planMs, searchMs });
   const meta: Meta = { status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages };
-  if (evalMode) meta.debug = { model, effort, queries: p.queries, planMs, searchMs, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
+  if (evalMode)
+    meta.debug = { model, effort, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
   return relay(meta, stream, ctx);
 }

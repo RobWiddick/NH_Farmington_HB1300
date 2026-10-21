@@ -6,6 +6,28 @@ import type { Chunk, Env } from './types.ts';
 export const PER_QUERY = 6;
 export const MATCH_THRESHOLD = 0.3;
 const MAX_CHUNKS = 8;
+
+export interface SearchOptions {
+  /** Results per query (1-50). */
+  max: number;
+  /** Minimum match score (0-1) that AI Search applies. */
+  threshold: number;
+  /** Rerank results with bge-reranker-base (AI Search applies its own reranking threshold). */
+  rerank: boolean;
+}
+
+/** Search settings from env vars (SEARCH_MAX, SEARCH_THRESHOLD, SEARCH_RERANK), with defaults. */
+export function searchOptions(env: Env): SearchOptions {
+  const n = (v: string | undefined, d: number) => (v !== undefined && v !== '' && Number.isFinite(Number(v)) ? Number(v) : d);
+  return {
+    max: Math.min(50, Math.max(1, n(env.SEARCH_MAX, PER_QUERY))),
+    threshold: Math.min(1, Math.max(0, n(env.SEARCH_THRESHOLD, MATCH_THRESHOLD))),
+    rerank: env.SEARCH_RERANK !== 'false',
+  };
+}
+
+/** What the last search saw, for the preview test harness. */
+export const lastSearch: { shape?: string; raw?: number } = {};
 const MAX_PER_DOC = 3;
 const MAX_CONTEXT_CHARS = 12_000;
 
@@ -41,18 +63,20 @@ export function normalize(result: unknown): Chunk[] {
   return out;
 }
 
-async function searchOnce(env: Env, query: string): Promise<Chunk[]> {
+async function searchOnce(env: Env, query: string, opts: SearchOptions = searchOptions(env)): Promise<Chunk[]> {
   const name = env.AI_SEARCH_INSTANCE;
   if (!name) throw new Error('AI_SEARCH_INSTANCE is not set');
+  const { max, threshold, rerank } = opts;
 
   if (env.AI_SEARCH?.get) {
     const res = await env.AI_SEARCH.get(name).search({
       query,
       ai_search_options: {
-        retrieval: { max_num_results: PER_QUERY, match_threshold: MATCH_THRESHOLD, keyword_match_mode: 'or' },
-        reranking: { enabled: true },
+        retrieval: { max_num_results: max, match_threshold: threshold, keyword_match_mode: 'or' },
+        reranking: { enabled: rerank, ...(rerank ? { match_threshold: threshold } : {}) },
       },
     });
+    lastSearch.shape = 'binding';
     return normalize(res);
   }
 
@@ -61,16 +85,16 @@ async function searchOnce(env: Env, query: string): Promise<Chunk[]> {
   const shapes: Record<Shape, unknown> = {
     'legacy-query': {
       query,
-      max_num_results: PER_QUERY,
+      max_num_results: max,
       rewrite_query: false,
-      ranking_options: { score_threshold: MATCH_THRESHOLD },
-      reranking: { enabled: true, model: '@cf/baai/bge-reranker-base' },
+      ranking_options: { score_threshold: threshold },
+      reranking: rerank ? { enabled: true, model: '@cf/baai/bge-reranker-base' } : { enabled: false },
     },
     'legacy-messages': {
       messages: [{ role: 'user', content: query }],
       ai_search_options: {
-        retrieval: { max_num_results: PER_QUERY, match_threshold: MATCH_THRESHOLD },
-        reranking: { enabled: true },
+        retrieval: { max_num_results: max, match_threshold: threshold, keyword_match_mode: 'or' },
+        reranking: { enabled: rerank, ...(rerank ? { match_threshold: threshold } : {}) },
       },
     },
   };
@@ -82,7 +106,10 @@ async function searchOnce(env: Env, query: string): Promise<Chunk[]> {
     try {
       const res = await autorag.search(shapes[shape]);
       legacyShape = shape;
-      return normalize(res);
+      const chunks = normalize(res);
+      lastSearch.shape = shape;
+      lastSearch.raw = chunks.length;
+      return chunks;
     } catch (err) {
       lastError = err;
     }
@@ -96,7 +123,7 @@ export async function retrieve(env: Env, queries: string[]): Promise<Chunk[]> {
 }
 
 /** One search, so the handler can start it before planning finishes. */
-export const search = searchOnce;
+export const search = (env: Env, query: string, opts?: SearchOptions) => searchOnce(env, query, opts);
 
 /** Merges several searches' results: the best distinct chunks within the context budget. */
 export function combine(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
