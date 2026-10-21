@@ -247,10 +247,10 @@ test('greetings and off-topic requests get fixed replies without the answer mode
 
 test('retries once when every search comes back empty', async () => {
   let n = 0;
-  const search = () => (++n <= 1 ? legacyResult([]) : legacyResult([{ key: 'site--sixty--01-main.md', text: 'The 60% rule. [src:rsa-32-5-i]' }]));
+  const search = () => (++n <= 2 ? legacyResult([]) : legacyResult([{ key: 'site--sixty--01-main.md', text: 'The 60% rule. [src:rsa-32-5-i]' }]));
   const res = await readEvents(await handleChat(req(ask('What is the 60% rule?')), fakeEnv({ plan: { scope: 'on_topic', queries: ['What is the 60% rule?'] }, search })));
   assert.equal(res.meta.status, 'answer');
-  assert.equal(n, 2);
+  assert.equal(n, 3);
 });
 
 test('reports a clear error when AI Search is unreachable', async () => {

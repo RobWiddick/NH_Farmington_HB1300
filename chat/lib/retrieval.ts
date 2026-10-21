@@ -3,7 +3,9 @@
 // Workers only) or, on Pages, the Workers AI binding's env.AI.autorag().
 import type { Chunk, Env } from './types.ts';
 
-export const PER_QUERY = 10;
+// Plenty of candidates for the reranker: the right passage is often outside the
+// search's own top 10 (reranking 20+ passages costs about 3 neurons).
+export const PER_QUERY = 20;
 export const MATCH_THRESHOLD = 0.25;
 export const RERANK_MODEL = '@cf/baai/bge-reranker-base';
 const MAX_CHUNKS = 8;

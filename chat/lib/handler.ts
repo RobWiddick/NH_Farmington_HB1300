@@ -278,8 +278,12 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q, sOpts));
     let candidates = pool(await Promise.allSettled([firstSearch, ...more]));
     // AI Search occasionally returns nothing for a query it answers fine a moment
-    // later; retry once before telling the visitor nothing was found.
-    if (!candidates.length) candidates = pool(await Promise.allSettled(p.queries.map((q) => search(env, q, sOpts))));
+    // later; retry (twice, briefly spaced) before telling the visitor nothing was found.
+    for (const wait of [300, 1000]) {
+      if (candidates.length) break;
+      await new Promise((r) => setTimeout(r, wait));
+      candidates = pool(await Promise.allSettled(p.queries.map((q) => search(env, q, sOpts))));
+    }
     // Rerank against the planner's standalone version of the question, so a
     // follow-up like "and Dover?" is scored as "Dover tax cap ...".
     const ranked = selfRerank ? await rerank(env, p.queries[0] || question, candidates) : candidates;
