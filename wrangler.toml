@@ -1,0 +1,23 @@
+# Cloudflare Pages configuration (used by `wrangler pages deploy`). It adds the
+# Workers AI binding for the "Ask a question" assistant in functions/api/chat.ts.
+# Bindings set here replace any set in the Cloudflare dashboard.
+name = "farmington-hb1300"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-01"
+
+# Production (and local `wrangler pages dev`)
+[ai]
+binding = "AI"
+
+[vars]
+AI_SEARCH_INSTANCE = "farmington-hb1300"
+CHAT_ENABLED = "true"
+
+# Preview deployments (every branch except the production branch) use their own
+# AI Search instance, so draft content never reaches the live assistant.
+[env.preview.ai]
+binding = "AI"
+
+[env.preview.vars]
+AI_SEARCH_INSTANCE = "farmington-hb1300-preview"
+CHAT_ENABLED = "true"

@@ -1,0 +1,62 @@
+---
+// "Ask a question" assistant: a floating button that opens a chat dialog.
+// Answers come from functions/api/chat.ts, which only uses this page and the
+// sources it cites. Hidden until src/scripts/chat.ts starts, so visitors
+// without JavaScript never see a button that does nothing.
+import { site } from '../data/site';
+---
+{site.chat.enabled && (
+  <div id="chat-root" data-endpoint={site.chat.endpoint} data-contact={site.contactEmail} hidden>
+    <button type="button" class="chat-fab" data-chat-open data-chat-from="button" aria-haspopup="dialog">
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6c-.5.4-1.3.1-1.3-.6V16A2.5 2.5 0 0 1 4 13.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 8.5h7M8.5 11.5h4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Ask a question</span>
+    </button>
+    <dialog id="chat" class="chat" aria-labelledby="chat-title" aria-describedby="chat-desc">
+      <div class="chat-head">
+        <div>
+          <h2 id="chat-title">Ask about Question 2</h2>
+          <p id="chat-desc">
+            Answers come only from this page and the sources it cites, with links so you can check them. This is an AI
+            assistant, so it can make mistakes.
+          </p>
+        </div>
+        <div class="chat-head-actions">
+          <button type="button" class="chat-icon-btn" data-chat-reset hidden>Start over</button>
+          <button type="button" class="chat-icon-btn chat-close" data-chat-close aria-label="Close the assistant">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="chat-log" data-chat-log tabindex="-1">
+        <div class="chat-msg bot chat-intro">
+          <p>
+            Hi! Ask me anything about Question 2, the HB 1300 school tax cap, and what it would mean for Farmington’s
+            schools. Every answer links to its sources.
+          </p>
+        </div>
+        <ul class="chat-suggest" data-chat-suggest aria-label="Suggested questions">
+          <li><button type="button">What would Question 2 change for Farmington’s schools?</button></li>
+          <li><button type="button">Does Question 2 cap my property tax bill?</button></li>
+          <li><button type="button">What do supporters of the cap say?</button></li>
+          <li><button type="button">What happens if a budget needs more than the cap allows?</button></li>
+        </ul>
+      </div>
+      <p class="chat-status" data-chat-status aria-hidden="true"></p>
+      <div class="sr-only" aria-live="polite" data-chat-live></div>
+      <form class="chat-form" data-chat-form>
+        <label for="chat-input" class="sr-only">Your question</label>
+        <textarea id="chat-input" rows="1" maxlength="500" placeholder="Ask about Question 2…" autocomplete="off" required></textarea>
+        <button type="submit" class="chat-send">Send</button>
+      </form>
+      <p class="chat-foot">
+        Your questions go to Cloudflare’s AI service to write an answer; this site doesn’t save them. Please don’t
+        include personal information.
+        {site.contactEmail && <>Corrections or press: <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a></>}
+      </p>
+    </dialog>
+  </div>
+)}
+<script>
+  import { initChat } from '../scripts/chat';
+  initChat();
+</script>

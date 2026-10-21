@@ -2,7 +2,7 @@
 
 A one-page, plain-language voter guide explaining NH House Bill 1300 (Chapter 324, Laws of 2026), the school tax cap question on the November 3, 2026 ballot, and what it would mean for Farmington's schools. Every factual claim links to its source.
 
-Built with [Astro](https://astro.build) as a static site. Deployed to Cloudflare Pages by GitHub Actions.
+Built with [Astro](https://astro.build) as a static site, plus one Cloudflare Pages Function for the "Ask a question" assistant. Deployed to Cloudflare Pages by GitHub Actions.
 
 ## Local development
 
@@ -10,7 +10,7 @@ Built with [Astro](https://astro.build) as a static site. Deployed to Cloudflare
 nvm use          # Node 22 (see .nvmrc)
 npm ci
 npm run dev      # http://localhost:4321
-npm test         # production build + outside-link check
+npm test         # build + source, link, assistant and Pages Function checks
 ```
 
 ## Editing content
@@ -23,6 +23,9 @@ npm test         # production build + outside-link check
 | Site title, author, contact email, optional "paid for by" line, last-updated date, GA4 ID, chat on/off | `src/data/site.ts` |
 | Analytics events | `src/scripts/analytics.ts` |
 | Styles | `src/styles/global.css` |
+| The assistant's rules (system prompt) | `chat/lib/prompts.ts` |
+| Primary documents the assistant can read | `chat/primary/*.md` |
+| The assistant's server code / chat window | `chat/lib/`, `functions/api/chat.ts` / `src/components/Chat.astro`, `src/scripts/chat.ts` |
 
 **Citing a source.** Add it once to `src/data/sources.ts`, then cite it next to the claim:
 
@@ -50,16 +53,74 @@ GA4 (measurement ID set in `src/data/site.ts` → `ga4Id`; set it to `''` to tur
 | `faq_open` | Someone expands an FAQ question | `section_id`, `section_title`, `faq_question` |
 | `share` | Someone uses a share link | `section_id`, `method`, `content_type`, `item_id` |
 | `nav_click` | Someone uses a jump link to a section | `section_id`, `link_text`, `target_section` |
+| `chat_open` | Someone opens the assistant | `from` (`button`, `footer`, `faq`) |
+| `chat_question` | A question is sent (the text is never sent to GA) | `turn`, `suggested` |
+| `chat_answer` | An answer finished | `status` (`answer`, `no_match`, `off_topic`, `greeting`), `sources_cited`, `seconds` |
+| `chat_error` | The assistant failed or was rate-limited | `reason` |
+| `chat_reset` | Someone selects "Start over" | |
+
+Citations clicked inside the assistant are counted as `source_click` with `section_id` = `chat`.
 
 Section IDs, in page order: `top`, `quick`, `farmington`, `ballot`, `sixty`, `other-side`, `vote` (end of the short version), then `math`, `nearby`, `unknowns`, `faq`, `sources`.
 
-**One-time GA4 setup so these show up in reports** (Admin → Data display → Custom definitions → Create custom dimension, scope *Event*): `section_id`, `section_title`, `source_label`, `faq_question`, `target_section`. Optionally add a custom metric for `section_index`. Then build an Explore → Free form report with *Event name* and *section_id* as rows and *Event count* / *Total users* as values to see how far people get and what they read. Comparing `section_view` with `section_read` per section shows where people stop and read and where they skim.
+**One-time GA4 setup so these show up in reports** (Admin → Data display → Custom definitions → Create custom dimension, scope *Event*): `section_id`, `section_title`, `source_label`, `faq_question`, `target_section`, and for the assistant `from`, `status`, `reason`. Optionally add a custom metric for `section_index`. Then build an Explore → Free form report with *Event name* and *section_id* as rows and *Event count* / *Total users* as values to see how far people get and what they read. Comparing `section_view` with `section_read` per section shows where people stop and read and where they skim.
 
 Also recommended:
 
 - **Admin → Data streams → (stream) → Enhanced measurement → Page changes based on browser history events: off.** The jump links change the URL's `#` fragment, and leaving this on can log extra page views.
 - Preview deployments (`<branch>.farmington-hb1300.pages.dev`) send events in debug mode, so you can watch them in **Admin → DebugView**. To keep them out of reports, set **Admin → Data filters → Developer traffic** to *Active*. Nothing is sent from `localhost`.
 - Google signals and ad personalization are turned off in the tag.
+
+## The "Ask a question" assistant
+
+A chat window (the **Ask a question** button, plus links in the FAQ and footer) answers visitors' questions using only this page and its sources. The footer asks people to try it before emailing.
+
+### How it answers
+
+`POST /api/chat` (`functions/api/chat.ts` → `chat/lib/handler.ts`) runs a small agent for each question:
+
+1. **Plan.** A fast model (Llama 4 Scout on Workers AI) reads the conversation and writes 1–3 standalone search queries, so follow-ups like "what about Rochester?" work. It also spots greetings and off-topic requests, which get a fixed reply.
+2. **Retrieve.** Each query runs against a Cloudflare **AI Search** instance (hybrid keyword + vector search with reranking). The best distinct passages are kept (up to 8, about 12,000 characters).
+3. **Gate.** If nothing relevant comes back, the visitor gets a fixed "I couldn't find that in this guide or its sources" reply. The model is never asked to answer from memory.
+4. **Answer.** Llama 3.3 70B writes a short, plain-English answer from those passages only. Its rules (`chat/lib/prompts.ts`) say: cite every fact, give both sides fairly, call the author's math an estimate, don't name speakers from auto-captions, don't tell people how to vote, and stay on topic. The answer streams to the browser.
+
+**Citations can only point to known sources.** Every `<Cite>` on the page becomes a marker like `[src:hb1300-text]` in the documents the assistant reads. With each answer the server sends an allowlist built from `src/data/sources.ts` and the passages it retrieved, and the chat window links only those (new window, `rel="nofollow noopener noreferrer"`). It also links `[page:id]` to sections of this page. Anything else the model writes, such as an unknown id or a URL, is shown as plain text or dropped, and nothing is inserted as HTML. An answer that cites nothing gets a "please double-check" note.
+
+### What it reads
+
+`npm run build` writes `chat-corpus/` (not committed) with `scripts/build-corpus.mjs`:
+
+- **The page itself**, split into about 40 small documents (one per subsection or FAQ answer), read the way a screen reader would read it.
+- **Primary documents** in `chat/primary/`: the final text of HB 1300, the fiscal note, the Superior Court and NH Supreme Court orders, the lawsuit complaint (labeled as allegations), and the Sept. 14 and Oct. 19 school board captions with timestamps (so answers can link to the moment in the video).
+- **The source list**, so it can answer "where does that come from?"
+
+News articles aren't copied in (copyright); the assistant sees what the page says about them, with a link.
+
+To add a primary document, save it as `chat/primary/<source-id>.md`, where `<source-id>` is an entry in `src/data/sources.ts`, and have it cite itself as `[src:<source-id>]`. The build fails if the id doesn't exist.
+
+On every deploy, `scripts/sync-ai-search.mjs` creates the AI Search instance if needed, uploads new and changed documents, deletes removed ones, waits for indexing and runs a test search (see the workflow run's summary). Production uses the `farmington-hb1300` instance; previews use `farmington-hb1300-preview`, so drafts never reach the live assistant. After the site deploys, the workflow asks the live assistant a test question.
+
+### Setup
+
+The assistant needs two more permissions on the same `CLOUDFLARE_API_TOKEN` (see the one-time setup below): **Account → AI Search → Edit** and **Account → AI Search → Run**. Nothing else to configure: the Pages Function reaches Workers AI and AI Search through the `AI` binding in `wrangler.toml`, so no keys are stored in the site.
+
+Until those permissions are added, deploys still succeed with a warning, and the chat window tells visitors the assistant isn't available yet. To turn the assistant off, set `chat.enabled: false` in `src/data/site.ts` (removes it from the page), or set `CHAT_ENABLED = "false"` in `wrangler.toml` (the endpoint stops answering).
+
+### Cost and limits
+
+- **Workers AI:** each answer uses roughly 200 "neurons" (about 4,500 tokens in and 250 out on Llama 3.3 70B, plus the planner). The free allowance is 10,000 neurons a day, about 50 answers. On the Workers Free plan, answers stop for the rest of the day after that ("The assistant is busy right now"). The [Workers Paid plan](https://developers.cloudflare.com/workers/platform/pricing/) ($5/month) removes the cap and bills about $0.002 per answer beyond the free allowance. Consider it for the last two weeks before the election. [Pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/)
+- **AI Search:** each question makes 1–3 searches. 1,000 searches a month are included, then $0.75 per 1,000 (billing starts November 1, 2026). Indexing this site's ~200 KB of documents is well inside the free ingestion allowance. [Pricing](https://developers.cloudflare.com/ai-search/platform/limits-pricing/)
+- **Abuse limits:** requests must come from the site itself (same origin); each visitor gets 8 questions a minute and 40 an hour; questions are capped at 500 characters and conversations at 12 messages. The per-visitor limit is best-effort (it is counted separately on each Cloudflare server). For a hard limit, once the site is on a custom domain, add a free **WAF rate limiting rule** in the Cloudflare dashboard (Security → WAF → Rate limiting rules) for requests to `/api/chat`, for example 20 per minute per IP.
+
+### Privacy
+
+Questions go to Cloudflare's AI services to produce an answer. The site doesn't store them: logs record only the outcome, timing and counts, and GA records only that a question was asked. The chat window keeps the conversation in the visitor's own browser tab (`sessionStorage`) until the tab closes, and asks people not to type personal information.
+
+### Testing it
+
+`npm run test:chat` runs the agent with fake Cloudflare bindings: planning, the no-match gate, the citation allowlist, origin and rate limits, and error handling. To try the real thing, use a preview deployment URL (every pushed branch gets one), or run `npx wrangler pages dev dist` after `npm run build`. Local dev reaches the real AI Search instance only if you are logged in to Cloudflare (`npx wrangler login`).
+
+**If the assistant says it can't reach its sources:** check the "Sync the assistant's documents" step of the latest workflow run, and the Function's logs (Cloudflare dashboard → Workers & Pages → the project → Functions → Real-time logs). A `search_error` entry there means the Function couldn't query AI Search through the `AI` binding.
 
 ## Deployment (Cloudflare Pages via GitHub Actions)
 
@@ -70,7 +131,11 @@ The workflow in `.github/workflows/deploy.yml` builds and tests every push and p
 
 ### One-time setup
 
-1. **Create a Cloudflare API token**: Cloudflare dashboard → My Profile → API Tokens → Create Token → *Custom token* with the permission **Account → Cloudflare Pages → Edit** (scoped to your account).
+1. **Create a Cloudflare API token**: Cloudflare dashboard → My Profile → API Tokens → Create Token → *Custom token*, scoped to your account, with these permissions:
+   - **Account → Cloudflare Pages → Edit** (deploy the site)
+   - **Account → AI Search → Edit** and **Account → AI Search → Run** (create and update the assistant's index, and run its test search)
+
+   If you already created the token with only the Pages permission, edit it (My Profile → API Tokens → the token → Edit) and add the two AI Search permissions. You don't need to change the GitHub secret, because the token value stays the same.
 2. **Find your Account ID**: Cloudflare dashboard → Workers & Pages → the Account ID is shown in the right-hand sidebar.
 3. **Add repository secrets** (GitHub → Settings → Secrets and variables → Actions → *Secrets*):
    - `CLOUDFLARE_API_TOKEN`
@@ -91,3 +156,6 @@ To use a custom domain, add it in Cloudflare → Workers & Pages → your projec
 - [ ] The district's Oct. 19, 2026 figures ($377,523 / $738,287 / ~$360,000, 5.73%) are preliminary estimates from its presentation; update them if the district publishes revised numbers or its handouts.
 - [ ] Update `lastUpdated` in `src/data/site.ts`.
 - [ ] Set the `SITE_URL` repository variable if you use a custom domain.
+- [ ] Add the AI Search permissions to the Cloudflare API token, then check that a workflow run's summary shows "Assistant test: answered with sources".
+- [ ] Ask the assistant a few real questions on the preview URL, including follow-ups and an off-topic one, before sharing the live link.
+- [ ] Decide whether to move to the Workers Paid plan for the last weeks before the election (see the assistant's cost and limits above).

@@ -5,17 +5,24 @@
   "description": "Plain-language voter information on NH HB 1300 (Ballot Question 2) and what it means for Farmington schools.",
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.18.0"
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-corpus.mjs",
     "preview": "astro preview",
     "check:links": "node scripts/check-links.mjs dist",
-    "test": "npm run check:sources && npm run build && npm run check:links",
-    "check:sources": "node scripts/check-sources.mjs"
+    "test": "npm run check:sources && npm run build && npm run check:links && npm run test:chat && npm run check:functions",
+    "check:sources": "node scripts/check-sources.mjs",
+    "test:chat": "node --test chat/test/handler.test.ts",
+    "chat:sync": "node scripts/sync-ai-search.mjs",
+    "check:functions": "wrangler pages functions build --outdir .wrangler/functions-check"
   },
   "dependencies": {
     "astro": "7.3.8"
+  },
+  "devDependencies": {
+    "node-html-parser": "9.0.5",
+    "wrangler": "4.149.0"
   }
 }

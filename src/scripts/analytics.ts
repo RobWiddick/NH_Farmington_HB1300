@@ -6,6 +6,7 @@
 //   faq_open       an FAQ question was expanded
 //   share          a share link was used
 //   nav_click      a top-bar or button link to a section was used
+//   chat_*         the assistant was used (see src/scripts/chat.ts); no question text is sent
 //
 // Every event carries section_id / section_title so reports can be broken
 // down by section (register them as event-scoped custom dimensions in GA4).
@@ -15,7 +16,7 @@ type Params = Record<string, string | number | boolean>;
 const VIEW_DWELL_MS = 1500;
 const READ_TOTAL_MS = 10_000;
 
-function send(name: string, params: Params) {
+export function send(name: string, params: Params) {
   const gtag = (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag;
   if (typeof gtag === 'function') gtag('event', name, params);
 }
@@ -42,6 +43,7 @@ function sectionTitle(el: HTMLElement): string {
 function sectionOf(node: Element | null): { section_id: string; section_title: string } {
   const el = node?.closest('main section[id]') as HTMLElement | null;
   if (el) return { section_id: el.id, section_title: sectionTitle(el) };
+  if (node?.closest('#chat')) return { section_id: 'chat', section_title: 'Question 2 assistant' };
   const area = node?.closest('header') ? 'header' : node?.closest('footer') ? 'footer' : '(none)';
   return { section_id: area, section_title: area };
 }

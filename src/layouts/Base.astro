@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { site } from '../data/site';
 import Analytics from '../components/Analytics.astro';
+import Chat from '../components/Chat.astro';
 
 interface Props {
   title?: string;
@@ -44,5 +45,6 @@ const ogImage = new URL('/og.png', Astro.site);
       <slot />
     </main>
     <slot name="footer" />
+    <Chat />
   </body>
 </html>
