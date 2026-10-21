@@ -11,11 +11,8 @@ export const site = {
   // Used for the countdown and the "Add to my calendar" links.
   electionDateISO: '2026-11-03',
   lastUpdated: 'October 21, 2026',
-  // Optional "Paid for by" line shown in the footer. Left empty: RSA 664:14, V
-  // exempts "a lone individual who independently authors, produces, and
-  // distributes political advertising." Fill this in if that stops being true
-  // (e.g. a committee or organization takes over the site).
-  disclosure: '',
+  // "Paid for by" line shown in the footer (political advertising disclosure, RSA 664:14).
+  disclosure: 'Paid for by Brittni Widdick, 35 Governors Rd, Farmington, NH',
   // Footer contact for corrections, press, etc. Visitors are asked to try the chat assistant first.
   contactEmail: 'hi@hb1300.com',
   // The "Ask a question" assistant (functions/api/chat.ts). Set enabled: false to remove it from the page.
