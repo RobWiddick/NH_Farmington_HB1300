@@ -55,7 +55,10 @@ async function api(method, url, body) {
     } catch {
       /* empty body */
     }
-    if ((res.status === 429 || res.status >= 500) && attempt < 4) {
+    // Retry rate limits, server errors and "ai_search_instance_overloaded" (code
+    // 7114, which can come back with a 4xx status while the instance is busy indexing).
+    const overloaded = json?.errors?.some?.((e) => e?.code === 7114 || /overloaded/i.test(e?.message ?? ''));
+    if ((res.status === 429 || res.status >= 500 || overloaded) && attempt < 5) {
       await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
       continue;
     }
