@@ -27,6 +27,8 @@ export interface Env {
   SEARCH_MAX?: string;
   SEARCH_THRESHOLD?: string;
   SEARCH_RERANK?: string;
+  /** How long a first question waits for the planner before searching as asked (default 1500). */
+  PLAN_TIMEOUT_MS?: string;
   /** "followups" skips the query planner on a visitor's first question (faster); default "always". */
   PLAN_MODE?: string;
   /** Set to "false" to skip reranking candidates with bge-reranker-base in the handler. */

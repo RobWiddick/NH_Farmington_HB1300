@@ -7,7 +7,9 @@ import { pages } from './pages.ts';
 import { docInfo } from './retrieval.ts';
 import type { Chunk } from './types.ts';
 
-export const MARKER = /\[(src|page):([a-z0-9-]+)(?:@(\d{1,5}))?\]/g;
+import { MARKER } from './markers.ts';
+
+export { MARKER };
 
 export interface MetaSource {
   id: string;

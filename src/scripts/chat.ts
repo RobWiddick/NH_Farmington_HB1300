@@ -13,6 +13,7 @@
 //   chat_error     { reason }
 //   chat_reset
 import { send } from './analytics';
+import { MARKER, normalizeMarkers } from '../../chat/lib/markers.ts';
 
 interface Src {
   id: string;
@@ -36,7 +37,6 @@ interface Turn {
 }
 
 const STORE_KEY = 'q2-chat-v1';
-const MARKER = /\[(src|page):([a-z0-9-]+)(?:@(\d{1,5}))?\]/g;
 
 const store = {
   load(): Turn[] {
@@ -121,7 +121,7 @@ function inline(parent: HTMLElement, text: string, meta: Meta | undefined, cited
 
 /** Renders an answer into `box`. Returns the ids that were cited. */
 function renderAnswer(box: HTMLElement, raw: string, meta: Meta | undefined, final: boolean): Set<string> {
-  let text = raw
+  let text = normalizeMarkers(raw)
     .replace(/\r/g, '')
     .replace(/\[([^\]\n]{1,80})\]\((https?:[^)\s]+)\)/g, '$1') // markdown links -> their text
     .replace(/\[(\d{1,2})\]/g, '') // stray footnote numbers
@@ -161,7 +161,7 @@ function renderAnswer(box: HTMLElement, raw: string, meta: Meta | undefined, fin
   return cited;
 }
 
-const plain = (s: string) => s.replace(MARKER, '').replace(/\*\*/g, '').replace(/\s{2,}/g, ' ').trim();
+const plain = (s: string) => normalizeMarkers(s).replace(MARKER, '').replace(/\*\*/g, '').replace(/\s{2,}/g, ' ').trim();
 
 export function initChat() {
   const root = document.getElementById('chat-root');

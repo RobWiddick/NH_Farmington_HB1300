@@ -121,6 +121,32 @@ test('rerank reorders candidates by the reranker and falls back to search order'
   assert.throws(() => pool([{ status: 'rejected', reason: new Error('x') }]));
 });
 
+test('a slow planner does not hold up a first question, but follow-ups wait for it', async () => {
+  const slow = (ms: number, calls: string[]): Env => ({
+    AI_SEARCH_INSTANCE: 'x',
+    AI: {
+      async run(model: string, input: unknown) {
+        const i = input as { stream?: boolean; messages?: unknown };
+        if (i.stream) return streamOf(['data: {"response":"ok"}\n\n', 'data: [DONE]\n\n']);
+        if ((input as { contexts?: unknown }).contexts) return { response: [] };
+        calls.push(model);
+        await new Promise((r) => setTimeout(r, ms));
+        return { response: '{"scope":"off_topic","queries":[]}' };
+      },
+      autorag: () => ({ search: async () => legacyResult([{ key: 'site--sixty--01-main.md', text: 'The 60% rule.' }]) }),
+    },
+    PLAN_TIMEOUT_MS: '50',
+  });
+  const t0 = Date.now();
+  const first = await readEvents(await handleChat(req(ask('What is the 60% rule?')), slow(400, [])));
+  assert.equal(first.meta.status, 'answer', 'searched as asked instead of waiting');
+  assert.ok(Date.now() - t0 < 350);
+  const follow = await readEvents(
+    await handleChat(req({ messages: [{ role: 'user', content: 'hi' }, { role: 'assistant', content: 'Hi!' }, { role: 'user', content: 'tell me a joke' }] }), slow(100, [])),
+  );
+  assert.equal(follow.meta.status, 'off_topic', 'follow-up waited for the planner');
+});
+
 test('demote pushes the lawsuit complaint down unless the question is about the lawsuit', async () => {
   const { demote } = await import('../lib/retrieval.ts');
   const chunks = [
@@ -146,6 +172,18 @@ test('PLAN_MODE=followups skips the planner on a first question but not on follo
     ),
   );
   assert.ok(calls.some((c) => c.model.includes('scout')), 'planner runs for a follow-up');
+});
+
+test('normalizeMarkers repairs the citation formats models actually write', async () => {
+  const { normalizeMarkers } = await import('../lib/markers.ts');
+  assert.equal(normalizeMarkers('a [ src:school-board-video@2717 ] b'), 'a [src:school-board-video@2717] b');
+  assert.equal(normalizeMarkers('[src:page:top]'), '[page:top]');
+  assert.equal(normalizeMarkers('[src:rsa-32-5-i, src:hb1300-text]'), '[src:rsa-32-5-i] [src:hb1300-text]');
+  assert.equal(normalizeMarkers('[src:rsa-32-5-i; hb1300-text]'), '[src:rsa-32-5-i] [src:hb1300-text]');
+  assert.equal(normalizeMarkers('[Page: Farmington]'), '[page:farmington]');
+  assert.equal(normalizeMarkers('[src:x@ 12s]'), '[src:x@12]');
+  assert.equal(normalizeMarkers('[1] and [see note]'), '[1] and [see note]', 'non-markers untouched');
+  assert.equal(normalizeMarkers('[src:bad id!]'), '', 'unreadable markers dropped');
 });
 
 test('normalize reads both AI Search response shapes', () => {
@@ -192,13 +230,13 @@ test('eval mode lets previews pick an allowed model and returns debug info', asy
 
   calls.length = 0;
   const off = await readEvents(await handleChat(req(ask('What does Question 2 do?'), { ...headers, 'x-chat-model': '@cf/some/expensive-model' }), { ...fakeEnv({ calls: calls as unknown[] }), CHAT_EVAL: 'true' }));
-  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/meta/llama-3.3-70b-instruct-fp8-fast', 'unlisted model ignored');
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/openai/gpt-oss-120b', 'unlisted model ignored');
   assert.ok(off.meta.debug);
 
   calls.length = 0;
   const prod = await readEvents(await handleChat(req(ask('What does Question 2 do?'), headers), fakeEnv({ calls: calls as unknown[] })));
-  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/meta/llama-3.3-70b-instruct-fp8-fast', 'headers ignored without CHAT_EVAL');
-  assert.equal(calls.find((c) => c.input.stream)!.input.reasoning_effort, undefined);
+  assert.equal(calls.find((c) => c.input.stream)!.model, '@cf/openai/gpt-oss-120b', 'headers ignored without CHAT_EVAL');
+  assert.equal(calls.find((c) => c.input.stream)!.input.reasoning_effort, 'low', 'GPT-OSS default reasoning');
   assert.equal(prod.meta.debug, undefined);
 });
 

@@ -18,7 +18,10 @@ import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
 import { demote, lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
-export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+// Chosen by grading live answers: on the hardest test questions GPT-OSS 120B kept
+// numbers' conditions, gave both sides and covered both caps where Llama 3.3 70B
+// didn't, at about the same cost (~140 neurons an answer). Both run on Workers Free.
+export const DEFAULT_CHAT_MODEL = '@cf/openai/gpt-oss-120b';
 export const DEFAULT_PLANNER_MODEL = '@cf/meta/llama-4-scout-17b-16e-instruct';
 
 // Models that CHAT_EVAL mode lets a request pick with the x-chat-model header.
@@ -95,6 +98,8 @@ export function parseMessages(body: unknown): ChatMessage[] | string {
 interface Plan {
   scope: 'on_topic' | 'off_topic' | 'greeting';
   queries: string[];
+  /** The planner was too slow, so the question is searched as asked. */
+  timedOut?: boolean;
 }
 
 function modelText(out: unknown): string {
@@ -221,10 +226,14 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   // model and get timings and retrieval details back in the meta event.
   const evalMode = env.CHAT_EVAL === 'true';
   let model = env.CHAT_MODEL || DEFAULT_CHAT_MODEL;
-  let effort = env.CHAT_REASONING || '';
+  // GPT-OSS thinks before answering; "low" keeps that short. Other models get no setting.
+  let effort = env.CHAT_REASONING ?? (model.includes('gpt-oss') ? 'low' : '');
   if (evalMode) {
     const m = request.headers.get('x-chat-model');
-    if (m && EVAL_MODELS.has(m)) model = m;
+    if (m && EVAL_MODELS.has(m)) {
+      model = m;
+      effort = model.includes('gpt-oss') ? 'low' : '';
+    }
     const e = request.headers.get('x-reasoning-effort');
     if (e !== null && /^(|none|low|medium|high)$/.test(e)) effort = e;
   }
@@ -257,12 +266,16 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   // Search the question as asked while the planner works out better queries.
   const firstSearch = search(env, question, sOpts);
   firstSearch.catch(() => {}); // handled below; avoids an unhandled rejection if we return early
+  // A first question doesn't need the planner to make sense, so don't let a slow
+  // planner hold it up: after PLAN_TIMEOUT_MS, go ahead with the question as asked.
+  const asAsked: Plan = GREETING.test(question) ? { scope: 'greeting', queries: [] } : { scope: 'on_topic', queries: [question] };
+  const planTimeout = Number(env.PLAN_TIMEOUT_MS) > 0 ? Number(env.PLAN_TIMEOUT_MS) : 1500;
   const p: Plan =
     planMode === 'followups' && !history.length
-      ? GREETING.test(question)
-        ? { scope: 'greeting', queries: [] }
-        : { scope: 'on_topic', queries: [question] }
-      : await plan(env, history, question);
+      ? asAsked
+      : history.length
+        ? await plan(env, history, question)
+        : await Promise.race([plan(env, history, question), new Promise<Plan>((r) => setTimeout(() => r({ ...asAsked, timedOut: true }), planTimeout))]);
   const planMs = Date.now() - started;
   if (p.scope === 'greeting') {
     log('greeting');
@@ -343,6 +356,6 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   log('answer', { model, queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length, planMs, searchMs });
   const meta: Meta = { status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages };
   if (evalMode)
-    meta.debug = { model, effort, planMode, selfRerank, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
+    meta.debug = { model, effort, planMode, planTimedOut: !!p.timedOut, selfRerank, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
   return relay(meta, stream, ctx);
 }
