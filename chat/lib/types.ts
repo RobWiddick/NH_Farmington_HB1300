@@ -23,10 +23,14 @@ export interface Env {
   RATE_PER_HOUR?: string;
   /** reasoning_effort for the answer model, for models that have one (e.g. "none"). */
   CHAT_REASONING?: string;
-  /** Search tuning: results per query, minimum score (0-1), and "false" to turn reranking off. */
+  /** Search tuning: results per query, minimum score (0-1), and "true" to turn on AI Search's own reranking. */
   SEARCH_MAX?: string;
   SEARCH_THRESHOLD?: string;
   SEARCH_RERANK?: string;
+  /** "followups" skips the query planner on a visitor's first question (faster); default "always". */
+  PLAN_MODE?: string;
+  /** Set to "false" to skip reranking candidates with bge-reranker-base in the handler. */
+  SELF_RERANK?: string;
   /** "true" on previews while testing: allows x-chat-model / x-reasoning-effort headers and adds debug info. */
   CHAT_EVAL?: string;
 }

@@ -53,8 +53,17 @@ export function pageMeta(ids: Iterable<string>) {
 
 const attr = (s: string) => s.replace(/["<>\n]/g, ' ').replace(/\s+/g, ' ').trim();
 
+// Shown to the answer model on every passage from these documents, because a
+// passage cut from the middle loses the document's own header.
+const CAUTIONS: Record<string, string> = {
+  'bates-complaint': 'A lawsuit filing: one side’s allegations, not findings. The court denied the request to block the question.',
+  'school-board-video': 'Machine-generated captions of a public meeting; they don’t say who is speaking.',
+  'school-board-video-0914': 'Machine-generated captions of a public meeting; they don’t say who is speaking.',
+};
+const SITE_NOTE = 'Written by the guide’s author, who recommends voting No. “I” and “my” in this text mean the author.';
+
 export function buildContext(chunks: Chunk[]) {
-  const groups = new Map<string, { title: string; type: string; texts: string[] }>();
+  const groups = new Map<string, { title: string; type: string; note: string; texts: string[] }>();
   const srcIds = new Set<string>();
   const pageIds = new Set<string>();
   const markers = new Set<string>();
@@ -96,14 +105,15 @@ export function buildContext(chunks: Chunk[]) {
             : info.kind === 'catalog'
               ? 'source list'
               : 'document';
-      g = { title: metaTitle || fallback, type, texts: [] };
+      const note = info.kind === 'site' ? SITE_NOTE : CAUTIONS[info.source] ?? '';
+      g = { title: metaTitle || fallback, type, note, texts: [] };
       groups.set(c.key, g);
     }
     g.texts.push(c.text.trim());
   }
 
   const docsText = [...groups.values()]
-    .map((g) => `<document type="${g.type}" title="${attr(g.title)}">\n${g.texts.join('\n[…]\n')}\n</document>`)
+    .map((g) => `<document type="${g.type}" title="${attr(g.title)}"${g.note ? ` note="${attr(g.note)}"` : ''}>\n${g.texts.join('\n[…]\n')}\n</document>`)
     .join('\n\n');
 
   return {

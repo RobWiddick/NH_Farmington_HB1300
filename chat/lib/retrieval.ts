@@ -3,8 +3,9 @@
 // Workers only) or, on Pages, the Workers AI binding's env.AI.autorag().
 import type { Chunk, Env } from './types.ts';
 
-export const PER_QUERY = 6;
-export const MATCH_THRESHOLD = 0.3;
+export const PER_QUERY = 10;
+export const MATCH_THRESHOLD = 0.25;
+export const RERANK_MODEL = '@cf/baai/bge-reranker-base';
 const MAX_CHUNKS = 8;
 
 export interface SearchOptions {
@@ -12,7 +13,9 @@ export interface SearchOptions {
   max: number;
   /** Minimum match score (0-1) that AI Search applies. */
   threshold: number;
-  /** Rerank results with bge-reranker-base (AI Search applies its own reranking threshold). */
+  /** AI Search's own reranking. Off by default: it drops everything below a fixed
+   *  score, which can leave a plainly answerable question with no results. The
+   *  handler reranks the candidates itself instead (see rerank()). */
   rerank: boolean;
 }
 
@@ -22,7 +25,7 @@ export function searchOptions(env: Env): SearchOptions {
   return {
     max: Math.min(50, Math.max(1, n(env.SEARCH_MAX, PER_QUERY))),
     threshold: Math.min(1, Math.max(0, n(env.SEARCH_THRESHOLD, MATCH_THRESHOLD))),
-    rerank: env.SEARCH_RERANK !== 'false',
+    rerank: env.SEARCH_RERANK === 'true',
   };
 }
 
@@ -127,22 +130,53 @@ export const search = (env: Env, query: string, opts?: SearchOptions) => searchO
 
 /** Merges several searches' results: the best distinct chunks within the context budget. */
 export function combine(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
+  return select(pool(settled));
+}
+
+/** All distinct chunks from several searches, best score first. Throws only if every search failed. */
+export function pool(settled: PromiseSettledResult<Chunk[]>[]): Chunk[] {
   const ok = settled.filter((s): s is PromiseFulfilledResult<Chunk[]> => s.status === 'fulfilled');
   if (!ok.length) {
     const reason = settled.find((s): s is PromiseRejectedResult => s.status === 'rejected')?.reason;
     throw reason instanceof Error ? reason : new Error(String(reason));
   }
   const best = new Map<string, Chunk>();
-  // AI Search already drops results below MATCH_THRESHOLD; scores are only used for ordering here.
+  // AI Search already drops results below its match threshold; scores are only used for ordering here.
   for (const c of ok.flatMap((s) => s.value)) {
     const id = `${c.key}\u0000${c.text.slice(0, 120)}`;
     const prev = best.get(id);
     if (!prev || c.score > prev.score) best.set(id, c);
   }
+  return [...best.values()].sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Reorders candidates by how well they answer `query`, using the same reranking
+ * model AI Search uses, but without a cut-off. Falls back to the search order.
+ */
+export async function rerank(env: Env, query: string, chunks: Chunk[]): Promise<Chunk[]> {
+  if (chunks.length < 2 || !env.AI) return chunks;
+  try {
+    const out = (await env.AI.run(RERANK_MODEL, {
+      query,
+      contexts: chunks.map((c) => ({ text: c.text.slice(0, 2000) })),
+    })) as { response?: { id?: number; score?: number }[] };
+    const ranked = (out?.response ?? [])
+      .filter((r) => typeof r.id === 'number' && chunks[r.id] && typeof r.score === 'number')
+      .map((r) => ({ ...chunks[r.id as number], score: r.score as number }));
+    if (ranked.length !== chunks.length) return chunks;
+    return ranked.sort((a, b) => b.score - a.score);
+  } catch {
+    return chunks;
+  }
+}
+
+/** The best chunks within the context budget, at most MAX_PER_DOC from one document. */
+export function select(ranked: Chunk[]): Chunk[] {
   const perDoc = new Map<string, number>();
   const picked: Chunk[] = [];
   let chars = 0;
-  for (const c of [...best.values()].sort((a, b) => b.score - a.score)) {
+  for (const c of ranked) {
     if (picked.length >= MAX_CHUNKS) break;
     const n = perDoc.get(c.key) ?? 0;
     if (n >= MAX_PER_DOC || chars + c.text.length > MAX_CONTEXT_CHARS) continue;

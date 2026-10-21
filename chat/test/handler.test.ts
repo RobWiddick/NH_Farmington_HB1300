@@ -102,6 +102,42 @@ test('plan resolves follow-ups, keeps the question, and never refuses on-topic w
   assert.deepEqual(await plan(broken, [], 'hello there'), { scope: 'on_topic', queries: ['hello there'] });
 });
 
+test('rerank reorders candidates by the reranker and falls back to search order', async () => {
+  const { rerank, select, pool } = await import('../lib/retrieval.ts');
+  const chunks = [
+    { key: 'a.md', text: 'about Dover', score: 0.9, metadata: {} },
+    { key: 'b.md', text: 'the 60% rule', score: 0.5, metadata: {} },
+  ];
+  const env: Env = { AI: { run: async () => ({ response: [{ id: 1, score: 0.97 }, { id: 0, score: 0.02 }] }) } };
+  const ranked = await rerank(env, 'what is the 60% rule', chunks);
+  assert.deepEqual(ranked.map((c) => c.key), ['b.md', 'a.md']);
+  const broken: Env = { AI: { run: async () => { throw new Error('down'); } } };
+  assert.deepEqual((await rerank(broken, 'q', chunks)).map((c) => c.key), ['a.md', 'b.md']);
+  // select keeps at most 3 chunks per document
+  const many = Array.from({ length: 5 }, (_, i) => ({ key: 'same.md', text: `part ${i}`, score: 1 - i / 10, metadata: {} }));
+  assert.equal(select(many).length, 3);
+  // pool dedupes and throws only when every search failed
+  assert.equal(pool([{ status: 'fulfilled', value: [chunks[0], chunks[0]] }]).length, 1);
+  assert.throws(() => pool([{ status: 'rejected', reason: new Error('x') }]));
+});
+
+test('PLAN_MODE=followups skips the planner on a first question but not on follow-ups', async () => {
+  const calls: { model: string; input: { stream?: boolean } }[] = [];
+  const env = { ...fakeEnv({ calls: calls as unknown[] }), PLAN_MODE: 'followups' };
+  await readEvents(await handleChat(req(ask('What does Question 2 do?')), env));
+  assert.ok(!calls.some((c) => c.model.includes('scout')), 'no planner call on a first question');
+  const hi = await readEvents(await handleChat(req(ask('Hi there!')), env));
+  assert.equal(hi.meta.status, 'greeting');
+  calls.length = 0;
+  await readEvents(
+    await handleChat(
+      req({ messages: [{ role: 'user', content: 'What about Rochester?' }, { role: 'assistant', content: 'Rochester has a cap.' }, { role: 'user', content: 'And Dover?' }] }),
+      env,
+    ),
+  );
+  assert.ok(calls.some((c) => c.model.includes('scout')), 'planner runs for a follow-up');
+});
+
 test('normalize reads both AI Search response shapes', () => {
   assert.deepEqual(normalize({ chunks: [{ text: 'a', score: 0.5, item: { key: 'k.md', metadata: { title: 'T' } } }] }), [
     { key: 'k.md', text: 'a', score: 0.5, metadata: { title: 'T' } },
@@ -120,8 +156,8 @@ test('buildContext allows only known sources and page sections', () => {
   assert.ok(ctx.markers.includes('[src:school-board-video@2772]'));
   assert.ok(!ctx.markers.some((m) => m.includes('made-up') || m.includes('nowhere')));
   assert.equal(ctx.sources.find((s) => s.id === 'school-board-video')?.video, true);
-  assert.match(ctx.docsText, /<document type="this guide" title="What it means for Farmington">/);
-  assert.match(ctx.docsText, /<document type="primary document" title="Order on motion/);
+  assert.match(ctx.docsText, /<document type="this guide" title="What it means for Farmington" note="Written by the guide’s author/);
+  assert.match(ctx.docsText, /<document type="primary document" title="Order on motion[^"]*">/);
 });
 
 test('rejects other methods, other origins and bad bodies', async () => {

@@ -15,7 +15,7 @@
 // passed through untouched, ending with `data: [DONE]`.
 import { buildContext, pageMeta, stripMarkers, type Meta } from './citations.ts';
 import { CANNED, PLANNER_PROMPT, answerPrompt } from './prompts.ts';
-import { combine, lastSearch, search, searchOptions } from './retrieval.ts';
+import { lastSearch, pool, rerank, search, searchOptions, select } from './retrieval.ts';
 import type { ChatMessage, Env } from './types.ts';
 
 export const DEFAULT_CHAT_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
@@ -43,6 +43,8 @@ export const LIMITS = {
   perMinute: 8,
   perHour: 40,
 };
+
+const GREETING = /^(hi|hello|hey|hiya|howdy|thanks|thank you|thx|good (morning|afternoon|evening)|bye|goodbye)\b[\s!.,]*(there|so much|again)?[\s!.]*$/i;
 
 const ON_TOPIC_HINT =
   /\b(tax|taxes|levy|cap|caps|school|schools|budget|farmington|question\s*2|hb\s*1300|rsa|ballot|vote|voting|sau|teacher|inflation|override|60%|default|town|district|lawsuit|court|ankarberg|innis|berry|supporters?|opponents?|source|sources)\b/i;
@@ -235,11 +237,30 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     const rr = request.headers.get('x-search-rerank');
     if (rr === 'on' || rr === 'off') sOpts.rerank = rr === 'on';
   }
+  let selfRerank = env.SELF_RERANK !== 'false';
+  if (evalMode) {
+    const sr = request.headers.get('x-self-rerank');
+    if (sr === 'on' || sr === 'off') selfRerank = sr === 'on';
+  }
+
+  // PLAN_MODE "followups" skips the planner for a first question (saving a model
+  // call): the question is searched as asked, and the answer model's rules handle
+  // off-topic requests. Follow-ups always need the planner to resolve "it"/"that".
+  let planMode = env.PLAN_MODE === 'followups' ? 'followups' : 'always';
+  if (evalMode) {
+    const pm = request.headers.get('x-plan');
+    if (pm === 'always' || pm === 'followups') planMode = pm;
+  }
 
   // Search the question as asked while the planner works out better queries.
   const firstSearch = search(env, question, sOpts);
   firstSearch.catch(() => {}); // handled below; avoids an unhandled rejection if we return early
-  const p = await plan(env, history, question);
+  const p: Plan =
+    planMode === 'followups' && !history.length
+      ? GREETING.test(question)
+        ? { scope: 'greeting', queries: [] }
+        : { scope: 'on_topic', queries: [question] }
+      : await plan(env, history, question);
   const planMs = Date.now() - started;
   if (p.scope === 'greeting') {
     log('greeting');
@@ -253,7 +274,10 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   let chunks;
   try {
     const more = p.queries.filter((q) => q.toLowerCase() !== question.toLowerCase()).map((q) => search(env, q, sOpts));
-    chunks = combine(await Promise.allSettled([firstSearch, ...more]));
+    const candidates = pool(await Promise.allSettled([firstSearch, ...more]));
+    // Rerank against the planner's standalone version of the question, so a
+    // follow-up like "and Dover?" is scored as "Dover tax cap ...".
+    chunks = select(selfRerank ? await rerank(env, p.queries[0] || question, candidates) : candidates);
   } catch (err) {
     log('search_error', { error: String(err).slice(0, 200) });
     return json(503, { error: 'The assistant can’t reach its sources right now.', ...(evalMode ? { detail: String(err).slice(0, 300) } : {}) });
@@ -299,6 +323,6 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   log('answer', { model, queries: p.queries.length, chunks: chunks.length, sources: ctxDocs.sources.length, planMs, searchMs });
   const meta: Meta = { status: 'answer', sources: ctxDocs.sources, pages: ctxDocs.pages };
   if (evalMode)
-    meta.debug = { model, effort, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
+    meta.debug = { model, effort, planMode, selfRerank, queries: p.queries, planMs, searchMs, search: sOpts, lastSearch: { ...lastSearch }, chunks: chunks.map((c) => ({ key: c.key, score: c.score })) };
   return relay(meta, stream, ctx);
 }
