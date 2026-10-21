@@ -336,11 +336,17 @@ test('the answer prompt keeps the bot grounded and neutral about the author', as
 });
 
 test('hint queries cover broad and how-to-vote first questions, and nothing else', () => {
-  for (const q of ['What does Question 2 do?', 'What would Question 2 actually do?', 'Explain HB 1300', 'what is this ballot question about', 'Can you summarize the tax cap?'])
+  for (const q of ['What does Question 2 do?', 'What would Question 2 actually do?', 'Explain HB 1300', 'what is this ballot question about', 'Can you summarize the tax cap?', "What's HB 1300?", 'Tell me about Question 2', 'What does question 2 mean for Farmington?'])
     assert.equal(hintQueries(q).length, 1, q);
-  for (const q of ['How should I vote?', "What's the best argument for voting yes?", 'Is the cap a good idea?', 'pros and cons of question 2'])
+  for (const q of ['How should I vote?', "What's the best argument for voting yes?", 'Is the cap a good idea?', 'pros and cons of question 2', 'What do supporters of the cap say?'])
     assert.equal(hintQueries(q).length, 2, q);
-  for (const q of ['What is the 60% rule?', 'When would the cap start?', 'Who decides for Farmington?', 'Tell me about Dover', 'hi'])
+  // Specific questions (from the test battery) that the question's own wording finds.
+  for (const q of [
+    'What is the 60% rule?', 'When would the cap start?', 'Who decides for Farmington?', 'Tell me about Dover', 'hi',
+    'What inflation number does the cap use?', 'If the schools need more money than the cap allows, what happens?',
+    'Was there a lawsuit about Question 2? What happened?', 'What happens if I skip Question 2 on my ballot?',
+    'What would Farmington cut if the cap passes?', 'What would the cap cut?',
+  ])
     assert.deepEqual(hintQueries(q), [], q);
 });
 
@@ -379,4 +385,22 @@ test('rerank scores at most RERANK_MAX candidates and keeps the search order if 
   assert.equal(out[0].key, `k${RERANK_MAX - 1}.md`, 'reordered by the reranker');
   const failing = { AI: { run: async () => { throw new Error('boom'); } } } as unknown as Env;
   assert.equal((await rerank(failing, 'q', chunks)).length, chunks.length, 'falls back to all candidates');
+});
+
+test('when nothing is found, a slow planner still gets to call a first question off-topic', async () => {
+  // A planner slower than PLAN_TIMEOUT_MS that calls everything off-topic.
+  const slowOffTopic = (env: Env): Env => {
+    const run = env.AI!.run.bind(env.AI);
+    env.AI!.run = async (model: string, input: unknown) => {
+      const i = input as { stream?: boolean; contexts?: unknown };
+      if (i.stream || i.contexts) return run(model, input);
+      await new Promise((r) => setTimeout(r, 120));
+      return { response: '{"scope":"off_topic","queries":[]}' };
+    };
+    return { ...env, PLAN_TIMEOUT_MS: '20' };
+  };
+  const empty = await readEvents(await handleChat(req(ask('Can you write me a poem about autumn?')), slowOffTopic(fakeEnv({ search: () => legacyResult([]) }))));
+  assert.equal(empty.meta.status, 'off_topic');
+  const found = await readEvents(await handleChat(req(ask('Can you write me a poem about autumn?')), slowOffTopic(fakeEnv())));
+  assert.equal(found.meta.status, 'answer', 'when documents were found, the answer model handles scope (rule 9)');
 });

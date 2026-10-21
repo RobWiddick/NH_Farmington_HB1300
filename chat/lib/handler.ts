@@ -42,6 +42,9 @@ const EVAL_MODELS = new Set([
   '@cf/mistralai/mistral-small-3.1-24b-instruct',
 ]);
 
+// How much longer to wait for a cut-short planner before a "not found" reply.
+const LATE_PLAN_MS = 3000;
+
 /** Reasoning setting per model: short thinking where it helps, off where it only adds delay. */
 export function defaultEffort(model: string): string {
   if (model.includes('deepseek-v4')) return 'none';
@@ -71,13 +74,15 @@ const ON_TOPIC_HINT =
 // these run alongside the first search. The reranker drops what doesn't help.
 const QUERY_HINTS: { test: RegExp; queries: string[] }[] = [
   {
-    // "What does Question 2 do?", "Explain HB 1300", "What is this ballot question about?"
-    test: /^(?=.{0,90}$)(?=.*\b(what(?:'s|’s| is| does| would| will)?|explain|summar\w*|overview|basics|plain english|tl;?dr)\b)(?=.*\b(question\s*2|q2|hb\s*1300|rsa\s*32:5-i|the (?:tax |school )?cap|this (?:law|bill|measure|question|ballot question|tax cap))\b)/i,
+    // Only general questions about the whole measure: "What does Question 2 do?",
+    // "Explain HB 1300", "What is this ballot question about?". Not "What inflation
+    // number does the cap use?", which the question's own wording finds.
+    test: /^\s*(?:what(?:'s|’s|\s+is|\s+does|\s+would|\s+will)?|explain|summari[sz]e|tell me about|give me (?:an? )?(?:overview|summary) of|can you (?:explain|summari[sz]e))\s+(?:(?:this|the)\s+)?(?:question\s*2|q2|hb\s*1300|rsa\s*32:5-i|(?:school\s+|tax\s+|school\s+tax\s+)?cap|law|bill|measure|ballot question)(?:\s+(?:actually|really|exactly))?(?:\s+(?:do|mean|about|say|for farmington|in plain english))*\s*[?.!]*\s*$/i,
     queries: ['plain-English summary of what Question 2 does: the school levy cap, the 6% central office cap and the 60% vote'],
   },
   {
-    // "How should I vote?", "What's the best argument for Yes?", "Is the cap a good idea?"
-    test: /\b(how (?:should|do|would) i vote|should i vote|vote (?:yes|no) on|(?:best|strongest|main) (?:argument|case|reason)s?|pros and cons|arguments? (?:for|against)|why (?:vote|would anyone|should anyone|do people)|good idea|bad idea|worth (?:it|voting))\b/i,
+    // "How should I vote?", "What's the best argument for Yes?", "What do supporters say?"
+    test: /\b(how (?:should|do|would) i vote|should i vote|vote (?:yes|no) on|(?:best|strongest|main) (?:argument|case|reason)s?|pros and cons|arguments? (?:for|against)|why (?:vote|would anyone|should anyone|do people)|good idea|bad idea|worth (?:it|voting)|what do (?:supporters|opponents|critics)\b)/i,
     queries: ["the guide author's reasons to vote No on Question 2", "supporters' strongest arguments for the school tax cap"],
   },
 ];
@@ -306,12 +311,12 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   // planner hold it up: after PLAN_TIMEOUT_MS, go ahead with the question as asked.
   const asAsked: Plan = GREETING.test(question) ? { scope: 'greeting', queries: [] } : { scope: 'on_topic', queries: [question] };
   const planTimeout = Number(env.PLAN_TIMEOUT_MS) > 0 ? Number(env.PLAN_TIMEOUT_MS) : 1500;
-  const p: Plan =
-    planMode === 'followups' && !history.length
-      ? asAsked
-      : history.length
-        ? await plan(env, history, question)
-        : await Promise.race([plan(env, history, question), new Promise<Plan>((r) => setTimeout(() => r({ ...asAsked, timedOut: true }), planTimeout))]);
+  const planning = planMode === 'followups' && !history.length ? null : plan(env, history, question);
+  const p: Plan = !planning
+    ? asAsked
+    : history.length
+      ? await planning
+      : await Promise.race([planning, new Promise<Plan>((r) => setTimeout(() => r({ ...asAsked, timedOut: true }), planTimeout))]);
   const planMs = Date.now() - started;
   if (p.scope === 'greeting') {
     log('greeting');
@@ -353,6 +358,16 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     });
   }
   if (!chunks.length) {
+    // Nothing found. If the planner was cut short, give it a little longer: an
+    // off-topic request ("write me a poem") deserves the off-topic reply, not
+    // "I couldn't find that".
+    if (p.timedOut && planning) {
+      const late = await Promise.race([planning, new Promise<null>((r) => setTimeout(() => r(null), LATE_PLAN_MS))]);
+      if (late?.scope === 'off_topic') {
+        log('off_topic', { latePlan: true });
+        return cannedStream({ status: 'off_topic', sources: [], pages: [] }, CANNED.offTopic);
+      }
+    }
     log('no_match', { queries: p.queries.length });
     const meta: Meta = { status: 'no_match', sources: [], pages: pageMeta(['sources']) };
     if (evalMode) meta.debug = { queries: p.queries, planMs, search: sOpts, lastSearch: { ...lastSearch } };
