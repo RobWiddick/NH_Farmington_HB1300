@@ -1,16 +1,25 @@
 ---
 import Base from '../layouts/Base.astro';
 import Cite from '../components/Cite.astro';
-import DotGrid from '../components/DotGrid.astro';
+import VoteSlider from '../components/VoteSlider.astro';
+import CapCalculator from '../components/CapCalculator.astro';
 import SourceList from '../components/SourceList.astro';
 import ShareRow from '../components/ShareRow.astro';
 import LevyChart from '../components/LevyChart.astro';
-import BarCompare from '../components/BarCompare.astro';
-import { site } from '../data/site';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { site, calendarEvent } from '../data/site';
 import { scores } from '../data/figures';
 
 // Deep links into the Oct. 19, 2026 Farmington School Board video.
 const vid = (seconds: number) => `https://www.youtube.com/watch?v=qcF6xnfGMWc&t=${seconds}s`;
+
+// "Add to Google Calendar" for Election Day (an all-day event). The .ics version is src/pages/vote-question-2.ics.ts.
+const googleCalendar = `https://calendar.google.com/calendar/render?${new URLSearchParams({
+  action: 'TEMPLATE',
+  text: calendarEvent.title,
+  dates: `${site.electionDateISO.replaceAll('-', '')}/${calendarEvent.endISO.replaceAll('-', '')}`,
+  details: `${calendarEvent.details}\n\n${new URL('/', Astro.site)}`,
+})}`;
 
 const ballotText = {
   before:
@@ -35,6 +44,7 @@ const ballotText = {
         <a class="hide-sm" href="#vote">How to vote</a>
         <a href="#sources">Sources</a>
       </nav>
+      <ThemeToggle />
     </div>
   </header>
 
@@ -43,19 +53,20 @@ const ballotText = {
     <div class="wrap hero-grid">
       <div>
         <p class="date-pill"><span class="dot" aria-hidden="true"></span>{site.electionDateShort} · Question 2 is on the back of your ballot</p>
-        <h1>It’s called a tax cap. It’s also a cap on <em>Farmington’s schools.</em></h1>
+        <h1>It’s called a “tax cap.”<br /> It’s really a <em>school cap.</em></h1>
         <p class="lede">
-          Question 2 would limit how much Farmington can raise in property taxes for its schools each year. That limit
-          covers the money for the whole school budget, from teachers to buses to special education, not just
-          administration. It doesn’t cap your tax bill, and going over the limit would take a 60% vote.
+          Question 2 won’t cap your property tax bill. It caps what Farmington can raise in property taxes for its
+          schools, the money behind teachers, buses and special education, not just administration. District leaders
+          estimate that leaves about <strong>$360,000 short</strong> in the first year.
+          <Cite id="nhjournal-poll" /> <Cite id="school-board-video" href={vid(2772)} label="School Board, Oct. 19" />
         </p>
-        <p class="lede">
+        <p class="byline">
           {site.publisher && <>I’m {site.publisher}, and </>}<strong>I recommend voting No on Question 2.</strong> Here’s why,
           in plain English, with a source for every fact and the other side’s best arguments.
         </p>
         <div class="cta-row">
           <a class="btn primary" href="#quick">Read the 1-minute version</a>
-          <a class="btn ghost" href="#farmington">What it means for Farmington</a>
+          <a class="btn ghost" href="#calculator">Try the numbers</a>
         </div>
       </div>
       <aside class="glance card" aria-labelledby="glance-title">
@@ -72,6 +83,20 @@ const ballotText = {
         </p>
       </aside>
     </div>
+    <div class="wrap">
+      <nav class="jump" aria-labelledby="jump-title">
+        <h2 id="jump-title" class="jump-title">On this page</h2>
+        <ul>
+          <li><a href="#quick">5 things to know</a></li>
+          <li><a href="#calculator">The $360K gap</a></li>
+          <li><a href="#ballot">The ballot wording</a></li>
+          <li><a href="#sixty">The 60% rule</a></li>
+          <li><a href="#other-side">Supporters’ case</a></li>
+          <li><a href="#vote">How to vote</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+    </div>
   </section>
 
   <!-- ===================== QUICK ===================== -->
@@ -83,10 +108,10 @@ const ballotText = {
         <li>
           <p>
             <strong>It caps the school district’s property-tax levy, not just administration.</strong> Question 2
-            bundles two limits into one vote. One caps central-office administration at 6% of the budget. The other caps
-            the district’s whole local property-tax levy (everything except building-loan payments), which helps pay
-            for teachers, buses, heat and special education. The ballot says “these caps” don’t affect classroom
-            instruction, but a co-sponsor, Sen. Dan Innis, told the Keene Sentinel that sentence covers only the 6% cap.
+            bundles two limits into one vote: central-office administration at 6% of the budget, and the district’s
+            whole local property-tax levy (minus building-loan payments), which helps pay for teachers, buses, heat and
+            special education. The ballot says “these caps” don’t affect classroom instruction, but a co-sponsor, Sen.
+            Dan Innis, told the Keene Sentinel that sentence covers only the 6% cap.
             <Cite id="rsa-32-5-i" label="The law" /> <Cite id="keene-innis" />
           </p>
         </li>
@@ -103,7 +128,7 @@ const ballotText = {
             district leaders estimate the cap would let school property taxes grow about $377,500 for 2027–28. Expected
             increases in staff pay and health insurance (projected to rise 19%) total about $738,300. That’s before special education,
             fuel and transportation. <Cite id="school-board-video" href={vid(2772)} label="School Board video" />
-            <a href="#farmington">See the Farmington numbers</a>
+            <a href="#calculator">Try other inflation numbers</a>
           </p>
         </li>
         <li>
@@ -121,6 +146,25 @@ const ballotText = {
           </p>
         </li>
       </ol>
+      <h3 class="yesno-title">What your vote does</h3>
+      <div class="grid two yesno">
+        <div class="card choice">
+          <p class="choice-label"><span class="oval filled" aria-hidden="true"></span>If 60% or more vote Yes</p>
+          <p>
+            Starting with the 2027–28 budget, Farmington’s school property-tax levy can grow only by inflation plus new
+            construction, and going over that takes a 60% vote. Central-office spending is capped at 6% of the budget.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII–XII" />
+          </p>
+        </div>
+        <div class="card choice">
+          <p class="choice-label"><span class="oval" aria-hidden="true"></span>If fewer than 60% vote Yes</p>
+          <p>
+            No new cap. Farmington keeps deciding its school budget the way it does now, on the March town ballot. The
+            question comes back in November 2028 either way.
+            <Cite id="rsa-32-5-i" label="RSA 32:5-i, VI" /> <Cite id="nhb-howitworks" />
+          </p>
+        </div>
+      </div>
       <div class="callout prose">
         <p>
           <strong>In fairness:</strong> supporters’ best case is that property taxes have climbed fast and that caps
@@ -143,27 +187,38 @@ const ballotText = {
         budget, the first one it would cover.
       </p>
 
-      <div class="callout bad district-estimate">
-        <p>
-          Assuming 3% inflation and little new construction, they estimate the cap would let school property taxes grow
-          about <strong>$377,500</strong>. <Cite id="school-board-video" href={vid(2603)} label="Video, 43:23" />
-          <Cite id="school-board-video" href={vid(2717)} label="45:17" />
-        </p>
-        <BarCompare
-          label="Farmington School District estimate for 2027-28"
-          rows={[
-            { label: 'What the cap would allow', value: 377523, display: '$377,523', tone: 'b' },
-            { label: 'Expected increases: staff contracts, health insurance (+19% projected), dental', value: 738287, display: '$738,287', tone: 'c' },
-          ]}
-        />
-        <p style="margin-top:1rem">
-          That leaves a gap of about <strong>$360,000</strong>. And it doesn’t yet count special education,
-          out-of-district placements (students the district pays to send to other schools), utilities, fuel or
-          transportation. <Cite id="school-board-video" href={vid(2772)} label="Video, 46:12" />
-          <Cite id="school-board-video" href={vid(2960)} label="49:20" /> Their conclusion: it’s “pretty safe to say
-          should this tax cap be put into place … that we’ll fall short.”
-          <Cite id="school-board-video" href={vid(3754)} label="1:02:34" />
-        </p>
+      <div class="split">
+        <div class="prose district-estimate">
+          <p>
+            Assuming 3% inflation and little new construction, they estimate the cap would let school property taxes
+            grow about <strong>$377,500</strong>. Expected increases for staff contracts, health insurance (projected
+            to rise 19%) and dental come to about <strong>$738,300</strong>.
+            <Cite id="school-board-video" href={vid(2603)} label="Video, 43:23" />
+            <Cite id="school-board-video" href={vid(2717)} label="45:17" />
+          </p>
+          <p class="gap-line">
+            That leaves a gap of about <strong>$360,000</strong>. And it doesn’t yet count special education,
+            out-of-district placements (students the district pays to send to other schools), utilities, fuel or
+            transportation. <Cite id="school-board-video" href={vid(2772)} label="Video, 46:12" />
+            <Cite id="school-board-video" href={vid(2960)} label="49:20" />
+          </p>
+          <p>
+            Their conclusion: it’s “pretty safe to say should this tax cap be put into place … that we’ll fall short.”
+            <Cite id="school-board-video" href={vid(3754)} label="1:02:34" />
+          </p>
+        </div>
+        <div class="card calc-card" id="calculator">
+          <p class="calc-title">What would the cap allow in 2027–28?</p>
+          <CapCalculator>
+            <p class="calc-note small muted">
+              Uses the district’s preliminary figures: a starting school levy of about $12.58 million and $738,287 in
+              expected increases, before special education, fuel and transportation. The cap adds inflation and new
+              construction to last year’s levy; the result is my math. By my estimate, new construction has added under
+              1% a year in Farmington outside revaluation years. <Cite id="school-board-video" href={vid(2772)} label="Video" />
+              <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII" />
+            </p>
+          </CapCalculator>
+        </div>
       </div>
 
       <div class="prose">
@@ -191,7 +246,8 @@ const ballotText = {
           </footer>
         </blockquote>
 
-        <h3>Already stretched</h3>
+        <p class="sub-stat" aria-hidden="true"><b>11</b> full-time positions lost and not replaced</p>
+        <h3>Where would cuts come from?</h3>
         <p>
           District leaders said Farmington has lost about 11 full-time positions over the last couple of years that
           weren’t replaced. The high school has no music teacher of its own (another staff member covers), and one
@@ -213,14 +269,17 @@ const ballotText = {
           adding $700,000 for health insurance increases it was obligated to pay.
           <Cite id="farmington-ar-2026" label="Deliberative session minutes" />
         </p>
+
+        <p class="sub-stat" aria-hidden="true"><b>5.5–5.7%</b> central-office share, under the 6% limit</p>
+        <h3>Would the 6% administration limit help here?</h3>
         <p>
-          <strong>The “administration” limit probably wouldn’t bite here.</strong> By the district’s estimate,
-          Farmington’s central office costs about 5.5–5.7% of the budget, under the 6% limit. The levy cap is the part
-          that would bite. <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
+          <strong>Probably not much.</strong> By the district’s estimate, Farmington’s central office costs about
+          5.5–5.7% of the budget, under the 6% limit. The levy cap is the part that would bite. <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
           <Cite id="school-board-video" href={vid(3749)} label="1:02:29" />
         </p>
 
-        <h3>Voters already decide</h3>
+        <p class="sub-stat" aria-hidden="true"><b>239–337</b> the 2026 school budget vote</p>
+        <h3>Don’t voters already decide?</h3>
         <p>
           Farmington votes on its school budget by ballot every March, and voters use that power. In 2026 the proposed
           budget on the ballot was $19.4 million, which the ballot estimated would raise the school tax rate by $3.25 per
@@ -235,7 +294,8 @@ const ballotText = {
           <Cite id="farmington-results-2025" /> <Cite id="farmington-ar-2025" label="Deliberative session minutes" />
         </p>
 
-        <h3>The district’s own money troubles</h3>
+        <p class="sub-stat" aria-hidden="true"><b>2023</b> audit returned without an opinion</p>
+        <h3>What about the district’s own money troubles?</h3>
         <p>
           Farmington’s school finances have had real problems, and it’s fair to say so. The district’s 2023 audit came
           back without an opinion, meaning the auditors couldn’t say whether the books were accurate, because
@@ -256,7 +316,8 @@ const ballotText = {
           vote.
         </p>
 
-        <h3>The cap gives no credit for lean years</h3>
+        <p class="sub-stat" aria-hidden="true"><b>4 of 9</b> recent years over what the cap would have allowed</p>
+        <h3>Would past budgets have fit under the cap?</h3>
         <p>
           Over the past decade, Farmington’s school tax levy has roughly kept pace with prices: up about 33% from 2016 to
           2025, against 31% Northeast inflation. But it swings from year to year, up 20% in 2017 and down 13% in 2018.
@@ -394,48 +455,52 @@ const ballotText = {
         </figure>
       </div>
 
-      <div class="table-wrap">
-        <table class="stack">
-          <caption>Side by side</caption>
-          <thead>
-            <tr><th scope="col">The ballot says</th><th scope="col">The law itself says</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td data-label="The ballot says">“These caps apply only to administrative operations of the SAU central office and do not affect classroom instruction, school-based services…”</td>
-              <td data-label="The law itself says">
-                Only the 6% administration cap excludes classroom instruction. The other cap is on the district’s whole
-                property-tax levy, “the estimated amount of local taxes to be raised for the fiscal year attributable to the
-                school district,” which helps pay for the entire school budget. If a budget would need more tax money than
-                the cap allows, the state “shall not approve any tax rate that exceeds the certified limit” unless 60% of
-                voters approve going over it. The law doesn’t say which parts of the budget would be cut.
-                <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII, IX, XI & XV" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="The ballot says">“limit property tax growth”</td>
-              <td data-label="The law itself says">
-                It limits only the school district’s share. It doesn’t limit town, county or state education taxes, so
-                your own tax bill can still go up. <Cite id="nhpr-explainer" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <h3 class="claims-title">The ballot says one thing. Check it against the law.</h3>
+      <div class="grid two claims">
+        <article class="card claim">
+          <p class="claim-label">The ballot says</p>
+          <p class="claim-quote">“These caps apply only to administrative operations of the SAU central office and do not affect classroom instruction, school-based services…”</p>
+          <button type="button" class="reveal-btn" data-reveal="classroom" aria-controls="law-classroom" hidden>See what the law says</button>
+          <div class="claim-law" id="law-classroom">
+            <p class="claim-label">The law itself says</p>
+            <p>
+              Only the 6% administration cap excludes classroom instruction. The other cap is on the district’s whole
+              property-tax levy, “the estimated amount of local taxes to be raised for the fiscal year attributable to the
+              school district,” which helps pay for the entire school budget. If a budget would need more tax money than
+              the cap allows, the state “shall not approve any tax rate that exceeds the certified limit” unless 60% of
+              voters approve going over it. The law doesn’t say which parts of the budget would be cut.
+              <Cite id="rsa-32-5-i" label="RSA 32:5-i, VIII, IX, XI & XV" />
+            </p>
+          </div>
+        </article>
+        <article class="card claim">
+          <p class="claim-label">The ballot says</p>
+          <p class="claim-quote">“limit property tax growth”</p>
+          <button type="button" class="reveal-btn" data-reveal="tax-growth" aria-controls="law-tax-growth" hidden>See what the law says</button>
+          <div class="claim-law" id="law-tax-growth">
+            <p class="claim-label">The law itself says</p>
+            <p>
+              It limits only the school district’s share. It doesn’t limit town, county or state education taxes, so
+              your own tax bill can still go up. <Cite id="nhpr-explainer" />
+            </p>
+          </div>
+        </article>
       </div>
 
       <div class="grid two" style="margin-top:1.5rem">
         <div class="card">
-          <h3>So, is it really a “tax cap”?</h3>
+          <h3>Tax cap or school cap?</h3>
           <p>
-            Partly. It does cap the total amount the school district can raise in property taxes. But it is
-            <strong>not</strong> a cap on your tax bill or your tax rate. It doesn’t cut anyone’s current bill. At most it
-            slows how fast the school portion can grow, and it lets the school levy grow with inflation and new
-            construction. Even NH Journal, a right-leaning news site, wrote that it “would not guarantee a particular
-            limit on an individual homeowner’s bill.” <Cite id="nhjournal-poll" />
+            It does cap a tax: the total the school district can raise in property taxes. But both of its limits apply
+            only to the school district, and it is <strong>not</strong> a cap on your tax bill or your tax rate. It
+            doesn’t cut anyone’s current bill. At most it slows how fast the school portion can grow, and it still lets
+            the school levy grow with inflation and new construction. Even NH Journal, a right-leaning news site, wrote
+            that it “would not guarantee a particular limit on an individual homeowner’s bill.”
+            <Cite id="nhjournal-poll" /> <Cite id="rsa-32-5-i" label="RSA 32:5-i, XV" />
           </p>
           <p>
             Supporters call it the “Taxpayer Protection Act.” <Cite id="housegop-signing" /> A more precise name would be
-            a <strong>cap on local school funding</strong>.
+            a <strong>cap on local school funding</strong>: a school cap.
           </p>
         </div>
         <div class="card">
@@ -481,11 +546,7 @@ const ballotText = {
             <Cite id="nhb-howitworks" />
           </p>
         </div>
-        <figure style="margin:0">
-          <DotGrid yes={59} label="100 dots: 59 voters vote yes on a school budget, 41 vote no. Under the cap, the budget still fails." />
-          <div class="legend" style="margin-top:.75rem"><span>59 vote yes</span><span class="b">41 vote no</span></div>
-          <figcaption>Under the cap, this budget fails.</figcaption>
-        </figure>
+        <VoteSlider />
       </div>
     </div>
   </section>
@@ -499,106 +560,146 @@ const ballotText = {
         People backing Question 2 have real concerns about the cost of living. Here are their strongest arguments,
         stated fairly, and the facts I think belong next to them.
       </p>
-      <div class="table-wrap">
-        <table class="stack">
-          <caption>Arguments for the cap</caption>
-          <thead>
-            <tr><th scope="col">Supporters say</th><th scope="col">Worth weighing</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>Property taxes are climbing too fast.</strong> Statewide, local property taxes rose 47.5% from
-                2016 to 2025, or about 12% after inflation. <Cite id="nhfpi-proptax" />
-              </td>
-              <td data-label="Worth weighing">
-                True, and it hurts. But New Hampshire’s state government pays a smaller share of school costs than any
-                other state, so more of each increase lands on local property taxes. Question 2 doesn’t change that. It
-                only limits the local share. <Cite id="nhb-state-share" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>It isn’t a cut.</strong> The levy can still grow every year with inflation plus new construction.
-                Rep. Ross Berry: “I would love to know how a 3.9% property tax increase results in them having to cut
-                anything.” <Cite id="vnews-wording" />
-              </td>
-              <td data-label="Worth weighing">
-                In Farmington, property taxes pay only part of the school budget. By my math from the district’s
-                figures, even a 3.9% levy increase (about $490,000) works out to under 3% budget growth, short of the
-                roughly $738,000 (about 4%) in expected cost increases, mostly contracts and a projected 19%
-                health-insurance increase. <Cite id="school-board-video" href={vid(2772)} label="School Board video" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>Enrollment is falling while spending rises.</strong> New Hampshire public schools had 160,323
-                students in fall 2025, down from more than 205,000 twenty years earlier. <Cite id="keene-enrollment" />
-                A free-market research group found spending per student nearly doubled from 2001 to 2024, after
-                inflation. <Cite id="jbc-spending" />
-              </td>
-              <td data-label="Worth weighing">
-                AFT-NH, the teachers union, notes that schools still have fixed costs like running buses and heating
-                classrooms, and that it’s hard to cut staff when fewer students are spread across many grades.
-                <Cite id="keene-enrollment" /> In Farmington, total school spending grew more slowly than
-                prices. Per student it rose 43%, faster than prices but slower than the state’s 50%.
-                <a href="#farmington">See Farmington’s numbers</a>
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>A November vote lets more people decide.</strong> Early-2025 votes on school-spending caps in eight
-                districts drew about 20% as many voters as the 2024 presidential election. <Cite id="monitor-caps-2025" />
-              </td>
-              <td data-label="Worth weighing">
-                That’s a fair point. But once a cap is in place, every vote to go over it happens at Farmington’s regular
-                March school election, not in November. <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>It puts money in classrooms, not administration.</strong> Americans for Prosperity-NH says the law
-                “ensures education dollars are spent in the classroom, not on administrative overhead.”
-                <Cite id="keene-innis" /> Statewide, administrator positions grew 78% from 2001 to 2024 while teacher
-                positions grew 1%. <Cite id="jbc-spending" />
-              </td>
-              <td data-label="Worth weighing">
-                Farmington’s central office already runs under 6%. The superintendent said it has “not a lot of people”
-                and no communications staff: “a big fat zero for us.”
-                <Cite id="school-board-video" href={vid(3537)} label="School Board video" /> And studies of older caps in
-                other states found no sign that administration absorbed the cuts: in Oregon, administration’s share of
-                spending held steady or rose while class sizes grew. <Cite id="figlio-1997" /> <Cite id="figlio-1998" /> A
-                newer New York study found cuts spread across instruction, central administration and transportation.
-                <Cite id="nguyen-hoang-2022" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>Caps do slow tax growth.</strong> After New York capped school levies, average school tax
-                increases fell to 1.9% a year in 2012–2018, from 6.6% in 2004–2008 (3.1% in the recession years just
-                before). More than 95% of school budgets still passed each year. <Cite id="rockinst-ny" />
-              </td>
-              <td data-label="Worth weighing">
-                That’s the trade-off. A study of New York’s cap found that each $1,000 per student a district lost to it
-                lowered test scores, driven by cuts to instruction, teacher hiring and support staff.
-                <Cite id="sorensen-2021" />
-              </td>
-            </tr>
-            <tr>
-              <td data-label="Supporters say">
-                <strong>Most states limit property taxes, and Massachusetts has had a tougher cap since 1980.</strong>
-                New Hampshire is one of only seven states with no statewide limit. <Cite id="jbc-firstchance" /> HB 1300’s
-                cap is tied to inflation, so it never allows less growth than inflation. <Cite id="jbc-massway" />
-              </td>
-              <td data-label="Worth weighing">
-                Massachusetts’ state government pays about 44% of school funding, compared with 28% in New Hampshire.
-                <Cite id="newamerica-ma" /> <Cite id="newamerica-nh" /> And Massachusetts towns can go over their cap with
-                a simple majority of voters, once local officials put it on the ballot. HB 1300 requires 60%.
-                <Cite id="ma-primer" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="args">
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>Property taxes are climbing too fast.</h3>
+            <p>
+              Statewide, local property taxes rose 47.5% from
+              2016 to 2025, or about 12% after inflation. <Cite id="nhfpi-proptax" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              True, and it hurts. But New Hampshire’s state government pays a smaller share of school costs than any
+              other state, so more of each increase lands on local property taxes. Question 2 doesn’t change that. It
+              only limits the local share. <Cite id="nhb-state-share" />
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>It isn’t a cut.</h3>
+            <p>
+              The levy can still grow every year with inflation plus new construction.
+              Rep. Ross Berry: “I would love to know how a 3.9% property tax increase results in them having to cut
+              anything.” <Cite id="vnews-wording" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              In Farmington, property taxes pay only part of the school budget. By my math from the district’s
+              figures, even a 3.9% levy increase (about $490,000) works out to under 3% budget growth, short of the
+              roughly $738,000 (about 4%) in expected cost increases, mostly contracts and a projected 19%
+              health-insurance increase. <Cite id="school-board-video" href={vid(2772)} label="School Board video" />
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>Enrollment is falling while spending rises.</h3>
+            <p>
+              New Hampshire public schools had 160,323
+              students in fall 2025, down from more than 205,000 twenty years earlier. <Cite id="keene-enrollment" />
+              A free-market research group found spending per student nearly doubled from 2001 to 2024, after
+              inflation. <Cite id="jbc-spending" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              AFT-NH, the teachers union, notes that schools still have fixed costs like running buses and heating
+              classrooms, and that it’s hard to cut staff when fewer students are spread across many grades.
+              <Cite id="keene-enrollment" /> In Farmington, total school spending grew more slowly than
+              prices. Per student it rose 43%, faster than prices but slower than the state’s 50%.
+              <a href="#farmington">See Farmington’s numbers</a>
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>A November vote lets more people decide.</h3>
+            <p>
+              Early-2025 votes on school-spending caps in eight
+              districts drew about 20% as many voters as the 2024 presidential election. <Cite id="monitor-caps-2025" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              That’s a fair point. But once a cap is in place, every vote to go over it happens at Farmington’s regular
+              March school election, not in November. <Cite id="rsa-32-5-i" label="RSA 32:5-i, X(a)" />
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>It puts money in classrooms, not administration.</h3>
+            <p>
+              Americans for Prosperity-NH says the law
+              “ensures education dollars are spent in the classroom, not on administrative overhead.”
+              <Cite id="keene-innis" /> Statewide, administrator positions grew 78% from 2001 to 2024 while teacher
+              positions grew 1%. <Cite id="jbc-spending" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              Farmington’s central office already runs under 6%. The superintendent said it has “not a lot of people”
+              and no communications staff: “a big fat zero for us.”
+              <Cite id="school-board-video" href={vid(3537)} label="School Board video" /> And studies of older caps in
+              other states found no sign that administration absorbed the cuts: in Oregon, administration’s share of
+              spending held steady or rose while class sizes grew. <Cite id="figlio-1997" /> <Cite id="figlio-1998" /> A
+              newer New York study found cuts spread across instruction, central administration and transportation.
+              <Cite id="nguyen-hoang-2022" />
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>Caps do slow tax growth.</h3>
+            <p>
+              After New York capped school levies, average school tax
+              increases fell to 1.9% a year in 2012–2018, from 6.6% in 2004–2008 (3.1% in the recession years just
+              before). More than 95% of school budgets still passed each year. <Cite id="rockinst-ny" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              That’s the trade-off. A study of New York’s cap found that each $1,000 per student a district lost to it
+              lowered test scores, driven by cuts to instruction, teacher hiring and support staff.
+              <Cite id="sorensen-2021" />
+            </p>
+          </div>
+        </article>
+        <article class="card arg">
+          <div class="arg-for">
+            <p class="arg-label">Supporters say</p>
+            <h3>Most states limit property taxes, and Massachusetts has had a tougher cap since 1980.</h3>
+            <p>
+              New Hampshire is one of only seven states with no statewide limit. <Cite id="jbc-firstchance" /> HB 1300’s
+              cap is tied to inflation, so it never allows less growth than inflation. <Cite id="jbc-massway" />
+            </p>
+          </div>
+          <div class="arg-weigh">
+            <p class="arg-label">Worth weighing</p>
+            <p>
+              Massachusetts’ state government pays about 44% of school funding, compared with 28% in New Hampshire.
+              <Cite id="newamerica-ma" /> <Cite id="newamerica-nh" /> And Massachusetts towns can go over their cap with
+              a simple majority of voters, once local officials put it on the ballot. HB 1300 requires 60%.
+              <Cite id="ma-primer" />
+            </p>
+          </div>
+        </article>
       </div>
 
       <div class="grid two" style="margin-top:1.25rem">
@@ -630,6 +731,21 @@ const ballotText = {
     <div class="wrap">
       <p class="kicker">How to vote</p>
       <h2>Flip your ballot over</h2>
+      <div class="vote-when card">
+        <p class="vote-date">
+          <strong>{site.electionDate}</strong>
+          <span class="countdown" data-countdown={site.electionDateISO} aria-live="off"></span>
+        </p>
+        <div class="cal-links">
+          <a class="btn ghost" href="/vote-question-2.ics" download data-cal="ics">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Add to my calendar
+          </a>
+          <a class="btn ghost" href={googleCalendar} target="_blank" rel="nofollow noopener noreferrer" data-cal="google">
+            Google Calendar<span class="sr-only"> (opens in a new window)</span>
+          </a>
+        </div>
+      </div>
       <ol class="steps prose">
         <li><p><strong>Vote on {site.electionDate}.</strong> Question 2 is on the general election ballot in every New Hampshire town and city ward. <Cite id="rsa-32-5-i" label="RSA 32:5-i, I" /></p></li>
         <li><p><strong>Turn your ballot over.</strong> Question 2 is on the back; the front says “VOTE BOTH SIDES.” <Cite id="farmington-sample-ballot" /></p></li>
@@ -1003,3 +1119,8 @@ const ballotText = {
     </div>
   </footer>
 </Base>
+<script>
+  import { initReveals, initVoteDay } from '../scripts/interactive';
+  initReveals();
+  initVoteDay();
+</script>

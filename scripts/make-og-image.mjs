@@ -21,14 +21,14 @@ const html = `<!doctype html><html><head><style>
   .c{padding:70px 80px;display:flex;flex-direction:column;justify-content:space-between;flex:1}
   .k{font:700 26px/1 system-ui,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5b6475}
   .k b{color:#b3261e}
-  h1{font-size:76px;line-height:1.05;letter-spacing:-.01em;max-width:960px}
+  h1{font-size:84px;line-height:1.05;letter-spacing:-.01em;max-width:960px}
   h1 em{font-style:normal;background:linear-gradient(transparent 62%,#fbefd6 62%)}
   .f{font:600 28px/1.3 system-ui,Arial,sans-serif;color:#333c4d;display:flex;justify-content:space-between;align-items:flex-end}
   .pill{background:#14325c;color:#fff;border-radius:999px;padding:14px 26px;font-weight:700;white-space:nowrap;margin-left:24px}
 </style></head><body><div class="bar"></div><div class="c">
   <div class="k">Farmington, NH · <b>Ballot Question 2</b> · Nov. 3, 2026</div>
-  <h1>It’s called a tax cap. It’s also a <em>cap on Farmington’s schools.</em></h1>
-  <div class="f"><span>What HB 1300 does — in plain English, with sources.</span><span class="pill">Read before you vote</span></div>
+  <h1>It’s called a “tax cap.”<br>It’s really a <em>school cap.</em></h1>
+  <div class="f"><span>What it means for Farmington schools: about $360,000 short in year one, by the district’s estimate.</span><span class="pill">Read before you vote</span></div>
 </div></body></html>`;
 
 const browser = await chromium.launch();

@@ -98,3 +98,23 @@ export const levyYearChanges = levy.slice(1).map((row, i) => {
 export const healthInsuranceIncrease2026 = 700_000;
 export const levy2025 = 7_873_518;
 export const netSchoolAppropriations2025 = 15_247_619;
+
+// The district's preliminary estimate for 2027-28 (Oct. 19, 2026 School Board
+// presentation): at an assumed 3% inflation and no new-construction growth the
+// cap allows $377,523, against $738,287 in expected increases for staff
+// contracts, health insurance (+19% projected) and dental only. The starting
+// levy is implied by those figures: $377,523 / 3% = $12,584,100 ("about $12.6
+// million" on the page). Used by the "what would the cap allow?" calculator.
+export const districtEstimate = {
+  assumedInflation: 3,
+  allowed: 377_523,
+  expected: 738_287,
+  baseLevy: 12_584_100,
+};
+
+// Northeast CPI readings quoted on the page (12-month change), for calculator presets.
+export const cpiReadings = [
+  { label: 'District’s assumption', value: 3 },
+  { label: 'March 2026', value: 3.6 },
+  { label: 'Sept. 2026', value: 4.2 },
+];

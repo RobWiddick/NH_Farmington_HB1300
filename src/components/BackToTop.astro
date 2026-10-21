@@ -1,0 +1,12 @@
+---
+// "Back to top" button that appears once the hero is off screen. It sits just
+// above the "Ask a question" button. It's a plain link, so it works without JavaScript too.
+---
+<a class="to-top" href="#top" data-to-top>
+  <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span class="sr-only">Back to top</span>
+</a>
+<script>
+  import { initBackToTop } from '../scripts/interactive';
+  initBackToTop();
+</script>

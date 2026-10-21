@@ -1,0 +1,32 @@
+---
+// The 60% rule, interactively: slide how many of 100 voters say yes and see a
+// school budget pass by majority but fail under the cap. Without JavaScript it
+// shows 59 yes / 41 no.
+const start = 59;
+const dots = Array.from({ length: 100 }, (_, i) => i < start);
+---
+<figure class="vote" data-vote>
+  <svg class="dotgrid" viewBox="0 0 200 200" role="img" aria-label={`100 dots: ${start} voters vote yes on a school budget, ${100 - start} vote no.`}>
+    {dots.map((isYes, i) => <circle cx={10 + (i % 10) * 20} cy={10 + Math.floor(i / 10) * 20} r="6.6" class={isYes ? 'yes' : 'no'} />)}
+  </svg>
+  <div class="vote-side">
+    <div class="vote-controls" data-vote-controls hidden>
+      <label for="vote-yes">Change how many of the 100 vote yes</label>
+      <div class="vote-range">
+        <button type="button" data-vote-step="-1" aria-label="One fewer yes vote">−</button>
+        <input id="vote-yes" type="range" min="0" max="100" step="1" value={start} />
+        <button type="button" data-vote-step="1" aria-label="One more yes vote">+</button>
+      </div>
+    </div>
+    <p class="vote-count"><strong data-out="yes">{start}</strong> vote yes · <strong data-out="no">{100 - start}</strong> vote no</p>
+    <dl class="vote-results" aria-live="polite">
+      <div><dt>Majority rule (today)</dt><dd data-result="majority" class="pass">Passes</dd></div>
+      <div><dt>Under the cap (60% needed)</dt><dd data-result="cap" class="fail">Fails</dd></div>
+    </dl>
+    <figcaption>A school budget that needs taxes above the cap. <span class="legend-inline"><span class="sw yes"></span>yes <span class="sw no"></span>no</span></figcaption>
+  </div>
+</figure>
+<script>
+  import { initVoteSliders } from '../scripts/interactive';
+  initVoteSliders();
+</script>

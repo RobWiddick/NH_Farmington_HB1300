@@ -507,11 +507,11 @@ section.alt {
   display: inline-flex;
   align-items: center;
   gap: 0.2em;
-  font: 600 0.78em/1.2 var(--sans);
+  font: 550 0.74em/1.2 var(--sans);
   color: var(--link);
-  background: color-mix(in srgb, var(--link) 9%, transparent);
+  background: color-mix(in srgb, var(--link) 6%, transparent);
   border-radius: 999px;
-  padding: 0.26em 0.6em;
+  padding: 0.22em 0.55em;
   text-decoration: none;
   white-space: nowrap;
   vertical-align: 0.08em;
@@ -1261,5 +1261,627 @@ dialog.chat::backdrop {
   dialog.chat,
   .chat-only {
     display: none !important;
+  }
+}
+
+/* ---------- Light/dark switch ---------- */
+.theme-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.theme-toggle[hidden] {
+  display: none;
+}
+.theme-toggle:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 35%, var(--line));
+}
+.theme-toggle .icon-sun,
+.theme-toggle[aria-pressed='true'] .icon-moon {
+  display: none;
+}
+.theme-toggle[aria-pressed='true'] .icon-sun {
+  display: block;
+}
+@media print {
+  .theme-toggle {
+    display: none !important;
+  }
+}
+
+/* ---------- Redesign: scannable layout and interactive pieces ---------- */
+
+/* Hero */
+.byline {
+  font-size: 1.05rem;
+  color: var(--ink-2);
+  max-width: var(--measure);
+  border-left: 3px solid var(--accent);
+  padding-left: 0.9rem;
+}
+.jump {
+  margin-top: clamp(1.75rem, 5vw, 2.75rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+.jump-title {
+  font: 700 0.8rem/1 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.jump ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.jump li + li {
+  margin: 0;
+}
+.jump a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: 600 0.95rem/1.2 var(--sans);
+  text-decoration: none;
+}
+.jump a:hover {
+  border-color: var(--brand);
+  color: var(--link);
+}
+
+/* "What your vote does" */
+.yesno-title {
+  margin-top: 2rem;
+}
+.choice-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font: 700 1.1rem/1.3 var(--sans);
+  margin-bottom: 0.5rem;
+}
+.choice .oval {
+  flex: none;
+  width: 1.6rem;
+  height: 1rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+.choice .oval.filled {
+  background: var(--ink);
+}
+
+/* District estimate + calculator */
+.split {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+  margin: 1.5rem 0 2rem;
+}
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 2.5rem;
+  }
+}
+.district-estimate .gap-line {
+  border-left: 5px solid var(--bad);
+  background: var(--bad-soft);
+  padding: 0.85rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.calc-card {
+  scroll-margin-top: 4.5rem;
+  border-top: 5px solid var(--brand);
+}
+:root[data-theme='dark'] .calc-card {
+  border-top-color: var(--chart-a);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .calc-card {
+    border-top-color: var(--chart-a);
+  }
+}
+.calc-title {
+  font: 700 1.25rem/1.25 var(--serif);
+  margin-bottom: 0.9rem;
+}
+.calc-controls {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+.calc-controls[hidden] {
+  display: none;
+}
+.calc-field label {
+  display: block;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 0.4rem;
+}
+.calc-field label .muted {
+  font-weight: 400;
+  font-size: 0.9em;
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.stepper button,
+.vote-range button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 600 1.4rem/1 var(--sans);
+  cursor: pointer;
+}
+.stepper button:hover,
+.vote-range button:hover {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.stepper input {
+  width: 4.2rem;
+  height: 44px;
+  border: 0;
+  border-inline: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  font: 700 1.15rem/1 var(--sans);
+  text-align: right;
+  padding: 0 0.15rem 0 0.4rem;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.stepper input::-webkit-outer-spin-button,
+.stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.stepper .unit {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem 0 0.1rem;
+  background: var(--card);
+  font-weight: 700;
+  border-right: 1px solid var(--line);
+}
+.calc-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.calc-presets button {
+  min-height: 36px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink-2);
+  font: 600 0.88rem/1.2 var(--sans);
+  cursor: pointer;
+}
+.calc-presets button[aria-pressed='true'] {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: var(--brand-ink);
+}
+.calc-bars {
+  display: grid;
+  gap: 0.75rem;
+}
+.calc-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 0.75rem;
+  align-items: baseline;
+}
+.calc-bar-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.calc-bar-value {
+  font: 700 1.05rem/1 var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+.calc-track {
+  grid-column: 1 / -1;
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--chart-track);
+  overflow: hidden;
+}
+.calc-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+.calc-fill.allow {
+  background: var(--chart-b);
+}
+.calc-fill.need {
+  background: var(--chart-c);
+}
+@media (prefers-reduced-motion: reduce) {
+  .calc-fill {
+    transition: none;
+  }
+}
+.calc-verdict {
+  margin: 1rem 0 0.75rem;
+  font: 600 1.05rem/1.3 var(--sans);
+  color: var(--bad);
+}
+.calc-verdict.ok {
+  color: var(--good);
+}
+.calc-big {
+  font: 700 clamp(1.9rem, 6vw, 2.4rem)/1 var(--serif);
+  font-variant-numeric: tabular-nums;
+}
+.calc-note {
+  margin: 0;
+}
+
+/* Farmington subsections: a big number above each question */
+.sub-stat {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.6rem;
+  margin: 2.25rem 0 0.2rem;
+  color: var(--muted);
+  font: 600 0.92rem/1.3 var(--sans);
+}
+.sub-stat b {
+  font: 700 clamp(1.7rem, 5vw, 2.2rem)/1.1 var(--serif);
+  color: var(--chart-b);
+}
+
+/* Ballot: "The ballot says" -> "See what the law says" */
+.claims-title {
+  margin-top: 2rem;
+}
+.claim-label {
+  font: 700 0.75rem/1.4 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+.claim-quote {
+  font: 400 1.15rem/1.5 var(--serif);
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+.claim-law {
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+  margin-top: 0.9rem;
+}
+.claim-law[hidden] {
+  display: none;
+}
+.claim-law > :last-child {
+  margin-bottom: 0;
+}
+.reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.6rem 1.05rem;
+  border: 2px solid var(--brand);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--ink);
+  font: 700 0.98rem/1.2 var(--sans);
+  cursor: pointer;
+}
+.reveal-btn::after {
+  content: '';
+  width: 0.5em;
+  height: 0.5em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.15em) rotate(45deg);
+}
+.reveal-btn[aria-expanded='true']::after {
+  transform: translateY(0.1em) rotate(-135deg);
+}
+.reveal-btn[hidden] {
+  display: none;
+}
+:root[data-theme='dark'] .reveal-btn {
+  border-color: var(--chart-a);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .reveal-btn {
+    border-color: var(--chart-a);
+  }
+}
+
+/* 60% rule: 100 voters */
+/* Dots and results side by side when there's room, stacked when not. */
+.vote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: center;
+  margin: 0;
+}
+.vote .dotgrid {
+  flex: 0 1 13rem;
+  width: 100%;
+  max-width: 15rem;
+  display: block;
+}
+.vote-side {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.vote .dotgrid .yes {
+  fill: var(--chart-a);
+}
+.vote .dotgrid .no {
+  fill: none;
+  stroke: var(--chart-b);
+  stroke-width: 2.5;
+}
+.vote-controls[hidden] {
+  display: none;
+}
+.vote-controls label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+.vote-range {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.vote-range input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  accent-color: var(--chart-a);
+}
+.vote-count {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+}
+.vote-results {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+}
+.vote-results > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+}
+.vote-results dt {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.vote-results dd {
+  margin: 0;
+  font: 700 0.95rem/1 var(--sans);
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+}
+.vote-results .pass {
+  color: var(--good);
+  background: var(--good-soft);
+}
+.vote-results .fail {
+  color: var(--bad);
+  background: var(--bad-soft);
+}
+.legend-inline {
+  white-space: nowrap;
+}
+.legend-inline .sw {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  margin: 0 0.2em 0 0.5em;
+  vertical-align: -0.05em;
+}
+.legend-inline .sw.yes {
+  background: var(--chart-a);
+}
+.legend-inline .sw.no {
+  border: 2px solid var(--chart-b);
+}
+
+/* Supporters' arguments */
+.args {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.arg {
+  display: grid;
+  padding: 0;
+  overflow: hidden;
+}
+@media (min-width: 760px) {
+  .arg {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.arg-for,
+.arg-weigh {
+  padding: 1.1rem 1.25rem;
+}
+.arg-weigh {
+  background: color-mix(in srgb, var(--paper-2) 70%, var(--card));
+  border-top: 1px solid var(--line);
+}
+@media (min-width: 760px) {
+  .arg-weigh {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
+}
+.arg h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
+}
+.arg-label {
+  font: 700 0.75rem/1.4 var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+.arg p:last-child {
+  margin-bottom: 0;
+}
+
+/* How to vote: date, countdown, calendar */
+.vote-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin: 0.5rem 0 1.5rem;
+  max-width: var(--measure);
+}
+.vote-date {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 1.15rem;
+}
+.countdown {
+  font: 700 0.95rem/1.2 var(--sans);
+  color: var(--bad);
+}
+.countdown:empty {
+  display: none;
+}
+.cal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cal-links .btn {
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+}
+
+/* Floating "Back to top", stacked above the "Ask a question" button */
+.to-top {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 39;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+html.chat-ready .to-top {
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 60px);
+  right: calc(max(16px, env(safe-area-inset-right)) + 4px);
+}
+.to-top.is-shown,
+.to-top:focus-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .to-top {
+    transition: none;
+  }
+}
+html:has(dialog.chat[open]) .to-top {
+  display: none;
+}
+
+@media print {
+  .to-top,
+  .jump,
+  .calc-controls,
+  .vote-controls,
+  .reveal-btn,
+  .cal-links {
+    display: none !important;
+  }
+  .claim-law {
+    display: block !important;
+  }
+  .arg,
+  .vote,
+  .split {
+    break-inside: avoid;
+  }
+}
+@media (forced-colors: active) {
+  .calc-track {
+    border: 1px solid CanvasText;
+  }
+  .calc-fill {
+    background: CanvasText !important;
+    forced-color-adjust: none;
+  }
+  .calc-fill.allow {
+    background: Highlight !important;
   }
 }

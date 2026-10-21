@@ -7,6 +7,9 @@
 //   share          a share link was used
 //   nav_click      a top-bar or button link to a section was used
 //   chat_*         the assistant was used (see src/scripts/chat.ts); no question text is sent
+//   calc_change, vote_slider, reveal_open, calendar_add
+//                  the page's interactive pieces were used (see src/scripts/interactive.ts)
+//   theme_change   light/dark mode was switched (see src/scripts/theme.ts)
 //
 // Every event carries section_id / section_title so reports can be broken
 // down by section (register them as event-scoped custom dimensions in GA4).
@@ -40,7 +43,7 @@ function sectionTitle(el: HTMLElement): string {
   return (heading?.textContent ?? el.id).replace(/\s+/g, ' ').trim().slice(0, 100);
 }
 
-function sectionOf(node: Element | null): { section_id: string; section_title: string } {
+export function sectionOf(node: Element | null): { section_id: string; section_title: string } {
   const el = node?.closest('main section[id]') as HTMLElement | null;
   if (el) return { section_id: el.id, section_title: sectionTitle(el) };
   if (node?.closest('#chat')) return { section_id: 'chat', section_title: 'Question 2 assistant' };
