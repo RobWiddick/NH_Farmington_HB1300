@@ -1,0 +1,26 @@
+---
+// Farmington's total school spending growth vs. inflation, fiscal 2016 to 2025,
+// as two bars on one scale. Plain HTML, so it reads the same without JavaScript.
+import { spendingVsInflation as s } from '../data/figures';
+
+const spendGrowth = (s.fy2025 / s.fy2016 - 1) * 100;
+const priceGrowth = (s.cpi2025 / s.cpi2016 - 1) * 100;
+const scaleMax = 40;
+const pct = (v: number) => `${(v / scaleMax) * 100}%`;
+const millions = (v: number) => `$${(v / 1e6).toFixed(1)} million`;
+---
+<figure class="spend-chart">
+  <div class="calc-bars" role="img" aria-label={`From fiscal 2016 to fiscal 2025, Farmington’s total school spending grew ${spendGrowth.toFixed(1)}%, from ${millions(s.fy2016)} to ${millions(s.fy2025)}. Consumer prices grew ${priceGrowth.toFixed(1)}%.`}>
+    <div class="calc-bar">
+      <span class="calc-bar-label">School spending <span class="muted">({millions(s.fy2016)} → {millions(s.fy2025)})</span></span>
+      <span class="calc-bar-value">+{spendGrowth.toFixed(1)}%</span>
+      <span class="calc-track"><span class="calc-fill allow" style={`width:${pct(spendGrowth)}`}></span></span>
+    </div>
+    <div class="calc-bar">
+      <span class="calc-bar-label">Consumer prices</span>
+      <span class="calc-bar-value">+{priceGrowth.toFixed(1)}%</span>
+      <span class="calc-track"><span class="calc-fill need" style={`width:${pct(priceGrowth)}`}></span></span>
+    </div>
+  </div>
+  <figcaption class="small muted">Growth from fiscal 2016 to fiscal 2025 (school years ending in June). Spending is total spending for all purposes, not adjusted for inflation.</figcaption>
+</figure>

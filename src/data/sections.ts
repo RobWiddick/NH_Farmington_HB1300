@@ -9,6 +9,7 @@ export const navSections: { id: string; label: string }[] = [
   { id: 'ballot', label: 'What the ballot says' },
   { id: 'sixty', label: 'The 60% rule' },
   { id: 'other-side', label: 'What supporters say' },
+  { id: 'alternatives', label: 'What about alternatives?' },
   { id: 'vote', label: 'How to vote' },
   { id: 'nh-context', label: 'New Hampshire in context' },
   { id: 'math', label: 'The math' },

@@ -8,11 +8,21 @@ import ShareRow from '../components/ShareRow.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import SectionMenu from '../components/SectionMenu.astro';
 import ScoreChart from '../components/ScoreChart.astro';
+import SpendChart from '../components/SpendChart.astro';
 import { site, calendarEvent } from '../data/site';
-import { scores } from '../data/figures';
+import { scores, spendingCategories } from '../data/figures';
 
 // Deep links into the Oct. 19, 2026 Farmington School Board video.
 const vid = (seconds: number) => `https://www.youtube.com/watch?v=qcF6xnfGMWc&t=${seconds}s`;
+
+// Spending by category: dollars in $ thousands, change before and after inflation.
+const cpiRatio = spendingCategories.cpi2024 / spendingCategories.cpi2016;
+const thousands = (v: number) => (v >= 1000 ? `$${(Math.round(v / 10) / 100).toFixed(2)}M` : `$${v}K`);
+const signed = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(0)}%`;
+const spendRow = (r: { fy2016: number; fy2024: number }) => ({
+  nominal: signed((r.fy2024 / r.fy2016 - 1) * 100),
+  real: signed((r.fy2024 / r.fy2016 / cpiRatio - 1) * 100),
+});
 
 // "Add to Google Calendar" for Election Day (an all-day event). The .ics version is src/pages/vote-question-2.ics.ts.
 const googleCalendar = `https://calendar.google.com/calendar/render?${new URLSearchParams({
@@ -38,10 +48,11 @@ const ballotText = {
         <span>Farmington &amp; Question 2</span>
       </a>
       <nav class="topnav" aria-label="Main sections">
-        <a href="#quick">1-minute version</a>
-        <a href="#farmington">Farmington</a>
-        <a href="#ballot">The wording</a>
-        <a href="#other-side">Other side</a>
+        <a href="#farmington">Finances</a>
+        <a href="#outcomes">Outcomes</a>
+        <a href="#community">Families</a>
+        <a href="#ballot">The law</a>
+        <a href="#alternatives">Alternatives</a>
         <a href="#vote">How to vote</a>
       </nav>
       <SectionMenu />
@@ -90,9 +101,11 @@ const ballotText = {
         <ul>
           <li><a href="#quick">5 things to know</a></li>
           <li><a href="#calculator">The $360K gap</a></li>
+          <li><a href="#outcomes">Test scores</a></li>
           <li><a href="#ballot">The ballot wording</a></li>
           <li><a href="#sixty">The 60% rule</a></li>
           <li><a href="#other-side">Supporters’ case</a></li>
+          <li><a href="#alternatives">Alternatives</a></li>
           <li><a href="#vote">How to vote</a></li>
           <li><a href="#faq">FAQ</a></li>
         </ul>
@@ -247,6 +260,101 @@ const ballotText = {
           </footer>
         </blockquote>
 
+        <p class="sub-stat" aria-hidden="true"><b>10%</b> less buying power than in 2016</p>
+        <h3 id="spending">Has Farmington’s spending kept up with inflation?</h3>
+        <p class="takeaway">
+          No. Farmington’s total school spending grew 20.7% from 2016 to 2025, while prices rose 34.1%.
+        </p>
+        <SpendChart />
+        <p>
+          The district spent about $16.5 million in fiscal 2016 (the school year ending June 2016) and about
+          $20.0 million in fiscal 2025, according to its annual financial reports to the state. Fiscal 2025 hasn’t been
+          audited yet. <Cite id="nhdoe-doe25" /> Consumer prices rose 34.1% over the same years. <Cite id="bls-cpi-us" />
+          By my math, buying what $16.5 million bought in 2016 would have taken about $22.2 million in 2025, about
+          $2.2 million more than the district spent. Census Bureau figures tell the same story: in every year since
+          2016, spending has stayed below the 2016 level adjusted for inflation, though in some years it grew faster
+          than prices. <Cite id="census-f33-tables" />
+        </p>
+        <p>
+          In fairness, enrollment fell about a quarter over the same period, from 991 students to 738.
+          <Cite id="nces-enrollment-farmington" /> So spending per student rose faster than prices: from 2016 to 2024
+          it rose 43%, while prices rose about 31% and the statewide average per student rose 50%. In 2024 Farmington
+          spent about the state average per student, and less than about 7 in 10 New Hampshire school districts.
+          <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="census-f33-2016-states" />
+          <Cite id="census-f33-2024-states" /> Many costs don’t shrink when enrollment does, like buildings, bus
+          routes and special education.
+        </p>
+        <p>
+          Special-education costs have jumped recently. In the district’s budget reports, special-education spending
+          (not counting grants) rose from about $2.8 million in 2023–24 to about $4.0 million in 2024–25.
+          <Cite id="farmington-ms27-2025" /> <Cite id="farmington-ms27-2026" /> Over the longer run, most areas have
+          lost buying power since 2016. Support for teachers, like curriculum work, training and library services,
+          lost the most; business and central services grew. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" />
+        </p>
+        <details>
+          <summary>Spending by category, 2016 to 2024, adjusted for inflation</summary>
+          <div class="table-wrap" tabindex="0" role="region" aria-labelledby="spend-cap">
+            <table class="spend-table">
+              <caption id="spend-cap" class="sr-only">Farmington school spending by category, fiscal 2016 and 2024</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Category</th>
+                  <th scope="col" class="num">After inflation</th>
+                  <th scope="col" class="num">2016</th>
+                  <th scope="col" class="num">2024</th>
+                  <th scope="col" class="num">Dollar change</th>
+                </tr>
+              </thead>
+              <tbody>
+                {spendingCategories.rows.map((r) => (
+                  <tr>
+                    <th scope="row">{r.label}{r.note && <span class="muted small"> ({r.note})</span>}</th>
+                    <td class="num"><strong>{spendRow(r).real}</strong></td>
+                    <td class="num">{thousands(r.fy2016)}</td>
+                    <td class="num">{thousands(r.fy2024)}</td>
+                    <td class="num">{spendRow(r).nominal}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">{spendingCategories.total.label}</th>
+                  <td class="num"><strong>{spendRow(spendingCategories.total).real}</strong></td>
+                  <td class="num">{thousands(spendingCategories.total.fy2016)}</td>
+                  <td class="num">{thousands(spendingCategories.total.fy2024)}</td>
+                  <td class="num">{spendRow(spendingCategories.total).nominal}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p class="small muted">
+            “After inflation” is the change in buying power, not necessarily a cut in dollars: a category that grew
+            less than 30.7%, the rise in consumer prices from 2016 to 2024, buys less than it did. Instruction includes
+            special education; the Census Bureau doesn’t report it separately. Some shifts may reflect how costs were
+            recorded rather than real changes: general administration fell while business and central services grew.
+            The Census Bureau hasn’t published 2025 yet. The total is day-to-day spending; it leaves out construction,
+            equipment and debt payments.
+            <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="bls-cpi-us" />
+          </p>
+        </details>
+
+        <div class="callout">
+          <p>
+            <strong>Spending, property taxes and state aid are three different numbers.</strong> Spending is what the
+            district spends to run its schools. The school property tax is the part Farmington residents raise
+            locally. State aid is what the state contributes, which affects how much is left for local taxpayers.
+            These can move in different directions: property taxes can rise even while spending, adjusted for
+            inflation, falls, if state aid and other money don’t keep up. In Farmington, Census Bureau figures show
+            that from 2016 to 2024, school property taxes rose about 30%, roughly in step with prices, while state
+            money fell about 3% before inflation (state aid is paid per student, and enrollment fell) and total
+            spending rose about 10%. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" />
+            <Cite id="rsa-198-40-a" /> That’s why I don’t think a cap on the local
+            tax gets at the real problem. It limits what Farmington can raise, but it doesn’t lower what it costs to
+            educate students, or change how those costs are split between the state and towns.
+            <a href="#nh-context">How New Hampshire splits the cost</a> · <a href="#alternatives">What else could help</a>
+          </p>
+        </div>
+
         <p class="sub-stat" aria-hidden="true"><b>11</b> full-time positions lost and not replaced</p>
         <h3 id="cuts">Where would cuts come from?</h3>
         <p class="takeaway">
@@ -346,17 +454,6 @@ const ballotText = {
           vote.
         </p>
 
-        <details>
-          <summary>How Farmington’s spending has changed since 2016</summary>
-          <p>
-            From 2016 to 2024, Farmington’s day-to-day school spending rose about 10%, while consumer prices rose about
-            30%. <Cite id="census-f33-2016" /> <Cite id="census-f33-2024" /> <Cite id="bls-cpi-us" /> Enrollment fell by
-            nearly a quarter, so spending per student rose 43%. That’s faster than prices but slower than the statewide
-            increase of 50%. In 2024 Farmington spent about the state average per student, and less than about 7 in 10
-            New Hampshire school districts.
-            <Cite id="census-f33-2016-states" /> <Cite id="census-f33-2024-states" />
-          </p>
-        </details>
         <p style="margin-top:1.5rem">
           Hear it from the people who build the budget: the district’s presentation on HB 1300 at the October 19 School
           Board meeting runs about 35 minutes, with questions from residents. <Cite id="school-board-video" label="Watch from 37:21" />
@@ -469,7 +566,7 @@ const ballotText = {
           About 11% of Farmington residents lived below the poverty line in 2020–2024, compared with 7.2% statewide,
           roughly one and a half times the state rate. <Cite id="acs-poverty-farmington" /> <Cite id="acs-poverty-nh" />
           Farmington’s figure comes from a small survey sample (plus or minus 5.6 points), so the exact gap is uncertain,
-          but more precise measures point the same way. The Census Bureau estimates that about 11% of the school
+          but other measures point the same way. A Census Bureau model estimates that about 11% of the school
           district’s children ages 5 to 17 were in poverty in 2024, compared with 6% statewide.
           <Cite id="saipe-2024" /> And Farmington’s median household income, $66,943, is about two-thirds of the state’s
           $99,031. <Cite id="acs-income-farmington" /> <Cite id="acs-income-nh" />
@@ -487,17 +584,19 @@ const ballotText = {
           I believe a good public education is one of the most important tools a community has to expand opportunity
           and break the cycle of poverty, and the research backs that up. A major study of school-finance reforms found
           that 10% more spending per student throughout a child’s school years led to more years of school, higher
-          adult wages and less adult poverty. For children from low-income families, it cut the chance of being poor as
-          an adult by about 6 percentage points. <Cite id="jjp-2016" /> A review of the credible U.S. studies found that
+          adult wages and less adult poverty. For children from low-income families, it cut the chance of being poor in
+          a given adult year by about 6 percentage points. <Cite id="jjp-2016" /> A review of U.S. studies of school
+          spending found that
           $1,000 more per student for four years raised test scores and college-going, especially for students from
           lower-income families. <Cite id="jackson-mackevicius-2024" /> And when school budgets were cut during the Great
-          Recession, test scores and college-going fell, and gaps by family income widened.
+          Recession, test scores and college-going fell, and high-poverty areas were hit hardest.
           <Cite id="jackson-wigger-xiong-2021" />
         </p>
         <p>
           That’s why I worry that limiting what schools can offer, in a community already facing economic hardship,
           risks deepening those gaps. In fairness, how money is spent matters, and some economists argue that more
-          resources alone have done little. <Cite id="hanushek-2003" />
+          resources alone have done little. <Cite id="hanushek-2003" /> A 2021 re-analysis of the Great Recession study,
+          not yet peer-reviewed, also questioned how much those cuts lowered test scores. <Cite id="goldstein-mcgee-2021" />
         </p>
 
         <h3>Property taxes are a real burden, too</h3>
@@ -507,7 +606,7 @@ const ballotText = {
           <Cite id="taxfoundation-proptax-2026" /> That weighs on residents with fixed incomes. Statewide, about 3 in 10
           homeowners 65 and older spend 30% or more of their income on housing costs, including property taxes.
           <Cite id="acs-owner-costs-nh" /> With Farmington’s lower incomes, tax increases hit harder here, and that’s a
-          real reason some neighbors support a cap.
+          real reason some neighbors support a cap. <a href="#alternatives">What else could help</a>
         </p>
       </div>
     </div>
@@ -700,7 +799,7 @@ const ballotText = {
               classrooms, and that it’s hard to cut staff when fewer students are spread across many grades.
               <Cite id="keene-enrollment" /> In Farmington, total school spending grew more slowly than
               prices. Per student it rose 43%, faster than prices but slower than the state’s 50%.
-              <a href="#farmington">See Farmington’s numbers</a>
+              <a href="#spending">See Farmington’s numbers</a>
             </p>
           </div>
         </article>
@@ -809,8 +908,146 @@ const ballotText = {
     </div>
   </section>
 
+  <!-- ===================== ALTERNATIVES ===================== -->
+  <section id="alternatives">
+    <div class="wrap">
+      <p class="kicker">What about alternatives?</p>
+      <h2>Property taxes are a real burden. A cap doesn’t fix the cause.</h2>
+      <p class="lede">
+        Farmington faces a difficult reality. Our schools need enough money to educate children, but much of that cost
+        falls on local property taxpayers. For families struggling to make ends meet and older residents on fixed
+        incomes, that burden can be substantial.
+      </p>
+      <div class="prose">
+        <p class="takeaway">
+          We shouldn’t have to choose between a good education for our children and letting longtime residents stay in
+          their homes.
+        </p>
+        <p>
+          In the short term, our schools need the money to meet their responsibilities. In the long term, New Hampshire
+          needs to change how it pays for public education.
+        </p>
+
+        <h3>Why so much falls on property taxes</h3>
+        <p>
+          New Hampshire leans on local money for its schools more than any other state. In fiscal 2024, 63% of public
+          school revenue came from local sources, the highest share in the country, and 28% came from the state, the
+          lowest. Local property taxes alone supplied about half. <Cite id="census-f33-2024-tables" />
+        </p>
+        <p>
+          So a town’s property wealth matters a lot. In 2023–24, Farmington had about $1.33 million of taxable property
+          for each student, about two-thirds of the state average of $2.08 million; some towns have many times more.
+          The state’s formula makes up part of the difference: Farmington gets about $10,740 per student in state
+          adequacy aid, against a statewide average of $7,109. That helps keep Farmington’s local school tax rate, once
+          differences in how towns assess property are evened out, close to the state average ($7.45 per $1,000 in
+          2023, vs. $7.31). <Cite id="nhed-finance-2025" /> So the challenge here isn’t an unusually high rate. It’s
+          that an average rate weighs more heavily on lower incomes. <a href="#community">Farmington’s families</a>
+        </p>
+        <p>
+          Smaller districts can also cost more per student, because some costs can’t shrink in step with enrollment.
+          <Cite id="andrews-2002" /> The cost study done for the state’s 2020 school-funding commission found that small
+          districts need more money per student to reach the same results. For districts of 601 to 1,200 students
+          (Farmington has about 740), it estimated about $2,500 more per student than for districts of more than
+          2,000. <Cite id="air-2020" label="AIR draft report, 2020" /> Nationally, central-office administration costs
+          about $690 per student in districts under 3,000 students, about double the $351 average.
+          <Cite id="census-f33-2024-tables" label="Census, FY2024 Table 14" />
+        </p>
+
+        <h3>Where state funding stands</h3>
+        <p>
+          New Hampshire’s Supreme Court has said the state isn’t paying enough. In July 2025, in a case brought by the
+          ConVal school district, it ruled 3–2 that the state’s base aid ($4,100 per student in the law, about $4,266
+          after yearly increases) is unconstitutionally low, and it upheld a finding that the amount must be more than
+          $7,356. A different 3–2 majority declined to order the state to pay that right away, leaving the fix to the
+          Legislature and governor. <Cite id="conval-2025" /> <Cite id="rsa-198-40-a" />
+        </p>
+        <p>
+          Lawmakers haven’t raised base aid since. In 2026 the House killed a bill to set it at the court’s $7,356
+          figure and another that would have raised it to $4,438 starting in 2027, and the Senate killed a third.
+          <Cite id="hb651-2026" /> <Cite id="hb1826-2026" /> <Cite id="sb582-2026" /> Instead, a law signed in March
+          2026 describes school funding as a “shared responsibility between state and local government”; its fiscal
+          note says it doesn’t change aid amounts. <Cite id="hb1815-2026" /> <Cite id="hb1815-text" /> A second case,
+          Rand v. State, is still open. A judge ruled in 2025 that the state’s total adequacy aid and its
+          special-education aid are too low, forcing towns to make up the gap with local property taxes. The state has
+          appealed. <Cite id="rand-2026" /> <Cite id="monitor-rand-appeal" />
+        </p>
+
+        <h3>Ideas worth examining</h3>
+        <p>
+          There are possible solutions worth examining, including changes to state education funding, shared
+          administration, and targeted property-tax relief for residents on fixed incomes. Each has tradeoffs.
+        </p>
+      </div>
+
+      <div class="grid three alt-ideas">
+        <article class="card">
+          <h3>Change how the state pays</h3>
+          <p>
+            The state’s 2020 school-funding commission found the system unfair to both students and taxpayers. It
+            recommended more state aid aimed at districts with greater needs, including small districts, paid for by
+            raising more money at the state level. The Legislature hasn’t adopted its formula.
+            <Cite id="nhfpi-equity-2022" /> <Cite id="rsa-198-40-a" />
+          </p>
+          <p>
+            <strong>The tradeoff:</strong> that money has to come from somewhere. The commission’s most controversial
+            idea was a statewide property tax to pay for state aid. <Cite id="nhbr-commission-2020" />
+          </p>
+        </article>
+        <article class="card">
+          <h3>Share administration</h3>
+          <p>
+            Combining administrative work, or even districts, deserves a look. That doesn’t have to mean merging school
+            buildings or putting students in settings that aren’t right for their ages. State law already lets school
+            administrative units (SAUs) merge their central offices, and pays $200 per student for two years for
+            mergers completed by July 1, 2030. <Cite id="rsa-194-c-2" /> A state commission on SAU efficiency is due to
+            report by Nov. 1, 2026. <Cite id="rsa-194-c-13" />
+          </p>
+          <p>
+            <strong>The tradeoff:</strong> savings vary. In rural New York, merging districts cut net costs about 31%
+            for 300-student districts but 14% for 1,500-student districts. <Cite id="duncombe-yinger-2007" /> A study
+            of Arkansas’s forced mergers found no evidence of savings. <Cite id="mcgee-2021" /> And much of the savings
+            comes from reorganizing schools, so merging only central offices would likely save less.
+            <Cite id="vt-aoe-2015" /> Farmington’s central office is already about 5.5–5.7% of the budget.
+            <Cite id="school-board-video" href={vid(3588)} label="Video, 59:48" />
+          </p>
+        </article>
+        <article class="card">
+          <h3>Help residents on fixed incomes</h3>
+          <p>
+            Farmington already offers an elderly exemption: $155,000 off a home’s assessed value at ages 65–74,
+            $183,000 at 75–79 and $225,000 at 80 and older, for incomes up to $40,000 (single) or $80,000 (married) and
+            assets up to $75,000, not counting the home. At the 2025 rate that’s worth roughly $2,400 to $3,500 a year
+            (my math). Applications are due April 15. <Cite id="farmington-elderly" /> <Cite id="town-report-2025" />
+            Residents 65 and older or with disabilities can also ask to defer property taxes, at 5% interest, until the
+            home is sold. <Cite id="rsa-72-38-a" />
+          </p>
+          <p>
+            <strong>Room to grow:</strong> the state’s low- and moderate-income program refunds only the state
+            education tax, $1.05 of Farmington’s total $15.64 tax rate in 2025, so it pays at most about $200 here
+            (my math). Its income limits, $37,000 single and $47,000 married, haven’t changed since 2021.
+            <Cite id="rsa-198-57" /> <Cite id="farmington-lmi" /> The 2020 commission reportedly recommended
+            expanding relief to renters. <Cite id="nhbr-commission-2020" /> Exemptions do shift taxes onto other
+            property owners.
+          </p>
+        </article>
+      </div>
+
+      <div class="prose">
+        <p style="margin-top:1.5rem">
+          These are complicated issues, and reasonable people will disagree about the best answers. Our state
+          representatives have a role in building approaches that protect both students and taxpayers.
+        </p>
+        <p class="takeaway">
+          What we can’t do is assume that limiting a school’s ability to raise money will solve the underlying problem.
+          It may reduce the money available without reducing what it costs to give our children the education they
+          need.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- ===================== VOTE ===================== -->
-  <section id="vote">
+  <section id="vote" class="alt">
     <div class="wrap">
       <p class="kicker">How to vote</p>
       <h2>Flip your ballot over</h2>

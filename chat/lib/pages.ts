@@ -10,6 +10,7 @@ export const pages: Record<string, string> = {
   ballot: 'What the ballot says',
   sixty: 'The 60% rule',
   'other-side': 'What supporters say',
+  alternatives: 'What about alternatives?',
   vote: 'How to vote',
   'nh-context': 'New Hampshire in context',
   math: 'The math',

@@ -36,3 +36,35 @@ export const cpiReadings = [
   { label: 'March 2026', value: 3.6 },
   { label: 'Sept. 2026', value: 4.2 },
 ];
+
+// Total school spending vs. inflation, fiscal 2016 to fiscal 2025 (years end
+// June 30). Spending: "Total Expenditures for All Purposes" in the district's
+// DOE-25 financial reports to the NH Department of Education (FY2025 not yet
+// audited). Prices: U.S. CPI-U annual averages, 2016 and 2025 (BLS).
+export const spendingVsInflation = {
+  fy2016: 16_528_690.75,
+  fy2025: 19_955_850.64,
+  cpi2016: 240.007,
+  cpi2025: 321.943,
+};
+
+// Spending by category, fiscal 2016 and 2024, in $ thousands, from the Census
+// Bureau's Annual Survey of School System Finances (FY2025 not yet published).
+// Real change uses U.S. CPI-U annual averages for 2016 (240.007) and 2024
+// (313.689), +30.7%.
+export const spendingCategories = {
+  cpi2016: 240.007,
+  cpi2024: 313.689,
+  rows: [
+    { label: 'Instruction', note: 'teachers, aides, classroom costs', fy2016: 8_875, fy2024: 10_115 },
+    { label: 'Student support', note: 'counselors, nurses, therapists', fy2016: 1_382, fy2024: 1_369 },
+    { label: 'Instructional staff support', note: 'curriculum, training, library', fy2016: 748, fy2024: 364 },
+    { label: 'General administration', note: 'school board, superintendent’s office', fy2016: 1_153, fy2024: 855 },
+    { label: 'School administration', note: 'principals’ offices', fy2016: 1_005, fy2024: 1_110 },
+    { label: 'Business and central services', note: 'finance, technology, other support', fy2016: 293, fy2024: 967 },
+    { label: 'Building operations and maintenance', note: '', fy2016: 1_438, fy2024: 1_755 },
+    { label: 'Student transportation', note: '', fy2016: 529, fy2024: 550 },
+    { label: 'Food service', note: '', fy2016: 470, fy2024: 371 },
+  ],
+  total: { label: 'All day-to-day spending', fy2016: 15_893, fy2024: 17_456 },
+};

@@ -2080,3 +2080,23 @@ html:has(dialog.chat[open]) .to-top {
   margin-top: auto !important;
   padding-top: 0.25rem;
 }
+
+/* "What about alternatives?": three idea cards, stacked until there's room for three columns */
+.alt-ideas {
+  margin-top: 0.75rem;
+}
+@media (min-width: 720px) and (max-width: 999px) {
+  .grid.three.alt-ideas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Farmington spending by category: keep labels readable on phones; total row stands apart */
+.spend-table th[scope='row'] {
+  min-width: 10.5rem;
+}
+.spend-table tfoot th,
+.spend-table tfoot td {
+  border-top: 2px solid var(--line);
+  font-weight: 700;
+}
