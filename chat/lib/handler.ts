@@ -40,6 +40,7 @@ const EVAL_MODELS = new Set([
   '@cf/qwen/qwen3.8-27b',
   '@cf/meta/llama-4-scout-17b-16e-instruct',
   '@cf/mistralai/mistral-small-3.1-24b-instruct',
+  '@cf/meta/llama-3.1-8b-instruct-fast',
 ]);
 
 // How much longer to wait for a cut-short planner before a "not found" reply.
@@ -150,13 +151,14 @@ function modelText(out: unknown): string {
   return typeof c === 'string' ? c : '';
 }
 
-export async function plan(env: Env, history: ChatMessage[], question: string): Promise<Plan> {
+export async function plan(env: Env, history: ChatMessage[], question: string, model = env.PLANNER_MODEL || DEFAULT_PLANNER_MODEL): Promise<Plan> {
   const fallback: Plan = { scope: 'on_topic', queries: [question] };
   try {
     const convo = history
       .map((m) => `${m.role === 'user' ? 'Visitor' : 'Assistant'}: ${stripMarkers(m.content).slice(0, 300)}`)
       .join('\n');
-    const out = await env.AI!.run(env.PLANNER_MODEL || DEFAULT_PLANNER_MODEL, {
+    const effort = defaultEffort(model);
+    const out = await env.AI!.run(model, {
       messages: [
         { role: 'system', content: PLANNER_PROMPT },
         {
@@ -166,6 +168,7 @@ export async function plan(env: Env, history: ChatMessage[], question: string): 
       ],
       max_tokens: 160,
       temperature: 0,
+      ...(effort ? { reasoning_effort: effort } : {}),
     });
     const text = modelText(out);
     const parsed = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)) as Partial<Plan>;
@@ -293,6 +296,15 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
     if (sr === 'on' || sr === 'off') selfRerank = sr === 'on';
   }
 
+  let plannerModel = env.PLANNER_MODEL || DEFAULT_PLANNER_MODEL;
+  let planTimeout = Number(env.PLAN_TIMEOUT_MS) > 0 ? Number(env.PLAN_TIMEOUT_MS) : 1500;
+  if (evalMode) {
+    const pm = request.headers.get('x-planner-model');
+    if (pm && EVAL_MODELS.has(pm)) plannerModel = pm;
+    const pt = Number(request.headers.get('x-plan-timeout'));
+    if (pt > 0 && pt <= 20_000) planTimeout = pt;
+  }
+
   // PLAN_MODE "followups" skips the planner for a first question (saving a model
   // call): the question is searched as asked, and the answer model's rules handle
   // off-topic requests. Follow-ups always need the planner to resolve "it"/"that".
@@ -310,8 +322,7 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   // A first question doesn't need the planner to make sense, so don't let a slow
   // planner hold it up: after PLAN_TIMEOUT_MS, go ahead with the question as asked.
   const asAsked: Plan = GREETING.test(question) ? { scope: 'greeting', queries: [] } : { scope: 'on_topic', queries: [question] };
-  const planTimeout = Number(env.PLAN_TIMEOUT_MS) > 0 ? Number(env.PLAN_TIMEOUT_MS) : 1500;
-  const planning = planMode === 'followups' && !history.length ? null : plan(env, history, question);
+  const planning = planMode === 'followups' && !history.length ? null : plan(env, history, question, plannerModel);
   const p: Plan = !planning
     ? asAsked
     : history.length
@@ -350,6 +361,9 @@ export async function handleChat(request: Request, env: Env, ctx?: Waiter): Prom
   if (evalMode && request.headers.get('x-search-only') === '1') {
     return json(200, {
       queries: p.queries,
+      scope: p.scope,
+      planTimedOut: !!p.timedOut,
+      plannerModel,
       planMs,
       searchMs: Date.now() - started - planMs,
       search: sOpts,
