@@ -105,7 +105,8 @@ async function searchOnce(env: Env, query: string, opts: SearchOptions = searchO
   };
   // The legacy binding's documented request shape has changed over time; use
   // whichever one this runtime accepts and remember it.
-  const order: Shape[] = opts.shape ? [opts.shape] : legacyShape ? [legacyShape] : ['legacy-messages', 'legacy-query'];
+  // On Pages, autorag().search accepts the "query" shape; "messages" is kept as a fallback.
+  const order: Shape[] = opts.shape ? [opts.shape] : legacyShape ? [legacyShape] : ['legacy-query', 'legacy-messages'];
   let lastError: unknown;
   for (const shape of order) {
     try {

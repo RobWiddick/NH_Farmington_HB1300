@@ -258,11 +258,10 @@ for (const section of sections) {
     const partTitle = p.title && p.title !== h ? p.title : '';
     const title = clean(`${pageTitle}${partTitle ? `: ${partTitle}` : ''}`);
     const heading = p.isQuestion ? `Question: ${partTitle}` : partTitle;
-    const body = [
-      `# ${pageTitle}${h !== pageTitle ? ` (“${h}”)` : ''}${heading ? ` — ${heading}` : ''}`,
-      `${guideLine} Page section: [page:${id}].`,
-      p.text,
-    ].join('\n\n');
+    // Only the section's first document repeats the section headline; repeating it
+    // in every part made all parts look equally relevant to search.
+    const headline = i === 0 && h !== pageTitle ? ` (“${h}”)` : '';
+    const body = [`# ${pageTitle}${headline}${heading ? ` — ${heading}` : ''}`, `Page section: [page:${id}].`, p.text].join('\n\n');
     const n = String(i + 1).padStart(2, '0');
     add({
       key: `site--${id}--${n}-${slug(partTitle || 'main') || 'part'}.md`,
@@ -274,6 +273,26 @@ for (const section of sections) {
     });
   });
 }
+
+// About the guide and the assistant, so "who wrote this?" has an answer.
+add({
+  key: 'site--top--00-about-this-guide.md',
+  kind: 'site',
+  title: 'About this guide and its assistant',
+  section: 'top',
+  source: '',
+  body: [
+    '# About this guide and its assistant — Who wrote this website?',
+    'Page section: [page:top].',
+    `${guideLine}`,
+    `Who wrote this website? The voter guide "${site.shortTitle}" (${site.title}) was written by ${site.publisher || 'its author'}, who recommends voting No on Question 2. It is written in the first person, so "I" and "my" on the page mean the author. It says so openly at the top of the page, presents the other side's strongest arguments in its own section [page:other-side], and links every fact to its source so readers can check it [page:sources].`,
+    `How it chooses sources: it relies first on the law itself, government data, court records and Farmington's own documents, then on news reporting. Groups that take a side are labeled so readers can weigh them. Numbers the author calculated are marked as the author's own math [page:sources].`,
+    site.contactEmail ? `Contact: corrections, press questions and anything else can go to ${site.contactEmail}.` : '',
+    `The "Ask a question" assistant is an AI that answers only from this guide and the documents it cites, and links each answer to its sources. It can make mistakes, so check the links. Questions typed into it go to Cloudflare's AI service to write an answer; the site doesn't save them.`,
+  ]
+    .filter(Boolean)
+    .join('\n\n'),
+});
 
 // Primary documents
 for (const file of fs.readdirSync(primaryDir).filter((f) => f.endsWith('.md')).sort()) {
