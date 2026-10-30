@@ -1,16 +1,21 @@
 // Site-wide settings. Edit these before launch.
 export const site = {
-  title: 'Question 2 & Farmington Schools: NH HB 1300 tax cap',
+  // Search-result title (aim for 60 characters or fewer) and description (about 155).
+  title: 'NH Question 2: The HB 1300 Tax Cap & Farmington Schools',
   // The site's author. Shown in the hero ("I'm …") and footer ("Written by …").
   publisher: 'Brittni Widdick',
   shortTitle: 'Farmington: Question 2',
   description:
-    'Why Brittni Widdick recommends No on Question 2: a plain-English, fully sourced look at the HB 1300 school tax cap and what it would mean for Farmington schools.',
+    'What NH Question 2, the HB 1300 school tax cap, would do in Farmington: the 60% rule, an estimated $360K gap, both sides. By Brittni Widdick, who urges No.',
   electionDate: 'Tuesday, November 3, 2026',
   electionDateShort: 'Vote Tuesday, Nov. 3',
   // Used for the countdown and the "Add to my calendar" links.
   electionDateISO: '2026-11-03',
+  // First published, and the last time the page's content changed (shown in the footer and in search
+  // engines' structured data). Update both last-updated fields together.
+  publishedISO: '2026-10-20',
   lastUpdated: 'October 21, 2026',
+  lastUpdatedISO: '2026-10-21',
   // "Paid for by" line shown in the footer (political advertising disclosure, RSA 664:14).
   disclosure: 'Paid for by Brittni Widdick, 35 Governors Rd, Farmington, NH',
   // Footer contact for corrections, press, etc. Visitors are asked to try the chat assistant first.

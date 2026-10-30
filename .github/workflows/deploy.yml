@@ -27,6 +27,10 @@ env:
   CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT || 'farmington-hb1300' }}
   CF_PRODUCTION_BRANCH: ${{ vars.CF_PRODUCTION_BRANCH || 'main' }}
   SITE_URL: ${{ vars.SITE_URL }}
+  # Preview builds (every branch but production) tell search engines to stay out.
+  SITE_NOINDEX: ${{ (github.head_ref || github.ref_name) != (vars.CF_PRODUCTION_BRANCH || 'main') && '1' || '' }}
+  # IndexNow key (public by design; the matching file is public/<key>.txt).
+  INDEXNOW_KEY: a7d937f76b067b53414c6ab95c429cbb
   WRANGLER_SEND_METRICS: 'false'
 
 jobs:
@@ -133,6 +137,22 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=${{ env.CF_PAGES_PROJECT }} --branch=${{ github.head_ref || github.ref_name }} --commit-hash=${{ github.event.pull_request.head.sha || github.sha }} --commit-dirty=true
+
+      # Tells Bing (and the other IndexNow engines) the page changed, so updates reach
+      # Bing search, Copilot and ChatGPT search quickly. Production only; never blocks a deploy.
+      - name: Notify search engines (IndexNow)
+        if: env.HAS_CF_SECRETS == 'true' && env.SITE_NOINDEX != '1' && env.SITE_URL != ''
+        continue-on-error: true
+        run: |
+          host="${SITE_URL#https://}"; host="${host%/}"
+          body="{\"host\":\"$host\",\"key\":\"$INDEXNOW_KEY\",\"keyLocation\":\"https://$host/$INDEXNOW_KEY.txt\",\"urlList\":[\"https://$host/\"]}"
+          for i in 1 2 3 4 5 6; do
+            curl -sS -m 15 -o /dev/null -w '%{http_code}' "https://$host/$INDEXNOW_KEY.txt" | grep -q 200 && break
+            sleep 10
+          done
+          code=$(curl -sS -m 30 -o indexnow.txt -w '%{http_code}' -X POST https://api.indexnow.org/indexnow \
+            -H 'content-type: application/json; charset=utf-8' -d "$body" || true)
+          echo "IndexNow: HTTP $code $(cat indexnow.txt 2>/dev/null)"
 
       - name: Ask the deployed assistant a test question
         if: env.HAS_CF_SECRETS == 'true' && steps.deploy.outputs.deployment-url != ''

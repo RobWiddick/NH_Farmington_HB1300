@@ -1,4 +1,5 @@
 /*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
@@ -7,3 +8,13 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Plain-text copies of the guide for AI assistants: readable by anyone, but kept out of
+# search results so they don't compete with the page itself.
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  X-Robots-Tag: noindex
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
+  X-Robots-Tag: noindex

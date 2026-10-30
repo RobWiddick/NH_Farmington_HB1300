@@ -10,6 +10,7 @@ import SectionMenu from '../components/SectionMenu.astro';
 import ScoreChart from '../components/ScoreChart.astro';
 import SpendChart from '../components/SpendChart.astro';
 import { site, calendarEvent } from '../data/site';
+import { guideJsonLd } from '../data/structured-data';
 import { scores, scoresByGrade, scoreYearsByGrade, spendingCategories } from '../data/figures';
 
 // Deep links into the Oct. 19, 2026 Farmington School Board video.
@@ -40,7 +41,7 @@ const ballotText = {
   after: ' These limits may be overridden as provided in RSA 32:5-i. Adoption requires a three-fifths (3/5) majority vote.”',
 };
 ---
-<Base>
+<Base jsonLd={guideJsonLd(Astro.site!)}>
   <header class="topbar" slot="header">
     <div class="wrap">
       <a class="brand" href="#top">
@@ -65,7 +66,7 @@ const ballotText = {
     <div class="wrap hero-grid">
       <div>
         <p class="date-pill"><span class="dot" aria-hidden="true"></span>{site.electionDateShort} · Question 2 is on the back of your ballot</p>
-        <h1>It’s called a “tax cap.”<br /> It’s really a <em>school cap.</em></h1>
+        <h1><span class="h1-topic">New Hampshire Question 2 · the HB 1300 school tax cap</span> It’s called a “tax cap.”<br /> It’s really a <em>school cap.</em></h1>
         <p class="lede">
           Question 2 won’t cap your property tax bill. It caps what Farmington can raise in property taxes for its
           schools, the money behind teachers, buses, and special education, not just administration. District leaders
@@ -1568,7 +1569,7 @@ const ballotText = {
   <footer class="site-footer" slot="footer">
     <div class="wrap">
       {site.disclosure && <p class="disclosure">{site.disclosure}</p>}
-      <p>{site.publisher && <>Written by {site.publisher}. </>}Last updated {site.lastUpdated}.</p>
+      <p>{site.publisher && <>Written by {site.publisher}. </>}Last updated <time datetime={site.lastUpdatedISO}>{site.lastUpdated}</time>.</p>
       <p class="footer-contact">
         {site.chat.enabled && (
           <span class="chat-only">

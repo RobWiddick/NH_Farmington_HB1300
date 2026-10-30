@@ -409,6 +409,15 @@ section.alt {
   background: linear-gradient(transparent 62%, var(--accent-soft) 62%);
   padding: 0 0.08em;
 }
+/* What the page is about, as the first words of the H1: small, above the headline */
+.h1-topic {
+  display: block;
+  font: 700 clamp(0.82rem, 2.2vw, 0.95rem)/1.35 var(--sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
 .date-pill {
   display: inline-flex;
   align-items: center;

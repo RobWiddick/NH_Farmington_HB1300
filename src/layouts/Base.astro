@@ -8,10 +8,20 @@ import BackToTop from '../components/BackToTop.astro';
 interface Props {
   title?: string;
   description?: string;
+  /** Keep this page out of search results (e.g. the 404 page). */
+  noindex?: boolean;
+  /** Structured data (schema.org JSON-LD) for this page. */
+  jsonLd?: object;
 }
-const { title = site.title, description = site.description } = Astro.props;
+const { title = site.title, description = site.description, noindex = false, jsonLd } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site);
+// Preview deployments (any branch but production) are built with SITE_NOINDEX=1 so they
+// never compete with the live site in search results.
+const hidden = noindex || process.env.SITE_NOINDEX === '1';
+const robots = hidden ? 'noindex, nofollow' : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+// JSON inside <script> must not be able to close the tag.
+const ldJson = jsonLd && JSON.stringify(jsonLd).replace(/</g, '\\u003c');
 ---
 <!doctype html>
 <html lang="en">
@@ -28,13 +38,15 @@ const ogImage = new URL('/og.png', Astro.site);
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
     {site.publisher && <meta name="author" content={site.publisher} />}
     <link rel="canonical" href={canonical} />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#14325c" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f1420" media="(prefers-color-scheme: dark)" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={jsonLd ? 'article' : 'website'} />
     <meta property="og:site_name" content={site.shortTitle} />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content={title} />
@@ -44,7 +56,13 @@ const ogImage = new URL('/og.png', Astro.site);
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="It’s called a “tax cap.” It’s really a school cap. Farmington, NH, Ballot Question 2, Nov. 3, 2026." />
+    {jsonLd && <meta property="article:published_time" content={site.publishedISO} />}
+    {jsonLd && <meta property="article:modified_time" content={site.lastUpdatedISO} />}
+    {jsonLd && site.publisher && <meta property="article:author" content={site.publisher} />}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ldJson && <script type="application/ld+json" set:html={ldJson} />}
     <Analytics />
   </head>
   <body>

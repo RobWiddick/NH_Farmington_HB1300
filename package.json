@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/build-corpus.mjs",
+    "build": "astro build && node scripts/build-corpus.mjs && node scripts/build-seo.mjs",
     "preview": "astro preview",
     "check:links": "node scripts/check-links.mjs dist",
     "test": "npm run check:sources && npm run build && npm run check:links && npm run test:chat && npm run check:functions",

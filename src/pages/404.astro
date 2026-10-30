@@ -1,0 +1,16 @@
+---
+// Served by Cloudflare Pages, with a real 404 status, for any address that doesn't exist.
+// Without it, every unknown path returned the home page with 200, which search engines
+// treat as duplicate pages.
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page not found · HB1300.com" description="This page doesn’t exist. The guide to New Hampshire’s Question 2 is on the home page." noindex>
+  <section class="hero" id="top">
+    <div class="wrap prose">
+      <p class="kicker">Page not found</p>
+      <h1>That page doesn’t exist.</h1>
+      <p class="lede">The guide to Question 2 and Farmington’s schools is all on one page.</p>
+      <p><a class="btn primary" href="/">Go to the guide</a></p>
+    </div>
+  </section>
+</Base>
