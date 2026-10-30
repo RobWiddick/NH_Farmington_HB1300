@@ -215,6 +215,10 @@ section.alt {
   color: var(--ink);
   font-weight: 800;
 }
+/* A section's label sits inside its headline (so the heading names the topic), on its own line */
+h2 > .kicker {
+  display: block;
+}
 .lede {
   font-size: clamp(1.15rem, 2.6vw, 1.35rem);
   color: var(--ink-2);

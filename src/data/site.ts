@@ -5,6 +5,8 @@ export const site = {
   // The site's author. Shown in the hero ("I'm …") and footer ("Written by …").
   publisher: 'Brittni Widdick',
   shortTitle: 'Farmington: Question 2',
+  // The site's name for search engines (og:site_name, WebSite structured data): the brand in the top bar.
+  siteName: 'Farmington & Question 2',
   description:
     'What NH Question 2, the HB 1300 school tax cap, would do in Farmington: the 60% rule, an estimated $360K gap, both sides. By Brittni Widdick, who urges No.',
   electionDate: 'Tuesday, November 3, 2026',
@@ -14,8 +16,10 @@ export const site = {
   // First published, and the last time the page's content changed (shown in the footer and in search
   // engines' structured data). Update both last-updated fields together.
   publishedISO: '2026-10-20',
+  publishedDateTime: '2026-10-20T14:57:00-04:00',
   lastUpdated: 'October 21, 2026',
   lastUpdatedISO: '2026-10-21',
+  lastUpdatedDateTime: '2026-10-21T16:51:00-04:00',
   // "Paid for by" line shown in the footer (political advertising disclosure, RSA 664:14).
   disclosure: 'Paid for by Brittni Widdick, 35 Governors Rd, Farmington, NH',
   // Footer contact for corrections, press, etc. Visitors are asked to try the chat assistant first.

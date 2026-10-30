@@ -28,7 +28,7 @@ const MAX_KEY = 128; // AI Search item name limit
 const MIN_PART_CHARS = 280; // merge smaller subsections into the one before
 const SKIP_SECTIONS = new Set(['sources']); // covered by catalog--*.md
 const SKIP_TAGS = new Set(['script', 'style', 'svg', 'nav', 'button', 'form', 'noscript', 'template', 'dialog']);
-const SKIP_CLASSES = ['share', 'cta-row', 'chat-only', 'skip', 'kicker', 'legend', 'yr'];
+const SKIP_CLASSES = ['share', 'cta-row', 'cta', 'cal-links', 'chat-only', 'skip', 'kicker', 'legend', 'yr'];
 const BLOCK_TAGS = new Set([
   'p', 'div', 'section', 'article', 'figure', 'figcaption', 'blockquote', 'ul', 'ol', 'li', 'dl', 'dt', 'dd',
   'table', 'tr', 'h4', 'h5', 'h6', 'details', 'summary', 'aside', 'header', 'footer', 'main',
@@ -240,8 +240,11 @@ const pages = [];
 
 for (const section of sections) {
   const id = section.id;
-  const kicker = clean(section.querySelector('.kicker')?.text ?? '');
-  const h = clean(section.querySelector('h1, h2')?.text ?? id);
+  // Each section's label (.kicker) sits inside its h2, followed by a screen-reader-only colon.
+  const kicker = clean(section.querySelector('.kicker')?.text ?? '').replace(/:$/, '');
+  const heading = section.querySelector('h1, h2')?.clone();
+  heading?.querySelector('.kicker')?.remove();
+  const h = clean(heading?.text ?? id);
   const pageTitle = id === 'top' ? 'Overview' : kicker || h;
   pages.push({ id, title: pageTitle });
   if (SKIP_SECTIONS.has(id)) continue;

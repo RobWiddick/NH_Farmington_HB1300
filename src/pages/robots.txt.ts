@@ -1,11 +1,12 @@
 // robots.txt. Search engines and AI assistants are welcome to read and cite the guide;
-// the chat API isn't a page. Preview deployments (SITE_NOINDEX=1) ask everyone to stay out.
+// the chat API isn't a page. Preview deployments (SITE_NOINDEX=1) are noindex instead.
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = ({ site }) => {
   const body =
     process.env.SITE_NOINDEX === '1'
-      ? ['# Preview deployment: the live site is https://hb1300.com/', 'User-agent: *', 'Disallow: /']
+      ? // Crawlable on purpose: a blocked page can't be seen to be noindex, and could still be listed.
+        ['# Preview deployment (noindex): the live site is https://hb1300.com/', 'User-agent: *', 'Allow: /']
       : [
           '# A voter guide to New Hampshire’s Question 2 (HB 1300) and Farmington schools.',
           '# Search engines and AI assistants (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot,',

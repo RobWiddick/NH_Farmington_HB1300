@@ -18,3 +18,11 @@
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
   X-Robots-Tag: noindex
+
+# The *.pages.dev copies (the production alias and every preview) stay out of search
+# results; hb1300.com is the real address. These rules only match their own hosts.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

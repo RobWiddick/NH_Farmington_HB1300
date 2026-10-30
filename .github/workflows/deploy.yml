@@ -90,6 +90,8 @@ jobs:
       # The checkout brings functions/, chat/lib/ and wrangler.toml; the
       # artifact brings the tested build (dist/ and chat-corpus/).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the IndexNow step checks whether the page changed
         if: env.HAS_CF_SECRETS == 'true'
 
       - uses: actions/download-artifact@v4
@@ -144,6 +146,11 @@ jobs:
         if: env.HAS_CF_SECRETS == 'true' && env.SITE_NOINDEX != '1' && env.SITE_URL != ''
         continue-on-error: true
         run: |
+          # Only when the page itself may have changed (IndexNow asks not to resubmit unchanged URLs).
+          before='${{ github.event.before }}'
+          if [ -n "$before" ] && git cat-file -e "$before" 2>/dev/null && git diff --quiet "$before" "$GITHUB_SHA" -- src public scripts astro.config.mjs package.json; then
+            echo 'Page unchanged; skipping IndexNow.'; exit 0
+          fi
           host="${SITE_URL#https://}"; host="${host%/}"
           body="{\"host\":\"$host\",\"key\":\"$INDEXNOW_KEY\",\"keyLocation\":\"https://$host/$INDEXNOW_KEY.txt\",\"urlList\":[\"https://$host/\"]}"
           for i in 1 2 3 4 5 6; do
@@ -153,6 +160,7 @@ jobs:
           code=$(curl -sS -m 30 -o indexnow.txt -w '%{http_code}' -X POST https://api.indexnow.org/indexnow \
             -H 'content-type: application/json; charset=utf-8' -d "$body" || true)
           echo "IndexNow: HTTP $code $(cat indexnow.txt 2>/dev/null)"
+          case "$code" in 200|202) ;; *) echo "::warning title=IndexNow::HTTP $code $(cat indexnow.txt 2>/dev/null)" ;; esac
 
       - name: Ask the deployed assistant a test question
         if: env.HAS_CF_SECRETS == 'true' && steps.deploy.outputs.deployment-url != ''

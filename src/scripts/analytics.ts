@@ -41,7 +41,11 @@ interface SectionState {
 
 function sectionTitle(el: HTMLElement): string {
   const heading = el.querySelector('h1, h2');
-  return (heading?.textContent ?? el.id).replace(/\s+/g, ' ').trim().slice(0, 100);
+  if (!heading) return el.id;
+  // The headline only, without the section label or the H1's topic line, so titles stay as they were.
+  const copy = heading.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll('.kicker, .h1-topic').forEach((k) => k.remove());
+  return (copy.textContent ?? el.id).replace(/\s+/g, ' ').trim().slice(0, 100);
 }
 
 export function sectionOf(node: Element | null): { section_id: string; section_title: string } {

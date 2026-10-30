@@ -86,7 +86,9 @@ const body = (key) =>
     .join('\n')
     .trim();
 
-const siteDocs = manifest.docs.filter((d) => d.kind === 'site');
+const order = Object.fromEntries(manifest.pages.map((p, i) => [p.id, i]));
+// Page order, with a section's documents kept together (the sort is stable).
+const siteDocs = manifest.docs.filter((d) => d.kind === 'site').sort((a, b) => order[a.section] - order[b.section]);
 const catalogDocs = manifest.docs.filter((d) => d.kind === 'catalog');
 const guideName = 'NH Question 2 and Farmington Schools';
 const summary = `A plain-English, fully sourced voter guide to New Hampshire’s Question 2 on the ballot for ${site.electionDate}: the HB 1300 cap on school property-tax growth (RSA 32:5-i), and what it would mean for the Farmington School District (SAU 61).`;
@@ -98,8 +100,9 @@ const byline = `Written by ${site.publisher}, a Farmington resident who recommen
 const sectionLines = manifest.pages
   .filter((p) => p.id !== 'top' && p.id !== 'sources')
   .map((p) => {
-    const h2 = root.querySelector(`#${p.id} h2`);
+    const h2 = root.querySelector(`#${p.id} h2`)?.clone();
     if (!h2) fail(`section #${p.id} has no h2 headline`);
+    h2.querySelector('.kicker')?.remove(); // the section label; p.title already says it
     return `- [${p.title}](${sectionUrl(p.id)}): ${clean(h2.text)}`;
   });
 const quickDoc = siteDocs.find((d) => d.section === 'quick');
@@ -109,7 +112,7 @@ const llms = [
   `# ${guideName}`,
   `> ${summary}`,
   byline,
-  `## The 1-minute version\n\n${linkify(body(quickDoc.key))}`,
+  `**The 1-minute version:**\n\n${linkify(body(quickDoc.key))}`,
   `## Sections of the guide\n\n${sectionLines.join('\n')}`,
   `## Full text\n\n- [The whole guide as Markdown](${new URL('/llms-full.txt', home)}): every section, with every citation as a link\n- [The guide on the web](${home})`,
   `## Key primary sources\n\n${keySourceIds.map((id) => `- [${sources[id].title}](${sources[id].url}): ${sources[id].publisher}${sources[id].date ? `, ${sources[id].date}` : ''}`).join('\n')}`,

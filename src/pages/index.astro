@@ -66,7 +66,7 @@ const ballotText = {
     <div class="wrap hero-grid">
       <div>
         <p class="date-pill"><span class="dot" aria-hidden="true"></span>{site.electionDateShort} · Question 2 is on the back of your ballot</p>
-        <h1><span class="h1-topic">New Hampshire Question 2 · the HB 1300 school tax cap</span> It’s called a “tax cap.”<br /> It’s really a <em>school cap.</em></h1>
+        <h1><span class="h1-topic">New Hampshire Question 2 · the HB 1300 school tax cap<span class="sr-only">:</span></span> It’s called a “tax cap.”<br /> It’s really a <em>school cap.</em></h1>
         <p class="lede">
           Question 2 won’t cap your property tax bill. It caps what Farmington can raise in property taxes for its
           schools, the money behind teachers, buses, and special education, not just administration. District leaders
@@ -120,8 +120,7 @@ const ballotText = {
   <!-- ===================== QUICK ===================== -->
   <section id="quick" class="alt">
     <div class="wrap">
-      <p class="kicker">The 1-minute version</p>
-      <h2>Five things to know before you vote</h2>
+      <h2><span class="kicker">The 1-minute version<span class="sr-only">:</span></span> Five things to know before you vote</h2>
       <ol class="steps prose">
         <li>
           <p>
@@ -146,7 +145,7 @@ const ballotText = {
             district leaders estimate the cap would let school property taxes grow about $377,500 for 2027–28. Expected
             increases in staff pay and health insurance (projected to rise 19%) total about $738,300. That’s before special education,
             fuel, and transportation. <Cite id="school-board-video" href={vid(2772)} label="School Board video" />
-            <a href="#calculator">Try other inflation numbers</a>
+            <a class="cta" href="#calculator">Try other inflation numbers</a>
           </p>
         </li>
         <li>
@@ -187,10 +186,10 @@ const ballotText = {
         <p>
           <strong>In fairness:</strong> supporters’ best case is that property taxes have climbed fast and that caps
           elsewhere have slowed tax growth. I think that in Farmington, where total school spending has grown more slowly
-          than prices (though faster per student, as enrollment fell) and voters already say no when they want to, the risk to students is the bigger concern. <a href="#other-side">Read their arguments</a>
+          than prices (though faster per student, as enrollment fell) and voters already say no when they want to, the risk to students is the bigger concern. <a class="cta" href="#other-side">Read their arguments</a>
         </p>
       </div>
-      <p class="prose" style="margin:1.25rem 0 0"><strong>Know someone voting in Farmington?</strong> Send them the 1-minute version.</p>
+      <p class="prose cta" style="margin:1.25rem 0 0"><strong>Know someone voting in Farmington?</strong> Send them the 1-minute version.</p>
       <ShareRow />
     </div>
   </section>
@@ -198,8 +197,7 @@ const ballotText = {
   <!-- ===================== FARMINGTON ===================== -->
   <section id="farmington">
     <div class="wrap">
-      <p class="kicker">What it means for Farmington</p>
-      <h2>Farmington’s own estimate: about $360,000 short in year one</h2>
+      <h2><span class="kicker">What it means for Farmington<span class="sr-only">:</span></span> Farmington’s own estimate: about $360,000 short in year one</h2>
       <p class="lede">
         At the October 19 School Board meeting, district leaders walked through what the cap would mean for the 2027–28
         budget, the first one it would cover.
@@ -488,8 +486,7 @@ const ballotText = {
   <!-- ===================== OUTCOMES ===================== -->
   <section id="outcomes" class="alt">
     <div class="wrap">
-      <p class="kicker">Student outcomes</p>
-      <h2>Farmington students were closing the gap with the state</h2>
+      <h2><span class="kicker">Student outcomes<span class="sr-only">:</span></span> Farmington students were closing the gap with the state</h2>
       <div class="prose">
         <p class="takeaway">
           Farmington worked to narrow the gap between its students and the state average, and between 2021 and 2024 it
@@ -596,8 +593,7 @@ const ballotText = {
   <!-- ===================== COMMUNITY ===================== -->
   <section id="community">
     <div class="wrap">
-      <p class="kicker">Families and taxpayers</p>
-      <h2>Farmington families have less room to absorb rising costs</h2>
+      <h2><span class="kicker">Families and taxpayers<span class="sr-only">:</span></span> Farmington families have less room to absorb rising costs</h2>
       <div class="stat-tiles">
         <div class="stat-tile">
           <p class="stat-num">$66,943</p>
@@ -676,8 +672,7 @@ const ballotText = {
   <!-- ===================== BALLOT ===================== -->
   <section id="ballot" class="alt">
     <div class="wrap">
-      <p class="kicker">Read it closely</p>
-      <h2>What the ballot says vs. what the law does</h2>
+      <h2><span class="kicker">Read it closely<span class="sr-only">:</span></span> What the ballot says vs. what the law does</h2>
       <div class="prose">
         <p class="lede">
           Here is Question 2 exactly as it appears on the back of Farmington’s ballot. Look at the highlighted sentence.
@@ -769,8 +764,7 @@ const ballotText = {
   <!-- ===================== 60% ===================== -->
   <section id="sixty">
     <div class="wrap">
-      <p class="kicker">The 60% rule</p>
-      <h2>Once it’s in, 41 voters can block what 59 want</h2>
+      <h2><span class="kicker">The 60% rule<span class="sr-only">:</span></span> Once it’s in, 41 voters can block what 59 want</h2>
       <div class="grid two" style="align-items:center">
         <div class="prose">
           <p>
@@ -797,8 +791,7 @@ const ballotText = {
   <!-- ===================== OTHER SIDE ===================== -->
   <section id="other-side" class="alt">
     <div class="wrap">
-      <p class="kicker">The other side</p>
-      <h2>What supporters say, and what to weigh</h2>
+      <h2><span class="kicker">The other side<span class="sr-only">:</span></span> What supporters say, and what to weigh</h2>
       <p class="lede">
         People backing Question 2 have real concerns about the cost of living. Here are their strongest arguments,
         stated fairly, and the facts I think belong next to them.
@@ -972,8 +965,7 @@ const ballotText = {
   <!-- ===================== ALTERNATIVES ===================== -->
   <section id="alternatives">
     <div class="wrap">
-      <p class="kicker">What about alternatives?</p>
-      <h2>Property taxes are a real burden. A cap doesn’t fix the cause.</h2>
+      <h2><span class="kicker">What about alternatives?<span class="sr-only">:</span></span> Property taxes are a real burden. A cap doesn’t fix the cause.</h2>
       <p class="lede">
         Farmington faces a difficult reality. Our schools need enough money to educate children, but much of that cost
         falls on local property taxpayers. For families struggling to make ends meet and older residents on fixed
@@ -1125,8 +1117,7 @@ const ballotText = {
   <!-- ===================== VOTE ===================== -->
   <section id="vote" class="alt">
     <div class="wrap">
-      <p class="kicker">How to vote</p>
-      <h2>Flip your ballot over</h2>
+      <h2><span class="kicker">How to vote<span class="sr-only">:</span></span> Flip your ballot over</h2>
       <div class="vote-when card">
         <p class="vote-date">
           <strong>{site.electionDate}</strong>
@@ -1172,8 +1163,7 @@ const ballotText = {
   <!-- ===================== NH CONTEXT ===================== -->
   <section id="nh-context">
     <div class="wrap">
-      <p class="kicker">New Hampshire education in context</p>
-      <h2>High spending, high costs, and the smallest state share</h2>
+      <h2><span class="kicker">New Hampshire education in context<span class="sr-only">:</span></span> High spending, high costs, and the smallest state share</h2>
       <p class="lede">
         New Hampshire is often criticized for spending more per student than most states. That criticism deserves
         context.
@@ -1236,8 +1226,7 @@ const ballotText = {
   <!-- ===================== MATH ===================== -->
   <section id="math" class="alt">
     <div class="wrap">
-      <p class="kicker">The math</p>
-      <h2>A limit tied to prices, not to school costs</h2>
+      <h2><span class="kicker">The math<span class="sr-only">:</span></span> A limit tied to prices, not to school costs</h2>
       <div class="prose">
         <p class="lede">The formula in the law is short:</p>
         <div class="card" style="margin-bottom:1.25rem">
@@ -1323,8 +1312,7 @@ const ballotText = {
   <!-- ===================== NEARBY ===================== -->
   <section id="nearby">
     <div class="wrap">
-      <p class="kicker">Caps in other NH cities</p>
-      <h2>What happened in New Hampshire cities with caps</h2>
+      <h2><span class="kicker">Caps in other NH cities<span class="sr-only">:</span></span> What happened in New Hampshire cities with caps</h2>
       <p class="lede">
         Several New Hampshire cities, including Farmington’s Strafford County neighbors Rochester, Somersworth, and Dover,
         have had tax caps for years. In years when school costs jumped, their records show position cuts, proposed cuts,
@@ -1385,8 +1373,7 @@ const ballotText = {
   <!-- ===================== UNKNOWNS ===================== -->
   <section id="unknowns" class="alt">
     <div class="wrap">
-      <p class="kicker">Honest uncertainty</p>
-      <h2>What nobody knows yet</h2>
+      <h2><span class="kicker">Honest uncertainty<span class="sr-only">:</span></span> What nobody knows yet</h2>
       <div class="grid two">
         <div class="card">
           <h3>How long it lasts</h3>
@@ -1439,8 +1426,7 @@ const ballotText = {
   <!-- ===================== FAQ ===================== -->
   <section id="faq">
     <div class="wrap">
-      <p class="kicker">Common questions</p>
-      <h2>Questions people ask</h2>
+      <h2><span class="kicker">Common questions<span class="sr-only">:</span></span> Questions people ask</h2>
       <div class="prose">
         <details>
           <summary>Will Question 2 lower my property taxes?</summary>
@@ -1553,8 +1539,7 @@ const ballotText = {
   <!-- ===================== SOURCES ===================== -->
   <section id="sources" class="alt">
     <div class="wrap">
-      <p class="kicker">Check my work</p>
-      <h2>Sources</h2>
+      <h2><span class="kicker">Check my work<span class="sr-only">:</span></span> Sources</h2>
       <div class="prose">
         <p>
           Every fact on this page links to where it came from. I relied first on the law itself, government data, court
